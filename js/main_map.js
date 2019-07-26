@@ -1,0 +1,175 @@
+var map = L.mapbox.map('map')
+    .setView([37.97126667776918, 23.734406391203606], 14);
+
+// Add layers to the map
+L.control.layers({
+    'Satellite Map': L.mapbox.tileLayer('bobbysud.map-l4i2m7nd', {
+        detectRetina: true
+    }).addTo(map),
+    'Terrain Map': L.mapbox.tileLayer('bobbysud.i2pfp2lb', {
+        detectRetina: true
+    })
+}).addTo(map);
+
+var featureGroup = L.featureGroup().addTo(map);
+
+var drawControl = new L.Control.Draw({
+    edit: {
+        featureGroup: featureGroup
+    }
+}).addTo(map);
+
+map.on('draw:created', function(e) {
+
+    // Each time a feaute is created, it's added to the over arching feature group
+    featureGroup.addLayer(e.layer);
+    var geojsonArea = require('@mapbox/geojson-area');
+
+    var data = featureGroup.toGeoJSON();
+    var area = geojsonArea.geometry(data["features"][0]["geometry"]);
+    console.log(area);
+    var acres = area * 0.00024711;
+    jQuery('#acres_num').text(acres.toFixed(2) + ' Acres');
+
+
+});
+
+
+map.on('draw:edited', function(e) {
+
+    //featureGroup.addLayer(e.layer);
+    var geojsonArea = require('@mapbox/geojson-area');
+
+    var data = featureGroup.toGeoJSON();
+    var area = geojsonArea.geometry(data["features"][0]["geometry"]);
+    var acres = area * 0.00024711;
+    jQuery('#acres_num').text(acres.toFixed(2) + ' Acres');
+
+});
+
+
+// on click, clear all layers
+document.getElementById('delete').onclick = function(e) {
+    featureGroup.clearLayers();
+}
+
+
+// SAVE PROJECT / CREATE FILE
+jQuery('div#save_button').click(function() {
+
+    if(jQuery('.leaflet-objects-pane .leaflet-overlay-pane svg').length == 0){
+        //console.log('teas');
+        jQuery('div#pop_up_container').fadeIn(); 
+    }
+    //Prepare export data
+    // Extract GeoJson from featureGroup
+    var data = featureGroup.toGeoJSON();
+    var polygonCenter = require('geojson-polygon-center');
+    var center = polygonCenter(data["features"][0]["geometry"]);
+    localStorage.setItem("LoadedProjectCenter", center["coordinates"][0] + ',' + center["coordinates"][1]);
+    console.log("Center: " + center["coordinates"][0] + "," + center["coordinates"][1]);
+    // Stringify the GeoJson
+    var convertedData = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data));
+
+    var load_centers = load_projects_centers();
+    var lentgh_centers = load_centers.split(",");
+    console.log(lentgh_centers.length);
+    var prepare_data = "";
+    for (var in_i = 0; in_i < lentgh_centers.length; in_i++) {
+        prepare_data += lentgh_centers[in_i] + ",";
+    }
+    prepare_data += "plan_name:" + jQuery('input#plan_name').val() + ";x:" + center["coordinates"][0] + ";y:" + center["coordinates"][1];
+    console.log(prepare_data);
+    //grab_data();
+
+    if (jQuery('input#plan_name').val() == "" || data == 'undefined') {
+        
+        jQuery('div#pop_up_container').fadeIn();
+        //alert('not plan name found');
+    } else {
+
+        /*/ LOAD PROJECT
+        $.getJSON("C:/Users/ENGLEZOS/Desktop/data.geojson",function(data){
+        // L.geoJson function is used to parse geojson file and load on to map
+        L.geoJson(data).addTo(map);
+        });
+        */
+
+        /*
+        
+        1. Na tsekarw ean uparxei idi to onoma sta centers kai na mhn to apothikeuw.
+        2. Na emfanizetai sxetiko mnm gia to parapanw popup oxi alert.
+    
+        */
+        const fs = require("fs");
+        fs.mkdir('projects_centers', function() {
+            fs.writeFileSync('./projects_centers/centers.txt', prepare_data);
+        });
+        var plan_name = jQuery('input#plan_name').val();
+        fs.mkdir('./projects/' + plan_name, function() {
+            fs.writeFileSync('projects/' + plan_name + '/map_data.geojson', JSON.stringify(featureGroup.toGeoJSON()));
+            fs.writeFileSync('projects/' + plan_name + '/proj_settings.json', grab_data());
+        });
+
+        //Create Dir in Order to save images that drone sends
+        fs.mkdir('./projects/' + plan_name + '/project_images/', function() {
+
+        });
+
+        localStorage.setItem("LoadProject", jQuery('input#plan_name').val());
+        window.location = "./load_project.html";
+
+        // SAVE PROJECT
+
+
+
+
+    }
+
+    //var data = featureGroup.toGeoJSON();
+    //console.log(data["features"][0]["geometry"]);
+
+    // loading GeoJSON file - Here my html and usa_adm.geojson file resides in same folder
+
+    // CLOSE SAVE BUTTON
+});
+
+document.getElementById('export').onclick = function(e) {
+    var data = featureGroup.toGeoJSON();
+    var convertedData = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data));
+    // Create export
+    document.getElementById('export').setAttribute('href', 'data:' + convertedData);
+    document.getElementById('export').setAttribute('download', 'data.geojson');
+}
+
+
+function grab_data() {
+    var plan_name = jQuery('input#plan_name').val();
+    var calc_minutes = jQuery('span#minutes_calc').text();
+    var calc_acres = jQuery('span#acres_num').text();
+    var altitude = jQuery('input.input-range--custom.altitude').val();
+    var rotation = jQuery('input.input-range--custom.direction').val();
+
+    var prepare_json_project = '{"CoFly": { "Plan_Name":"' + plan_name + '", "Calculated_Minutes":"' + calc_minutes + '","Calculated_Acres":"' + calc_acres + '","Altitude":"' + altitude + '","Rotation":"' + rotation + '" } }';
+
+    return prepare_json_project;
+    //console.log(prepare_json_project);
+
+}
+
+jQuery('div#exit_button').click(function() {
+    window.location = "./index.html";
+});
+
+jQuery('.button_all_ok').click(function(){
+
+jQuery('div#pop_up_container').fadeOut();
+
+});
+
+// Function in order to Call User database ( /login_system/users.txt)
+function load_projects_centers() {
+    var fs = require('fs');
+    var contents = fs.readFileSync('./projects_centers/centers.txt', 'utf8');
+    return contents;
+}

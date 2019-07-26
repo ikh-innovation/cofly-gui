@@ -1,0 +1,4 @@
+Font - Awesome: https://fontawesome.com/license/free
+jQuery: https://jquery.org/license/
+Argon Dashboard: https://www.creative-tim.com/product/argon-dashboard
+Mutler: https://www.npmjs.com/package/multer

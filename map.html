@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>
+        IKH - CoFly
+    </title>
+    <!-- Favicon -->
+    <link href="./assets/img/brand/favicon.png" rel="icon" type="image/png">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <!-- Icons -->
+    <!-- CSS Files -->
+    <link href="css/argon-dashboard.css?v=1.1.0" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+    
+        <!--Add mapbox.js -->
+    <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.css' rel='stylesheet' />
+
+    <!--Add draw plugin -->
+    <link rel='stylesheet' href='http://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.css' />
+    <script src='http://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.js'></script>
+    <style type="text/css">
+#map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100vh;
+}
+
+        #delete, #export {
+            position: absolute;
+            top:50px;
+            right:10px;
+            z-index:100;
+            background:white;
+            color:black;
+            padding:6px;
+            border-radius:4px;
+            font-family: 'Helvetica Neue';
+            cursor: pointer;
+            font-size:12px;
+            text-decoration:none;
+        }
+        #export {
+            top:90px;
+        }
+
+        path.leaflet-clickable {
+    fill: rgb(254,200,64);
+    stroke: rgb(254,200,64);
+}
+
+.leaflet-top.leaflet-left {
+    margin-top: 20%;
+}
+    </style>
+</head>
+
+<body class="">
+    <nav class="navbar navbar-vertical fixed-left navbar-expand-md navbar-light bg-white" id="sidenav-main">
+        <div class="container-fluid">
+
+            <a class="navbar-brand pt-0" href="./index.html">
+                <img src="img/coFLY_logo.png" class="navbar-brand-img" alt="...">
+            </a>
+
+            <!-- Collapse -->
+            <div class="collapse navbar-collapse" id="sidenav-collapse-main">
+
+                <hr class="my-3 white">
+
+                <div class="input_holder">
+                    <label>Plan Name</label>
+                    <input id="plan_name" class="input_main">
+                </div>
+
+                <hr class="my-3 white">
+
+                <div class="double_sett_holder">
+                    <div class="fifty_percent">
+                        <h7><i class="fas fa-clock"></i> Duration</h7><span id="minutes_calc">00:00 Minutes</span></div>
+                    <div class="fifty_percent">
+                        <h7><i class="fas fa-vector-square"></i> Acres</h7><span id="acres_num">0 Acres</span></div>
+                </div>
+
+                <hr class="my-3 white">
+
+                <div style="width: 100%">
+                    <div class="slider_title"><i class="fas fa-plane-departure"></i>
+                        <label>Altitude</label>
+                    </div>
+                    <input type="range" class="input-range--custom altitude" min="0" max="300">
+                    <input type="text" id="altitude_show" name="name" class="input_slider_shower"
+       minlength="4" maxlength="8" size="1">
+                </div>
+
+                <hr class="my-3 white">
+
+                <div style="width: 100%">
+                    <div class="slider_title"><i class="fas fa-undo"></i>
+                        <label>Flight Direction</label>
+                    </div>
+                    <input type="range" class="input-range--custom direction" min="0" max="360">
+                    <input type="text" id="direction_show" name="name" class="input_slider_shower"
+       minlength="4" maxlength="8" size="1">
+                </div>
+
+                <hr class="my-3 white">
+                <!-- Heading -->
+                <div class="collapsed_menu">
+                    <h6 class="navbar-heading "><i class="fas fa-cogs"></i> Advanced<i class="fas fa-caret-down"></i></h6>
+                    <ul class="navbar-nav mb-md-3 collapsed">
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard/docs/getting-started/overview.html">
+                                <i class="ni ni-spaceship"></i> Getting started
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard/docs/foundation/colors.html">
+                                <i class="ni ni-palette"></i> Foundation
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard/docs/components/alerts.html">
+                                <i class="ni ni-ui-04"></i> Components
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <hr class="my-3 white">
+
+                <div class="collapsed_menu">
+                    <h6 class="navbar-heading "><i class="fas fa-road"></i> Fly My Map<i class="fas fa-caret-down"></i></h6>
+                    <ul class="navbar-nav mb-md-3 collapsed">
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard/docs/getting-started/overview.html">
+                                <i class="ni ni-spaceship"></i> Getting started
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard/docs/foundation/colors.html">
+                                <i class="ni ni-palette"></i> Foundation
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard/docs/components/alerts.html">
+                                <i class="ni ni-ui-04"></i> Components
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <hr class="my-3 white">
+
+                <div class="action_buttons_container">
+                  <div id="exit_button" class="button_hollow">EXIT</div>
+                  <div id="save_button" class="button_full">SAVE</div></div>
+
+            </div>
+        </div>
+    </nav>
+    <div class="main-content">
+        <div id="pop_up_container">
+    <div class="pop_up_content">
+        <p>Please fill out the form, also do not forget create your polygon in order to specify area field </p><div class="button_all_ok">OK</div></div></div>
+        <!-- Navbar -->
+        <div class="Settings_Menu_Nav"><img id="button_trig_menu" src="img/button_side_menu.png">
+<ul style="display: none;" class="map_tools">
+
+<li><i class="fas fa-mouse-pointer"></i><span>Select elements</span></li><li><i class="fas fa-draw-polygon"></i><span>Draw polygon</span></li><li><i class="fas fa-asterisk"></i><span>Add annotation</span></li><li><i class="fas fa-edit"></i><span>Edit elements</span></li><li><i class="fas fa-trash-alt"></i><span>Delete elements</span></li><li><i class="fas fa-download"></i><span>Export map</span></li>
+    
+<div id="close_tool_menu"><i class="fas fa-times"></i></div>
+
+</ul>
+
+
+
+
+</div><!-- End Navbar -->
+        <!-- Header -->
+
+    <div id='map'></div>
+    <div id='delete'>Delete Features</div>
+    <a href='#' id='export'>Export Features</a>
+
+
+
+
+    </div>
+    <script src="js/main_script.js"></script>
+    <script src="js/main_map.js"></script>
+
+  </body>
+
+</html>

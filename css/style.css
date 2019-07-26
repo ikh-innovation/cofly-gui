@@ -1,0 +1,466 @@
+ @import "font_awesome/all.min.css";
+
+ /* Scrollbar */
+ 
+ ::-webkit-scrollbar {
+  width: 8px;
+}
+ 
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 4px rgba(0,0,0,0.3); 
+  border-radius: 8px;
+}
+ 
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: rgba(0,0,0,0.3);
+}
+
+/* End Scrollbar */
+
+
+
+
+/* Input Sliders type range */
+
+input[type=range].input-range--custom {
+  -webkit-appearance: none;
+  width: 80%;
+  margin: 7.3px 0;
+  background-image: linear-gradient( to right, rgba(254,200,64,1) 50%, rgba(238,238,238, 1) 50%);
+}
+
+input[type=range].input-range--custom:focus {
+  outline: none;
+}
+
+input[type=range].input-range--custom::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 2px;
+  cursor: pointer;
+  /*box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;*/
+  border-radius: 1.3px;
+  border: 0.2px solid #010101;
+}
+
+input[type=range].input-range--custom:after {
+  width: 20%;
+  height: 2px;
+  background-color: green;
+}
+
+input[type=range].input-range--custom::-webkit-slider-thumb {
+    box-shadow: none;
+    border: none;
+    height: 15px;
+    width: 15px;
+    border-radius: 15px;
+    background: #fec840;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -6.5px;
+}
+
+.slider_title label {
+    color: #fec840;
+}
+
+/* Menu */
+
+nav#sidenav-main {
+    background-image: url(../img/background_menu.jpg) !important;
+    background-position: 0% 10%;
+    z-index: 9;
+}
+
+div#sidenav-collapse-main::before {
+    display: none;
+}
+
+input.input_main {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #fec840;
+    color: #eee;
+    font-size: 14px;
+    width: 100%;
+}
+
+input.input_main:focus {
+    outline: none;
+}
+
+.input_holder label {
+    font-size: 12px;
+    margin-bottom: 0;
+    color: #fec840;
+}
+
+hr.my-3.white {
+    background: rgba(255,255,255,.1);
+}
+
+ul.navbar-nav.mb-md-3.collapsed {
+    display: none;
+}
+
+.collapsed_menu h6 {
+    cursor: pointer;
+}
+
+.navbar-vertical .navbar-heading {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    font-size: 0.75rem;
+    text-transform: capitalize;
+    letter-spacing: .04em;
+}
+
+h6.navbar-heading {
+    color: #fec840;
+}
+
+h6.navbar-heading i {
+    float: right;
+    font-size: 20px;
+}
+.fifty_percent {
+    width: 50%;
+    float: left;
+}
+.fifty_percent h7 i {
+    margin-right: 5px;
+    color: #fec840;
+}
+
+.fifty_percent h7 {
+    color: #fec840;
+}
+
+h6.navbar-heading i.fas.fa-cogs {
+    float: left;
+    margin-right: 10px;
+}
+
+.fifty_percent span {
+    float: left;
+    color: #eee;
+    font-size: 10px;
+    margin-left: 25px;
+}
+
+.double_sett_holder {
+    width: 100%;
+}
+
+.collapsed_menu i.fas.fa-road {
+    float: left;
+    margin-right: 10px;
+}
+
+.slider_title i {
+    float: left;
+    margin-right: 10px;
+    color: #fec840;
+}
+
+.input_slider_shower {
+    height: 25px;
+    position: absolute;
+    margin-left: 10px;
+    margin-top: 4px;
+    background: transparent;
+    border: 1px solid #eee;
+    width: 35px;
+    color: #eee;
+    font-size: 10px;
+}
+
+.button_hollow {
+    border: 1px solid #fec840;
+    padding: 10px 15px 10px 15px;
+    width: 45%;
+    text-align: center;
+    float: left;
+    color: #fff;
+    cursor: pointer;
+}
+
+.button_full {
+    border: 1px solid #fec840;
+    padding: 10px 15px 10px 15px;
+    width: 45%;
+    text-align: center;
+    float: left;
+    color: #333;
+    cursor: pointer;
+    background:#fec840;
+    margin-left: 10%;
+}
+
+.Settings_Menu_Nav {
+    position: absolute;
+    top: 20px;
+    width: 90%;
+    z-index: 7;
+}
+
+/* Map Settings Menu */
+
+img#button_trig_menu {
+    width: 25px;
+    cursor: pointer;
+}
+
+ul.map_tools li {
+    list-style: none;
+}
+
+ul.map_tools li {
+    float: left;
+    text-align: center;
+    margin: 10px;
+    cursor:pointer;
+}
+
+ul.map_tools li i {
+    display: block;
+    font-size: 19px;
+    margin-bottom: -5px;
+}
+
+ul.map_tools {
+    background: #000;
+    width: 100%;
+    height: 45px;
+    border-right: 10px solid #000;
+    border-radius: 30px;
+    margin-left: -20px;
+    position: absolute;
+    top: 0px;
+    color: #fec840;
+}
+
+ul.map_tools li span {
+    font-size: 13px;
+}
+
+ul.map_tools li::after {
+    width: 1px;
+    height: 30px;
+    background: rgba(254,200,64,.4);
+    content: ' .';
+    position: absolute;
+    margin-left: 10px;
+    margin-top: -15px;
+    color: transparent;
+}
+
+div#close_tool_menu {
+    float: right;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+/* Load picker page */
+body.action_picker {
+    background: #eee;
+}
+
+body.action_picker {
+    background: #eee;
+    background-image: url(../img/background_logo_shaded.jpg);
+    background-size: 100%;
+    background-position: 0% 0%;
+    background-repeat: no-repeat;
+}
+
+
+/* Load all projects buttons */
+.project_button label {
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+}
+
+.project_button i {
+    text-align: left !important;
+    margin-right: 10px;
+    position: absolute;
+    left: 15%;
+    margin-top: 2%;
+    color: #fec840;
+}
+
+.project_button {
+    border: .1px solid #fec840;
+    text-align: center;
+    padding: 6px;
+    color: #fff;
+    cursor: pointer;
+    margin-top: 13px;
+}
+
+.project_button.prj_active {
+    background: #fec840;
+    color: #333;
+}
+
+.project_button.prj_active i {
+    color: #222;
+}
+
+div#calculate_path_planing {
+    width: 100%;
+    margin: 0;
+    margin-bottom: 12%;
+}
+
+.loader_calculation {
+    position: absolute;
+    z-index: 999999;
+    height: 100vh;
+    width: 100%;
+    background: rgba(0,0,0,.6);
+    margin: 0 auto;
+    text-align: center;
+}
+
+div#start_scanning {
+    width: 100%;
+    float: left;
+    margin: 0;
+    margin-bottom: 12%;
+    display: none;
+}
+
+
+
+.loader_calculation img {
+    margin-top: 30%;
+    -webkit-animation:spin 4s linear infinite;
+    -moz-animation:spin 4s linear infinite;
+    animation:spin 4s linear infinite;
+}
+
+path.leaflet-clickable.make_it_transparent {
+    fill: transparent;
+}
+
+path[stroke="red"] {
+    fill: transparent !important;
+}
+
+h6.navbar-heading.project_gallery i.far.fa-image {
+    float: left;
+    margin-right: 15px;
+}
+
+/* This one */
+ul.navbar-nav.mb-md-3.collapsed.project_gallery_render li {
+    width: 44%;
+    max-height: 85px;
+    min-height: 85px;
+    text-align: center;
+    display: inline-block;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+ul.navbar-nav.mb-md-3.collapsed.project_gallery_render li img {
+    width: 100%;
+}
+
+ul.navbar-nav.mb-md-3.collapsed.project_gallery_render li img {
+    height: 85px;
+    max-height: 85px;
+}
+
+ul.navbar-nav.mb-md-3.collapsed.project_gallery_render {
+    width: 100%;
+    margin-left: 2%;
+    max-height: 200px;
+    overflow: auto;
+}
+
+
+/* Pop Up Alert Css */
+div#pop_up_container {
+    width: 100%;
+    height: 57.4vw;
+    background: rgba(0,0,0,.4);
+    z-index: 1111;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    display:none;
+}
+
+.pop_up_content {
+    width: 35%;
+    background: #222;
+    margin: 0 auto;
+    margin-top: 33%;
+    padding: 13px;
+    height: 150px;
+}
+
+.pop_up_content p {
+    color: #fec840;
+    margin: 0 auto;
+    text-align: center;
+    font-weight: 400;
+    margin-bottom: 15px;
+}
+
+.pop_up_content .button_all_ok {
+    border: 1px solid #fec840;
+    width: 20%;
+    text-align: center;
+    margin: 0 auto;
+    background: #fec840;
+    color: #333;
+    cursor: pointer;
+}
+
+.slide_messages {
+    position: absolute;
+    width: 90%;
+    z-index: 7;
+    bottom: 25px;
+}
+
+/* Slide pop up css */
+.slide_messages {
+    position: absolute;
+    width: 90%;
+    z-index: 7;
+    bottom: 61px;
+}
+
+.slide_messages .map_tools {
+    width: 28%;
+}
+
+.slide_messages ul p {
+    margin: 8px 0 0 0;
+}
+
+.main-content {
+    height: 100vh;
+}
+
+.slide_messages ul{
+background: #000;
+height: 45px;
+border-right: 10px solid #000;
+border-radius: 30px;
+margin-left: -20px;
+position: absolute;
+top: 0px;
+color: #fec840;
+}
+/* Rotate Logo When Load Path Planning Animation */
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>
+        IKH - CoFly
+    </title>
+    <!-- Favicon -->
+    <link href="./assets/img/brand/favicon.png" rel="icon" type="image/png">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <!-- Icons -->
+    <!-- CSS Files -->
+    <link href="css/argon-dashboard.css?v=1.1.0" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+    
+        <!--Add mapbox.js -->
+    <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.css' rel='stylesheet' />
+
+    <!--Add draw plugin -->
+    <link rel='stylesheet' href='http://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.css' />
+    <script src='http://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.js'></script>
+    <style type="text/css">
+#map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100vh;
+}
+
+        #delete, #export {
+            position: absolute;
+            top:50px;
+            right:10px;
+            z-index:100;
+            background:white;
+            color:black;
+            padding:6px;
+            border-radius:4px;
+            font-family: 'Helvetica Neue';
+            cursor: pointer;
+            font-size:12px;
+            text-decoration:none;
+        }
+        #export {
+            top:90px;
+        }
+
+        path.leaflet-clickable {
+    fill: rgb(254,200,64);
+    stroke: rgb(254,200,64);
+}
+
+.leaflet-top.leaflet-left {
+    margin-top: 20%;
+}
+
+div#load_this_project {
+    background: rgba(0,0,0,.8);
+    position: absolute;
+    bottom: 2%;
+    z-index: 9;
+    left: 50%;
+    width: 30%;
+    height: 55px;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+div#load_this_project {
+    display: none;
+}
+
+.forget_it {
+    width: 45%;
+    background: transparent;
+    border: 1px solid #fec840;
+    text-align: center;
+    border-radius: 22px;
+    padding: 5px;
+    color: #fec840;
+    cursor: pointer;
+    float: left;
+    display: inline-block;
+    position: relative;
+}
+
+.load_it {
+    width: 45%;
+    background: #fec840;
+    border: 1px solid #fec840;
+    text-align: center;
+    border-radius: 22px;
+    padding: 5px;
+    color: #222;
+    cursor: pointer;
+    float: right;
+    display: inline-block;
+    position: relative;
+}
+    </style>
+</head>
+
+<body class="">
+    <div id="load_this_project"><div class="forget_it">Close</div><div class="load_it">Load Project</div></div>
+    <nav class="navbar navbar-vertical fixed-left navbar-expand-md navbar-light bg-white" id="sidenav-main">
+        <div class="container-fluid">
+
+            <a class="navbar-brand pt-0" href="./index.html">
+                <img src="img/coFLY_logo.png" class="navbar-brand-img" alt="...">
+            </a>
+
+            <!-- Collapse -->
+            <div class="collapse navbar-collapse" id="sidenav-collapse-main">
+
+                <hr class="my-3 white">
+
+
+
+
+
+            </div>
+        </div>
+    </nav>
+    <div class="main-content">
+
+    <div id='map'></div>
+    
+
+
+    </div>
+    <script src="js/main_script.js"></script>
+        <script>
+        var map = L.mapbox.map('map')
+            .setView([38.6008630095356,24.187002848625298], 7);
+
+        // Add layers to the map
+        L.control.layers({
+            'Satellite Map': L.mapbox.tileLayer('bobbysud.map-l4i2m7nd', {
+                detectRetina: true
+            }).addTo(map),
+            'Terrain Map': L.mapbox.tileLayer('bobbysud.i2pfp2lb', {
+                detectRetina: true
+            })
+        }).addTo(map);
+
+        //var featureGroup = L.featureGroup().addTo(map);
+
+    </script>
+    <style>
+.leaflet-control-zoom.leaflet-bar.leaflet-control {
+    display: none;
+}
+
+.mapbox-control-info.mapbox-small.mapbox-control-info-right.leaflet-control {
+    display: none !important;
+}
+
+.leaflet-control-layers.leaflet-control {
+    display: none;
+}
+
+.make_it_active {
+    filter: grayscale(0) !important;
+}
+
+.marker_inactive {
+    filter: grayscale(1);
+}
+
+    </style>
+
+    <script type="text/javascript">
+        
+jQuery(document).ready(function() {
+
+
+    // Ftiaxnw ton marker mou gia na mporesw na ton kalw meta mesa sthn for gia na ftiaxnw ta projects mou
+    var greenIcon = L.icon({
+        iconUrl: 'img/our_marker.png',
+        /*shadowUrl: 'img/leaf-shadow.png',*/
+
+        iconSize: [50, 73], // size of the icon
+        shadowSize: [50, 64], // size of the shadow
+        //iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+        iconAnchor: [25, 70], // point of the icon which will correspond to marker's location
+        shadowAnchor: [4, 62], // the same for the shadow
+        popupAnchor: [0, -76] // point from which the popup should open relative to the iconAnchor
+    });
+
+
+
+
+    var tpm_centers = load_projects_centers();
+    var all_centers = tpm_centers.split(",");
+    for (var i = 0; i < all_centers.length; i++) {
+        var tmp_name = all_centers[i].split(';');
+        //console.log(tmp_name[0].replace("plan_name:",""));
+        var longtitude = parseFloat(tmp_name[1].replace("x:", ""));
+        var latitude = parseFloat(tmp_name[2].replace("y:", ""));
+        console.log(longtitude, latitude);
+
+        //build marker on location
+        //L.marker([latitude, longtitude], {icon: greenIcon}).addTo(map).bindPopup("I am a green leaf.");
+        // L.DomUtil.addClass( marker._icon, 'leaflet-marker-icon-color-green' );
+
+        var marker = L.marker(
+            [latitude, longtitude], {
+                title: tmp_name[0].replace("plan_name:", ""),
+                icon: greenIcon
+            }
+        ).addTo(map).bindPopup('<h3>'+tmp_name[0].replace('plan_name:', '')+'</h3>');
+        L.DomUtil.addClass(marker._icon, tmp_name[0].replace("plan_name:", ""));
+
+
+
+        if(tmp_name[0].replace("plan_name:", "") != "0"){
+            jQuery('div#sidenav-collapse-main').append('<div long="' + longtitude + '"lat="' + latitude + '" class="project_button"> <label><i class="fas fa-map-pin"></i>' + tmp_name[0].replace("plan_name:", "") + '</label> </div>');
+        }
+        
+
+    }
+
+
+    // Function in order to Call User database ( /login_system/users.txt)
+    function load_projects_centers() {
+        var fs = require('fs');
+        var contents = fs.readFileSync('./projects_centers/centers.txt', 'utf8');
+        return contents;
+    }
+
+
+    jQuery('.project_button').click(function() {
+        jQuery('.leaflet-objects-pane svg g').remove();
+        jQuery('.project_button').removeClass('prj_active');
+        jQuery(this).addClass('prj_active');
+
+        var long = parseFloat(jQuery(this).attr('long'));
+        var lat = parseFloat(jQuery(this).attr('lat'));
+
+        //map.panTo(new L.LatLng(lat, long), 14);
+        map.setView([lat,long], 18);
+        L.circle([lat, long], 100).addTo(map);
+        //jQuery('.img.leaflet-marker-icon.leaflet-zoom-animated.leaflet-clickable').removeClass('marker_inactive');
+
+        jQuery('img.leaflet-marker-icon.leaflet-zoom-animated').addClass('marker_inactive');
+        jQuery('.' + jQuery(this).text().replace(" ", "")).removeClass('marker_inactive');
+        jQuery('.load_it').attr('path', jQuery(this).text().replace(" ", ""));
+        jQuery('div#load_this_project').slideDown();
+
+    });
+
+
+    jQuery('.forget_it').click(function() {
+        jQuery('div#load_this_project').slideUp();
+        jQuery('.leaflet-objects-pane svg g').remove();
+        jQuery('img.leaflet-marker-icon.leaflet-zoom-animated').removeClass('marker_inactive');
+        jQuery('.prj_active').removeClass('prj_active');
+    });
+
+    jQuery('.load_it').click(function() {
+
+        localStorage.setItem("LoadProject", jQuery(this).attr('path'));
+        window.location = "./load_project.html";
+
+    });
+
+
+
+
+});
+
+    </script>
+
+
+  </body>
+
+</html>

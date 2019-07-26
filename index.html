@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>
+        IKH - CoFly
+    </title>
+    <!-- Favicon -->
+    <link href="./assets/img/brand/favicon.png" rel="icon" type="image/png">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <!-- Icons -->
+    <!-- CSS Files -->
+    <link href="css/argon-dashboard.css?v=1.1.0" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+    
+        <!--Add mapbox.js -->
+    <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.css' rel='stylesheet' />
+
+    <!--Add draw plugin -->
+    <link rel='stylesheet' href='http://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.css' />
+    <script src='http://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.js'></script>
+  
+</head>
+
+<body class="action_picker">
+
+  <style>
+
+.ld_projects {
+    width: 15%;
+    margin: 0 auto;
+}
+
+.buttons_holder {
+    width: 100vw;
+    margin: 0 auto;
+    text-align: center;
+    margin-top: 27%;
+    position: absolute;
+}
+
+.ne_project {
+    width: 20%;
+    margin: 0 auto;
+    display: inline-block;
+    background: transparent;
+    color: #333;
+    padding: 10px;
+    font-size: 20px;
+    border: 1px solid #fec840;
+    cursor: pointer;
+}
+
+.ld_projects {
+    width: 20%;
+    margin: 0 auto;
+    display: inline-block;
+    background: #fec840;
+    color: #333;
+    padding: 10px;
+    font-size: 20px;
+    margin-right: 10%;
+    cursor: pointer;
+}
+
+  </style>
+
+  <div class="buttons_holder">
+      
+      <div class="ld_projects">Load Projects</div><div class="ne_project">New Project</div>
+      
+      <div class=""></div>
+    </div>
+
+    <script type="text/javascript">
+      
+      jQuery(document).ready(function(){
+
+        jQuery('.ne_project').click(function(){
+
+          window.location = "./map.html";
+
+        });
+
+
+                jQuery('.ld_projects').click(function(){
+
+          window.location = "./all_projects.html";
+
+        });
+
+            // Check if projects exists else build it
+    const fs = require("fs"); // Or `import fs from "fs";` with ESM
+    if (fs.existsSync("projects")) {
+        // Do something
+        //alert('PROJECT ALREADY EXISTS');
+    } else {
+        //console.log("not exist");
+        fs.mkdir('projects', function() {
+            //fs.writeFile('',"");
+        });
+
+    }
+
+         // Check if projects exists else build it
+    if (fs.existsSync("projects_centers")) {
+        // Do something
+        //alert('PROJECT ALREADY EXISTS');
+    } else {
+        fs.mkdir('projects_centers', function() {
+            fs.writeFileSync('./projects_centers/centers.txt',"plan_name:0;x:0;y:0");
+        });
+
+    }
+
+      });
+    </script>
+
+  </body>
+
+</html>
