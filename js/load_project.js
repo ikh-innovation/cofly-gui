@@ -118,7 +118,25 @@ jQuery(document).ready(function() {
     app.post('/calculated_path', function(req, res) {
         var path = JSON.parse(req.query.path);
         
-        console.log(path);
+        var pointList = [];
+
+        for(var points=0; points < path.DataObject.path.waypoints.length; points++){
+
+            var tmp_point = new L.LatLng(path.DataObject.path.waypoints[points].latitude, path.DataObject.path.waypoints[points].longitude);
+            pointList.push(tmp_point);
+        }
+
+        var firstpolyline = new L.Polyline(pointList, {
+            color: 'red',
+            weight: 3,
+            opacity: 0.5,
+            smoothFactor: 1,
+            /*fill:none*/
+        });
+        // This is an amazing polyline in order to communicate 
+        firstpolyline.addTo(map);
+
+        //console.log(pointList);
         res.status(200).send('Path Received');
     });
 
@@ -220,7 +238,7 @@ jQuery(document).ready(function() {
             console.log('ID: ' + coordnites[i_cord]);
         }
         */
-
+        /*
         const request = require('request');
 
         request.post('http://127.0.0.1:8081/', {
@@ -234,7 +252,7 @@ jQuery(document).ready(function() {
                 jQuery(this).append('<i class="fas fa-check"></i>');
                 jQuery('#start_scanning').slideDown();
                 jQuery('path.leaflet-clickable').addClass('make_it_transparent');
-                draw_path_line();
+                //draw_path_line();
                 console.log(body);
 
                 return
@@ -244,19 +262,20 @@ jQuery(document).ready(function() {
                 jQuery(this).append('<i class="fas fa-check"></i>');
                 jQuery('#start_scanning').slideDown();
                 jQuery('path.leaflet-clickable').addClass('make_it_transparent');
-                draw_path_line();
+                //draw_path_line();
                 console.log(body);
             } else {
                 //jQuery(this).append('<i class="fas fa-times"></i>');
                 jQuery(this).append('<i class="fas fa-check"></i>');
                 jQuery('#start_scanning').slideDown();
                 jQuery('path.leaflet-clickable').addClass('make_it_transparent');
-                draw_path_line();
+                //draw_path_line();
                 console.log(body);
             }
 
 
         })
+        */
 
 
 
