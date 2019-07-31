@@ -25,7 +25,7 @@ jQuery(document).ready(function() {
 
             if (file.indexOf(".jpg") != -1 || file.indexOf(".png") != -1 || file.indexOf(".jpeg") != -1) {
                 //console.log(file);
-                jQuery('ul.project_gallery_render').append('<li class="nav-item"><img src="' + final_link.replace(" ","") + file + '"></li>');
+                jQuery('ul.project_gallery_render').append('<li class="nav-item"><div class="gallery_image_Settings_hover"><i class="far fa-eye"></i></div><img src="' + final_link.replace(" ","") + file + '"></li>');
             }
 
         });
@@ -206,7 +206,7 @@ jQuery(document).ready(function() {
 
         var get_time_now = new Date().toLocaleTimeString('en-GB', { hour: "numeric", minute: "numeric",second: "numeric"});
 
-        var polygon_object = JSON.parse(load_map_project());
+        var polygon_object = JSON.parse(load_map_project_w_o_render());
         var coordnites = polygon_object["features"][0]["geometry"]["coordinates"];
         //console.log(coordnites[0].length);
         var create_polygon = [];
@@ -230,7 +230,7 @@ jQuery(document).ready(function() {
         for (var final_text = 0; final_text < create_polygon.length; final_text++) {
             final_string += create_polygon[final_text];
         }
-        final_string += '"scanning_distance": '+jQuery('input#altitude_show').val().replace("m","")+' } } }';
+        final_string += '"scanning_distance": '+jQuery('input#scanning_distance_now').val().replace("m","")+' } } }';
         console.log(final_string);
 
         /*
@@ -291,35 +291,6 @@ jQuery(document).ready(function() {
     });
 
 
-    // function demo draw pathline
-    function draw_path_line() {
-
-        var pointA = new L.LatLng(37.969543384722314, 23.738421874377195);
-        var pointB = new L.LatLng(37.97115601583948, 23.733815962268523);
-        var pointC = new L.LatLng(37.97214274819643, 23.734746129566588);
-        var pointD = new L.LatLng(37.971003776087706, 23.739224300161254);
-        var pointE = new L.LatLng(37.97209200241575, 23.739510737295745);
-        var pointF = new L.LatLng(37.97306180710804, 23.735419809317932);
-        var pointH = new L.LatLng(37.97442063978674, 23.735942280845734);
-        var pointI = new L.LatLng(37.97425713018002, 23.73985506456836);
-        var pointJ = new L.LatLng(37.97524382085256, 23.74016295937497);
-        var pointK = new L.LatLng(37.97540583024541, 23.736427499970887);
-        //create variable in order to get point list and draw it in the map.
-        var pointList = [pointA, pointB, pointC, pointD, pointE, pointF, pointH, pointI, pointJ, pointK];
-        //create first polyline dataset cause this is what we like
-        var firstpolyline = new L.Polyline(pointList, {
-            color: 'red',
-            weight: 3,
-            opacity: 0.5,
-            smoothFactor: 1,
-            /*fill:none*/
-        });
-        // This is an amazing polyline in order to communicate 
-        firstpolyline.addTo(map);
-
-
-    }
-
     // function in order to call loaded project settings
 
     function load_project_settings() {
@@ -338,6 +309,15 @@ jQuery(document).ready(function() {
 
         var contents = fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/map_data.geojson', 'utf8');
         L.geoJson(JSON.parse(contents)).addTo(map);
+        return contents;
+    }
+
+
+    // return polygon map with out render it on map 
+    function load_map_project_w_o_render() {
+        var fs = require('fs');
+
+        var contents = fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/map_data.geojson', 'utf8');
         return contents;
     }
 
@@ -385,6 +365,37 @@ jQuery(document).ready(function() {
         jQuery('div#pop_up_container').fadeOut();
 
     });
+
+
+
+    // Gallery Image click listener
+    
+    jQuery(document).on("click", '.nav-item div', function() {
+
+        var get_image_path = jQuery(this).closest('li').find('img').attr('src');
+        //console.log(get_image_path);
+        if(jQuery('#div#lightbox').css('display') == 'none')
+        {
+            jQuery('div#lightbox').attr('style','background-image:url("'+get_image_path+'"); display:block;');
+
+        }else{
+            jQuery('div#lightbox').css('display','block');
+            jQuery('div#lightbox').attr('style','background-image:url("'+get_image_path+'"); display:block;');
+
+        }
+
+
+    });
+
+    // Close Image Shower Action
+
+    jQuery('.close_image_shower').click(function(){
+
+        jQuery('div#lightbox').fadeOut();
+
+    });
+
+
 
 
 

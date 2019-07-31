@@ -39,6 +39,36 @@ jQuery(document).ready(function() {
         this.style.backgroundImage = `linear-gradient( to right, ${fillColor}, ${fillColor} ${percent}, ${emptyColor} ${percent})`;
     });
 
+    document.querySelector('input.gimbal_pitch').addEventListener('input', function() {
+        var percent = 100 * (this.value - this.min) / (this.max - this.min) + '%';
+        jQuery('#gimbal_pitch').val(this.value + '°');
+        //  this.setAttribute('value', this.value);
+        //  this.setAttribute('title', this.value);
+        this.style.backgroundImage = `linear-gradient( to right, ${fillColor}, ${fillColor} ${percent}, ${emptyColor} ${percent})`;
+    });
+
+
+    document.querySelector('input.drone_speed_slider').addEventListener('input', function() {
+        var percent = 100 * (this.value - this.min) / (this.max - this.min) + '%';
+        jQuery('#drone_speed').val(this.value + 'm/s');
+        //  this.setAttribute('value', this.value);
+        //  this.setAttribute('title', this.value);
+        this.style.backgroundImage = `linear-gradient( to right, ${fillColor}, ${fillColor} ${percent}, ${emptyColor} ${percent})`;
+    });
+
+    document.querySelector('input.scanning_distance').addEventListener('input', function() {
+        var percent = 100 * (this.value - this.min) / (this.max - this.min) + '%';
+        jQuery('#scanning_distance_now').val(this.value + 'm');
+        //  this.setAttribute('value', this.value);
+        //  this.setAttribute('title', this.value);
+        this.style.backgroundImage = `linear-gradient( to right, ${fillColor}, ${fillColor} ${percent}, ${emptyColor} ${percent})`;
+    });
+
+
+//
+
+    
+
 
 
     /* Map Tools Menu Toogle Mechanism */

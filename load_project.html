@@ -65,6 +65,29 @@
 }
 
 
+.leaflet-top.leaflet-left {
+    display: none !important;
+}
+
+.leaflet-top.leaflet-right {
+    display: none !important;
+}
+
+.mapbox-control-info.mapbox-small.mapbox-control-info-right.leaflet-control {
+    display: none !important;
+}
+
+li.nav-item.slider_inside_li .slider_title {
+    margin-left: 10%;
+    margin-top: 7%;
+}
+
+li.nav-item.slider_inside_li input[type="range"] {
+    width: 64%;
+    margin-left: 10%;
+}
+
+
     </style>
 
 </head>
@@ -92,7 +115,7 @@
 
                 <div class="double_sett_holder">
                     <div class="fifty_percent">
-                        <h7><i class="fas fa-clock"></i> Duration</h7><span id="minutes_calc">00:00 Minutes</span></div>
+                        <h7><i class="fas fa-clock"></i> Duration</h7><span id="minutes_calc">--:-- Minutes</span></div>
                     <div class="fifty_percent">
                         <h7><i class="fas fa-vector-square"></i> Acres</h7><span id="acres_num">0 Acres</span></div>
                 </div>
@@ -118,53 +141,51 @@
                     <input type="text" id="direction_show" name="name" class="input_slider_shower"
        minlength="4" maxlength="8" size="1">
                 </div>
+<hr class="my-3 white">
+                <div style="width: 100%">
+                    <div class="slider_title"><i class="fas fa-ruler-horizontal"></i>
+                        <label>Scanning Distance</label>
+                    </div>
+                    <input type="range" class="input-range--custom scanning_distance" min="0" max="20">
+                    <input type="text" id="scanning_distance_now" name="name" class="input_slider_shower"
+       minlength="4" maxlength="8" size="1">
+                </div>
 
                 <hr class="my-3 white">
                 <!-- Heading -->
                 <div class="collapsed_menu">
                     <h6 class="navbar-heading "><i class="fas fa-cogs"></i> Advanced<i class="fas fa-caret-down"></i></h6>
                     <ul class="navbar-nav mb-md-3 collapsed">
-                        <li class="nav-item">
-                            <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard/docs/getting-started/overview.html">
-                                <i class="ni ni-spaceship"></i> Getting started
-                            </a>
+                        
+                        <li class="nav-item slider_inside_li">
+                            <div class="slider_title"><i class="far fa-compass"></i>
+                                <label>Gimbal Pitch</label>
+                            </div>
+                        <input type="range" class="input-range--custom gimbal_pitch" min="0" max="360">
+                        <input type="text" id="gimbal_pitch" name="name" class="input_slider_shower" minlength="4" maxlength="8" size="1">
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard/docs/foundation/colors.html">
-                                <i class="ni ni-palette"></i> Foundation
-                            </a>
+
+
+                        <li class="nav-item slider_inside_li">
+                            <div class="slider_title"><i class="fas fa-tachometer-alt"></i>
+                                <label>Speed</label>
+                            </div>
+                        <input type="range" class="input-range--custom drone_speed_slider" min="1" max="10">
+                        <input type="text" id="drone_speed" name="name" class="input_slider_shower" minlength="4" maxlength="8" size="1">
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard/docs/components/alerts.html">
-                                <i class="ni ni-ui-04"></i> Components
-                            </a>
-                        </li>
+
                     </ul>
                 </div>
                 <hr class="my-3 white">
-
+<!--
                 <div class="collapsed_menu">
                     <h6 class="navbar-heading "><i class="fas fa-road"></i> Fly My Map<i class="fas fa-caret-down"></i></h6>
                     <ul class="navbar-nav mb-md-3 collapsed">
-                        <li class="nav-item">
-                            <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard/docs/getting-started/overview.html">
-                                <i class="ni ni-spaceship"></i> Getting started
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard/docs/foundation/colors.html">
-                                <i class="ni ni-palette"></i> Foundation
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard/docs/components/alerts.html">
-                                <i class="ni ni-ui-04"></i> Components
-                            </a>
-                        </li>
+   
                     </ul>
                 </div>
                 <hr class="my-3 white">
-
+-->
                 <div class="collapsed_menu">
                     <h6 class="navbar-heading project_gallery"><i class="far fa-image"></i> Project Gallery<i class="fas fa-caret-down"></i></h6>
                     <ul class="navbar-nav mb-md-3 collapsed project_gallery_render">
@@ -185,6 +206,7 @@
         </div>
     </nav>
     <div class="main-content">
+        <div id="lightbox"><div class="close_image_shower">X</div></div>
         <div id="pop_up_container">
     <div class="pop_up_content">
         <p>Please fill out the form, also do not forget create your polygon in order to specify area field </p><div class="button_all_ok">OK</div></div></div>

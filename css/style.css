@@ -460,6 +460,54 @@ position: absolute;
 top: 0px;
 color: #fec840;
 }
+
+/* Image Gallery Testing */
+.gallery_image_Settings_hover {
+    background: rgba(0,0,0,.5);
+    width: 85px;
+    height: 85px;
+    z-index: 9;
+    position: absolute;
+    display: none;
+}
+
+
+.gallery_image_Settings_hover i {
+    margin-top: 35%;
+    color: #fec840;
+    font-size: 27px;
+    cursor: pointer;
+}
+
+li.nav-item:hover .gallery_image_Settings_hover {
+    display: block;
+}
+
+div#lightbox {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 9;
+    /* background: url(C:/Users/ENGLEZOS/Desktop/IKH/CoFly/projects/Tuel/project_images/7.jpg); */
+    height: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-color: rgba(0,0,0,.8);
+    display: none;
+}
+
+.close_image_shower {
+    position: absolute;
+    right: 3%;
+    top: 3%;
+    font-size: 27px;
+    color: #fec840;
+    cursor: pointer;
+}
+
+
 /* Rotate Logo When Load Path Planning Animation */
 @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
 @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
