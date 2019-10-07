@@ -18,7 +18,7 @@ function createWindow(){
 		slashes: true
 	}));
 
-	win.setMenu(null);
+	//win.setMenu(null);
 
 	// OPen devtool
 
