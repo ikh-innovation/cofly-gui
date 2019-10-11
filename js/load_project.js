@@ -40,8 +40,12 @@ jQuery(document).ready(function() {
 
 
     // Initialize map
-    var map = L.mapbox.map('map')
-        .setView([parseFloat(clean_center[1]), parseFloat(clean_center[0])], 17);
+    var map = L.mapbox.map('map').setView([parseFloat(clean_center[1]), parseFloat(clean_center[0])], 17);
+
+    //var map = L.mapbox.map('map').setView([23.736116731514866, 37.97002501526711], 17);
+
+
+
 
     // Add layers to the map
     L.control.layers({
@@ -92,8 +96,11 @@ jQuery(document).ready(function() {
 
 
     app.post('/drone_location', function(req, res) {
-        var drone_longtitude = req.query.longitude;
-        var drone_latitude = req.query.latitude;
+
+        var location = req.body;
+         
+        var drone_longtitude = location.DataObject.position[0]["longitude"];
+        var drone_latitude = location.DataObject.position[0]["latitude"];
 
         //delete previous mark if exist
         jQuery('.leaflet-marker-pane img').remove();
@@ -108,36 +115,88 @@ jQuery(document).ready(function() {
 
         map.panTo(new L.LatLng(drone_longtitude, drone_latitude));
 
+        
 
-        console.log('Long: '+ drone_longtitude + ' Lat: ' + drone_latitude);
-        res.status(200).send('Drone Location Received');
+        
+       res.status(200).send('Drone Location Received');
     });
 
 
 
     app.post('/calculated_path', function(req, res) {
-        var path = JSON.parse(req.query.path);
+        //console.log(req.body);
         
+        
+        var path = req.body;
+        console.log(path);
         var pointList = [];
-
+        
         for(var points=0; points < path.DataObject.path.waypoints.length; points++){
+           
+            //var tmp_point = new L.LatLng(path.DataObject.path.waypoints[points]);
 
-            var tmp_point = new L.LatLng(path.DataObject.path.waypoints[points].latitude, path.DataObject.path.waypoints[points].longitude);
+
+            var test= String(path.DataObject.path.waypoints[points]);
+            //console.log(test);
+            var res_g = test.split("{latitude: ", 3);
+            var res_t = test.split(", lognitude :", 3);
+            var lon = res_t[1].split(" }",3);
+            var lat = res_g[1].split(" ,",3);
+
+            var tmp_point = new L.LatLng($.trim(lon[0]),$.trim(lat[0]));
             pointList.push(tmp_point);
         }
-
+        console.log(pointList);
         var firstpolyline = new L.Polyline(pointList, {
             color: 'red',
             weight: 3,
             opacity: 0.5,
-            smoothFactor: 1,
-            /*fill:none*/
+            smoothFactor: 1
         });
         // This is an amazing polyline in order to communicate 
         firstpolyline.addTo(map);
 
         //console.log(pointList);
-        res.status(200).send('Path Received');
+        
+       res.status(200).send('Path Received');
+
+       jQuery('#pop_up_container').fadeOut();
+       jQuery('.button_all_ok').attr('style','display:block;');
+
+       // Exei lifthei to monopati opote to apothikeuw se arxeio ston fakelo tou project
+
+        // register variables in order to send it to json
+        var altitude = jQuery('#altitude_show').val().split("m",2);
+        var gimbal_pitch = jQuery('input#gimbal_pitch').val().split("°",2);
+        var n_speed = jQuery('input#drone_speed').val().split("m/s",2);
+
+        var create_json = '{ "SenderID":"IKHEditor", "DataObject": { "path": { "waypoints": '+JSON.stringify(pointList)+' , "altitude": '+parseFloat(altitude[0])+', "speed": '+parseFloat(n_speed[0])+', "Gimbal Pitch": '+parseFloat(gimbal_pitch[0])+' } } }'; 
+        
+       // get pathname of project
+       var plan_name = jQuery('input#plan_name').val();
+       console.log('Trying to create the folder');
+       // make dir if does not exist and create file with path included
+       fs.mkdir('./projects/' + plan_name + '/paths', function() {
+           fs.writeFileSync('./projects/' + plan_name + '/paths/calculated_path.json', JSON.stringify(create_json));
+       });
+
+       // Send post with json data to DJI ADAPTOR
+       /*
+       jQuery.ajax({
+            type: "POST",
+            url: "http://localhost:5000/",
+            // The key needs to match your method's input parameter (case-sensitive).
+            data: JSON.stringify(create_json),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){console.log('Received from the server');},
+            failure: function(errMsg) {
+                console.log(errMsg);
+            }
+        });       
+        */
+
+
     });
 
 
@@ -214,12 +273,12 @@ jQuery(document).ready(function() {
 
             if (f + 1 == coordnites[0].length) {
                //console.log('{"latitude": ' + coordnites[0][f][0] + ', "longitude": ' + coordnites[0][f][1] + '}],');
-                create_polygon.push('{"latitude": ' + coordnites[0][f][0] + ', "longitude": ' + coordnites[0][f][1] + '}],');
+                create_polygon.push('{"latitude": ' + coordnites[0][f][1] + ', "longitude": ' + coordnites[0][f][0] + '}],');
             } else if (f == 0) {
                 //console.log('[{"latitude": ' + coordnites[0][f][0] + ', "longitude": ' + coordnites[0][f][1] + '},');
-                create_polygon.push('[{"latitude": ' + coordnites[0][f][0] + ', "longitude": ' + coordnites[0][f][1] + '},');
+                create_polygon.push('[{"latitude": ' + coordnites[0][f][1] + ', "longitude": ' + coordnites[0][f][0] + '},');
             } else {
-                create_polygon.push('{"latitude": ' + coordnites[0][f][0] + ', "longitude": ' + coordnites[0][f][1] + '},');
+                create_polygon.push('{"latitude": ' + coordnites[0][f][1] + ', "longitude": ' + coordnites[0][f][0] + '},');
                 //console.log('{"latitude": ' + coordnites[0][f][0] + ', "longitude": ' + coordnites[0][f][1] + '},');
             }
 
@@ -233,52 +292,27 @@ jQuery(document).ready(function() {
         final_string += '"scanning_distance": '+jQuery('input#scanning_distance_now').val().replace("m","")+' } } }';
         console.log(final_string);
 
-        /*
-        for(var i_cord =0; i_cord < parseit.length; i_cord++){
-            console.log('ID: ' + coordnites[i_cord]);
-        }
-        */
-        /*
-        const request = require('request');
+        // Send to python script the polygon
+        var data = ''+ final_string;
 
-        request.post('http://127.0.0.1:8081/', {
-            json: {
-                coordinates: polygon_object["features"][0]["geometry"]["coordinates"]
+        jQuery.ajax({
+            type: "POST",
+            url: "http://localhost:5000/",
+            // The key needs to match your method's input parameter (case-sensitive).
+            data: JSON.stringify(data),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){console.log('Received from the server');},
+            failure: function(errMsg) {
+                console.log(errMsg);
             }
-        }, (error, res, body) => {
-            if (error) {
-                console.error(error)
-                //jQuery(this).append('<i class="fas fa-times"></i>');
-                jQuery(this).append('<i class="fas fa-check"></i>');
-                jQuery('#start_scanning').slideDown();
-                jQuery('path.leaflet-clickable').addClass('make_it_transparent');
-                //draw_path_line();
-                console.log(body);
+        });
 
-                return
-            }
-            console.log(`statusCode: ${res.statusCode}`);
-            if (parseInt(res.statusCode) == 200) {
-                jQuery(this).append('<i class="fas fa-check"></i>');
-                jQuery('#start_scanning').slideDown();
-                jQuery('path.leaflet-clickable').addClass('make_it_transparent');
-                //draw_path_line();
-                console.log(body);
-            } else {
-                //jQuery(this).append('<i class="fas fa-times"></i>');
-                jQuery(this).append('<i class="fas fa-check"></i>');
-                jQuery('#start_scanning').slideDown();
-                jQuery('path.leaflet-clickable').addClass('make_it_transparent');
-                //draw_path_line();
-                console.log(body);
-            }
-
-
-        })
-        */
-
-
-
+        // show loading pop up
+        jQuery('#pop_up_container').fadeIn();
+        jQuery('.pop_up_content').prepend('<div class="loader loader--style5" title="4"> <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="30px" viewBox="0 0 24 30" style="enable-background:new 0 0 50 50;" xml:space="preserve"> <rect x="0" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="10" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.2s" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="20" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.4s" dur="0.6s" repeatCount="indefinite" /> </rect> </svg> </div>');
+        jQuery('.pop_up_content p').text('Path Calculation Started');
+        jQuery('.button_all_ok').attr('style','display:none;');
 
     });
 

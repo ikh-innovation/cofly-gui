@@ -386,7 +386,7 @@ ul.navbar-nav.mb-md-3.collapsed.project_gallery_render {
 /* Pop Up Alert Css */
 div#pop_up_container {
     width: 100%;
-    height: 57.4vw;
+    height: 100vh;
     background: rgba(0,0,0,.4);
     z-index: 1111;
     position: absolute;
@@ -512,3 +512,13 @@ div#lightbox {
 @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
 @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+/* Loader style  */
+
+.loader.loader--style5 rect {
+    fill: #fec840 !important;
+}
+
+.loader.loader--style5 {
+    text-align: center !important;
+}
