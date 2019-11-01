@@ -1,5 +1,10 @@
-var map = L.mapbox.map('map')
-    .setView([37.97126667776918, 23.734406391203606], 14);
+//var map = L.mapbox.map('map').setView([37.97126667776918, 23.734406391203606], 14);
+
+var map = L.mapbox.map('map').setView([39.541572261070804,22.645668329085435],18);
+
+var imageUrl = 'C:/Users/keglezos/Downloads/vv.png',
+    imageBounds = [[39.541572261070804, 22.645668329085435], [39.54143160837011, 22.645110429610327]];
+L.imageOverlay(imageUrl, imageBounds).addTo(map);
 
 // Add layers to the map
 L.control.layers({
