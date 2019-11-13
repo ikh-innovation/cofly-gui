@@ -87,6 +87,33 @@ li.nav-item.slider_inside_li input[type="range"] {
     margin-left: 10%;
 }
 
+/* Test marker css */
+
+.leaflet-popup-content-wrapper {
+    background: transparent;
+}
+
+.leaflet-popup-tip {
+    background: transparent !important;
+    border: none;
+}
+
+a.leaflet-popup-close-button {
+    position: absolute;
+    left: 75px;
+    z-index: 9;
+    top: 40px;
+}
+
+.leaflet-popup-content img {
+    position: absolute;
+}
+
+
+.leaflet-popup-content img {
+    margin-left: -55px;
+}
+
 
     </style>
 
@@ -206,6 +233,22 @@ li.nav-item.slider_inside_li input[type="range"] {
         </div>
     </nav>
     <div class="main-content">
+            <div id="photo_picker_receiver_start"><div id="image_container"> <div class="image_toggle_button inactive"><i class="far fa-image"></i> <p>test</p></div> </div><div id="open_image_settings_map"><i class="fas fa-wrench"></i></div><div id="close_map_photo_picker"><i class="fas fa-times"></i></div></div>
+            <div id="photo_wizard_start">
+                
+                    <div class="dirs">
+                            
+                            <div class='rotate_neg'>♣</div>
+                            <div class='up'>&uArr;</div>
+                            <div class='left'>&lArr;</div>
+                            <div class='right'>&rArr;</div>
+                            <div class='down'>&dArr;</div>
+                            <div class='rotate'>☺</div>
+                          </div>
+
+                          <div id="save_settings_img"><i class="far fa-save"></i></div>
+            
+            </div>
         <div id="lightbox"><div class="close_image_shower">X</div></div>
         <div id="pop_up_container">
     <div class="pop_up_content">

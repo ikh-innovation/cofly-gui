@@ -32,6 +32,8 @@ jQuery(document).ready(function() {
 
     }
 
+
+
     // check if load proejext exists
     var project_path = localStorage.getItem("LoadProject");
 
@@ -42,6 +44,16 @@ jQuery(document).ready(function() {
     // Initialize map
     var map = L.mapbox.map('map').setView([parseFloat(clean_center[1]), parseFloat(clean_center[0])], 17);
 
+    // Disable Zoom Map 
+    map.touchZoom.disable();
+    map.doubleClickZoom.disable();
+    map.scrollWheelZoom.disable();
+
+
+
+
+    
+    
     //var map = L.mapbox.map('map').setView([23.736116731514866, 37.97002501526711], 17);
 
 
@@ -78,8 +90,119 @@ jQuery(document).ready(function() {
         popupAnchor: [0, -76] // point from which the popup should open relative to the iconAnchor
     });
 
+
+    // Ftiaxnw ton marker gia tis eikones pou erxontai
+    var image_icon = L.icon({
+        iconUrl: 'img/1pixel_transparent.png',
+        /*shadowUrl: 'img/leaf-shadow.png',*/
+
+        iconSize: [50, 73], // size of the icon
+        /*
+        shadowSize: [50, 64], // size of the shadow
+        //iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+        iconAnchor: [25, 70], // point of the icon which will correspond to marker's location
+        shadowAnchor: [4, 62], // the same for the shadow
+        */
+        popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
+        
+    });
+
     const path = require('path');
 
+
+    var image_count = 0;
+    function post_image_with_marker(file_link){
+
+        image_count++;
+        jQuery('#photo_picker_receiver_start').slideDown();
+        // Diabazw to onoma ths eikones pou molis irthe apo to drone kai me splits katalabainw to lat lon
+        var read_file_link = file_link.split("Lat=",3);
+        var lat = read_file_link[1].split(",Lon=",3);
+        var lon = lat[1].split(",Alt=",3);
+        // Ean einai h prwth photo kalo to wizard.
+        if(jQuery('ul.navbar-nav.mb-md-3.collapsed.project_gallery_render li').length == 0){
+            image_settings_wizard(lat[0],lon[0]);
+        }else{
+                
+            // draw new marker [Current] drone location
+            /*
+            var marker = L.marker(
+                [lat[0],lon[0]], {
+                    title: 'Received new image',
+                    icon: image_icon
+                }
+            ).addTo(map);
+            */  
+
+            //marker.bindPopup(newpopup,{ maxWidth: "50%" });
+           // marker.bindPopup('<img width="150px" src="./projects/'+localStorage.getItem('LoadProject').replace(" ","") + '/project_images/' + file_link + '">').openPopup();
+
+                
+            L.popup({closeButton:false,closeOnClick: false,keepInView: true})
+            .setLatLng([lat[0],lon[0]])
+            .setContent('<img give_id="marker_'+image_count+'" width="150px" src="./projects/'+localStorage.getItem('LoadProject').replace(" ","") + '/project_images/' + file_link + '">')
+            .addTo(map);
+
+
+            //give each mark an id
+            jQuery('.leaflet-marker-pane img').last().attr('id','marker_'+image_count);
+            //create image puzzle div
+            jQuery('#image_container').append('<div marker_id="marker_'+image_count+'" class="image_toggle_button"><i class="far fa-image"></i> <p>Image #'+image_count+'</p></div>');
+            
+
+
+            console.log(file_link);
+            console.log(lat[0],lon[0]);
+        }
+
+    }
+
+
+    // Trigger zoom event on map ( Change all markers size )
+     var prevZoom = map.getZoom();
+     console.log('GET ZOOM: '+prevZoom);
+    
+map.on('zoomend',function(e){
+	//debugger;
+	var currZoom = map.getZoom();
+    var diff = prevZoom - currZoom;
+    if(diff > 0){
+         console.log('zoomed out', currZoom);
+         
+         var newzoom = '' + ((250) * currZoom) +'px';
+         console.log(newzoom);
+         $('.leaflet-popup-content img').css({'width':newzoom,'height':'auto'}); 
+
+    } else if(diff < 0) {
+         console.log('zoomed in' + currZoom);
+         var newzoom = '' + ((250) /currZoom) +'px';
+         console.log(newzoom);
+         $('.leaflet-popup-content img').css({'width':newzoom,'height':'auto'}); 
+    } else {
+  	   alert('no change');
+    }
+
+    prevZoom = currZoom;
+});
+
+
+
+    function image_settings_wizard(lat,lon){
+        console.log('Image settings wizard');
+        var lat_f = lat;
+        var lon_f = lon;
+
+        // Draw image in order to rotate
+        var center = [lat_f, lon_f];
+        var imageUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Sydney_Opera_House_-_Dec_2008.jpg/1024px-Sydney_Opera_House_-_Dec_2008.jpg',
+        imageBounds = [center, [-10,-20]];
+
+        L.imageOverlay(imageUrl, imageBounds).addTo(map); 
+
+        // Slide Down Image Settings
+        jQuery('div#photo_wizard_start').slideDown();
+        console.log(lat_f,lon_f);
+    }
 
     /* LISTEN NEW SERVICE  UPLOAD FILE TO PROJECT FILE */
     const express = require('express');
@@ -121,7 +244,7 @@ jQuery(document).ready(function() {
        res.status(200).send('Drone Location Received');
     });
 
-
+    // To python script apo KETA stelnei se auto to link to ypologismeno monopati pou tha akoloutheisei to drone.
 
     app.post('/calculated_path', function(req, res) {
         //console.log(req.body);
@@ -198,9 +321,10 @@ jQuery(document).ready(function() {
 
 
     });
+    
 
 
-    // GET POST UPLOAD IMAGE FUNCTION 
+    // GET POST UPLOAD IMAGE FUNCTION erxetai apo to drone kai ginontai sync oi eikones
     app.post('/post_image/', upload.any(), (req, res) => {
         //console.log('POST /post_image/');
         //console.log('Files: ', req.files);
@@ -213,6 +337,7 @@ jQuery(document).ready(function() {
                 res.status(500).send('An error occurred: ' + err.message);
             } else {
                 res.status(200).send('ok');
+                post_image_with_marker(req.files[0].originalname);
                 // FS CHECK DIRECTORY IMAGES and recreate thumbnails
                 // function gia na sbisw oles tis photo pou uphrxan kai na rendarw tiw kainourgies
                 print_project_gallery();
@@ -225,6 +350,8 @@ jQuery(document).ready(function() {
 
 
     app.listen(process.env.PORT || 8081);
+
+
 
 
     // Function pou deixnei slide message gia kapoia wra kai meta to krubei 
@@ -429,6 +556,202 @@ jQuery(document).ready(function() {
 
     });
 
+    // Close Top Bar with images from drone receiver
+    jQuery('div#close_map_photo_picker i').click(function(){
+
+        jQuery('div#photo_picker_receiver_start').slideUp();
+        
+    });
+
+    // Variable in order to trigger selection mode of printed images on map
+    var selection_mode = false;
+    // Toogle to open menu bar for images
+    jQuery('div#open_image_settings_map i').click(function(){
+
+
+        if(jQuery('div#open_image_settings_map i').hasClass('open_it')){
+        jQuery(this).removeClass('open_it');
+        jQuery('#photo_wizard_start').slideUp();
+        
+        }else{
+        jQuery(this).addClass('open_it');
+        jQuery('#photo_wizard_start').slideDown();
+        // Set selectrion mode on true
+        selection_mode = true;
+        // Grayscale all the images in order to select which one will we move.
+        jQuery('.leaflet-popup-content img').css('filter','grayscale(1)');
+        
+        }
+        
+        
+    });
+
+    // Variable gia na exw to id thw eikonas pou tha xeirizete o controller
+    var selected_image_for_control = '';
+    // Function pou kanw trigger to click se eikona poy exei postaristei otan to selection mode einai true
+    jQuery(document).on('click','.leaflet-popup-content img', function(){
+        
+        if(selection_mode){
+            selection_mode = false;
+            selected_image_for_control = jQuery(this).attr('give_id');
+            jQuery('img[give_id="'+jQuery(this).attr('give_id')+'"]').addClass('selected_edit_image');
+            console.log('Selected image is: ' + selected_image_for_control);
+        }
+
+    });
+
+    /* Basic Image Controller Listeners */
+    var i_top = 0;
+    var i_left = -55;
+    var angle = 0;
+
+    jQuery(document).on('click','.image_toggle_button', function(){
+
+        var read_id = jQuery(this).attr('marker_id');
+            
+        
+        if(jQuery(this).hasClass('inactive')){
+            jQuery(this).removeClass('inactive');
+            jQuery('img[give_id="'+read_id+'"]').fadeIn();
+        }else{
+            jQuery(this).addClass('inactive');
+            jQuery('img[give_id="'+read_id+'"]').fadeOut();
+        }
+        
+    
+    });
+
+/*
+    jQuery(document).on('mousedown','.dirs .up', function(){
+        jQuery('.leaflet-popup-pane img').css('top',i_top--);
+        console.log('Top: ' + jQuery('.leaflet-popup-pane img').css('top'));
+     });
+
+     jQuery(document).on('mousedown','.dirs .down', function(){
+        jQuery('.leaflet-popup-pane img').css('top',i_top++);
+        console.log('Top: ' + jQuery('.leaflet-popup-pane img').css('top'));
+     });
+
+     jQuery(document).on('mousedown','.dirs .left', function(){
+        jQuery('.leaflet-popup-pane img').css('left',i_left--);
+        console.log('Left: ' + jQuery('.leaflet-popup-pane img').css('left'));
+     });
+
+     jQuery(document).on('mousedown','.dirs .right', function(){
+        jQuery('.leaflet-popup-pane img').css('left',i_left++);
+        console.log('Left: ' + jQuery('.leaflet-popup-pane img').css('left'));
+     });
+
+     jQuery(document).on('mousedown','.dirs .rotate', function(){
+        jQuery('.leaflet-popup-pane img').attr('style','transform:rotate('+angle+++'deg)');
+        console.log('Rotate: ' + jQuery('.leaflet-popup-pane img').css('transform'));
+     });
+
+     jQuery(document).on('mousedown','.dirs .rotate_neg', function(){
+        jQuery('.leaflet-popup-pane img').css('transform','rotate('+angle--+'deg)');
+        jQuery('.leaflet-popup-pane img').attr('style','transform: rotate('+angle--+'deg)');
+        console.log('Rotate: ' + jQuery('.leaflet-popup-pane img').css('transform'));
+     });
+     */
+
+     var timer = 0;
+
+     $('.dirs .rotate_neg').on('mousedown', function() {
+        timer = setInterval(rotatePositive,"50");
+        console.log('MouseDown on div');
+    }).on('mouseup mouseleave', function() {
+        console.log('MouseUp on div');
+        clearInterval(timer);
+    });
+
+
+    $('.dirs .rotate').on('mousedown', function() {
+        timer = setInterval(rotateNegative,"50");
+        console.log('MouseDown on div');
+    }).on('mouseup mouseleave', function() {
+        console.log('MouseUp on div');
+        clearInterval(timer);
+    });
+
+    $('.dirs .right').on('mousedown', function() {
+        timer = setInterval(move_right,"50");
+        console.log('MouseDown on div');
+    }).on('mouseup mouseleave', function() {
+        console.log('MouseUp on div');
+        clearInterval(timer);
+    });
+
+    $('.dirs .left').on('mousedown', function() {
+        timer = setInterval(move_left,"50");
+        console.log('MouseDown on div');
+    }).on('mouseup mouseleave', function() {
+        console.log('MouseUp on div');
+        clearInterval(timer);
+    });
+
+    $('.dirs .up').on('mousedown', function() {
+        timer = setInterval(move_up,"50");
+        console.log('MouseDown on div');
+    }).on('mouseup mouseleave', function() {
+        console.log('MouseUp on div');
+        clearInterval(timer);
+    });
+
+    $('.dirs .down').on('mousedown', function() {
+        timer = setInterval(move_down,"50");
+        console.log('MouseDown on div');
+    }).on('mouseup mouseleave', function() {
+        console.log('MouseUp on div');
+        clearInterval(timer);
+    });
+
+
+
+    function rotatePositive(){
+        jQuery('img[give_id="'+selected_image_for_control+'"]').attr('style','transform:rotate('+angle+++'deg); margin-top: '+i_top+'px; margin-left:'+i_left+'px');
+        console.log('Rotate: ' + jQuery('img[give_id="'+selected_image_for_control+'"]').css('transform'));
+    }
+
+    function rotateNegative(){
+        jQuery('img[give_id="'+selected_image_for_control+'"]').attr('style','transform:rotate('+angle--+'deg); margin-top: '+i_top+'px; margin-left:'+i_left+'px');
+        console.log('Rotate: ' + jQuery('img[give_id="'+selected_image_for_control+'"]').css('transform'));
+    }
+
+    function move_right(){
+        jQuery('img[give_id="'+selected_image_for_control+'"]').attr('style','transform:rotate('+angle+'deg); margin-top: '+i_top+'px; margin-left:'+i_left+++'px');
+        console.log('Left: ' + jQuery('img[give_id="'+selected_image_for_control+'"]').css('left'));
+    }
+
+    function move_left(){
+        jQuery('img[give_id="'+selected_image_for_control+'"]').attr('style','transform:rotate('+angle+'deg); margin-top: '+i_top+'px; margin-left:'+i_left--+'px');
+        console.log('Left: ' + jQuery('img[give_id="'+selected_image_for_control+'"]').css('left'));
+    }
+
+    function move_up(){
+        jQuery('img[give_id="'+selected_image_for_control+'"]').attr('style','transform:rotate('+angle+'deg); margin-top: '+i_top--+'px; margin-left:'+i_left+'px');
+        console.log('Top: ' + jQuery('img[give_id="'+selected_image_for_control+'"]').css('top'));
+    }
+
+    function move_down(){
+        jQuery('img[give_id="'+selected_image_for_control+'"]').attr('style','transform:rotate('+angle+'deg); margin-top: '+i_top+++'px; margin-left:'+i_left+'px');
+        console.log('Top: ' + jQuery('img[give_id="'+selected_image_for_control+'"]').css('top'));
+    }
+
+
+    // Save Button for printed images on map clicked
+    jQuery('#save_settings_img i').click(function(){
+
+        angle = 0;
+        i_left = 0;
+        i_top = 0;
+
+        jQuery('.selected_edit_image').removeClass('selected_edit_image');
+        jQuery('#photo_wizard_start').slideUp();
+        jQuery('#open_image_settings_map i').removeClass('open_it');
+        jQuery('.leaflet-popup-pane img').css('filter','grayscale(0)');
+        // TODO CREATE JSON FILE AND SAVE IMAGE SETTINGS
+
+    });
 
 
 

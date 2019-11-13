@@ -522,3 +522,98 @@ div#lightbox {
 .loader.loader--style5 {
     text-align: center !important;
 }
+
+/* Photo wizard panel */
+div#photo_wizard_start {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0,0,0,.8);
+    height: 80px;
+    display: none;
+    z-index: 9999;
+    text-align: center;
+}
+
+
+div#photo_picker_receiver_start {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    background: rgba(0,0,0,.8);
+    height: 80px;
+    display: none;
+    z-index: 9999;
+}
+
+div#close_map_photo_picker {
+    float: right;
+    width: 2%;
+    position: absolute;
+    right: 0;
+    top: 34%;
+    color: #fec840;
+    cursor: pointer;
+}
+
+/* Top Bar photo picker container style */
+div#image_container {
+    width: 80%;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.image_toggle_button i {
+    color: #fec840;
+    font-size: 40px;
+    cursor: pointer;
+}
+
+.image_toggle_button p {
+    color: #fff;
+}
+
+.image_toggle_button {
+    text-align: center;
+    margin: 10px;
+    width: 11%;
+}
+
+div#image_container div {
+    float: left;
+}
+
+.image_toggle_button.inactive i, .image_toggle_button.inactive p {
+    opacity: .5;
+    color: #969696 !important;
+    cursor: pointer;
+}
+
+div#open_image_settings_map {
+    position: absolute;
+    right: 5%;
+    top: 34%;
+    cursor: pointer;
+}
+
+div#open_image_settings_map i.open_it {
+    color: #fec840;
+}
+
+/* Test arrows */
+div#photo_wizard_start .dirs {
+    text-align: center;
+    display: inline-flex;
+    margin: 0 auto;
+    color: #fff;
+    font-size: 30px;
+}
+
+.leaflet-popup-content img:hover {
+    filter: grayscale(0) !important;
+}
+
+.leaflet-popup-content img.selected_edit_image{
+    border: 2px dashed #fec840;
+    filter: grayscale(0) !important;
+}
