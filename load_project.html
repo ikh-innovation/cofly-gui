@@ -126,6 +126,7 @@ a.leaflet-popup-close-button {
 
             <a class="navbar-brand pt-0" href="./index.html">
                 <img src="img/coFLY_logo.png" class="navbar-brand-img" alt="...">
+                <input type="file" webkitdirectory directory/>
             </a>
 
             <!-- Collapse -->
@@ -135,7 +136,7 @@ a.leaflet-popup-close-button {
 
                 <div class="input_holder">
                     <label>Plan Name</label>
-                    <input id="plan_name" class="input_main">
+                    <input id="plan_name" class="input_main" disabled>
                 </div>
 
                 <hr class="my-3 white">
@@ -236,17 +237,19 @@ a.leaflet-popup-close-button {
             <div id="photo_picker_receiver_start"><div id="image_container"> <div class="image_toggle_button inactive"><i class="far fa-image"></i> <p>test</p></div> </div><div id="open_image_settings_map"><i class="fas fa-wrench"></i></div><div id="close_map_photo_picker"><i class="fas fa-times"></i></div></div>
             <div id="photo_wizard_start">
                 
-                    <div class="dirs">
-                            
-                            <div class='rotate_neg'>♣</div>
-                            <div class='up'>&uArr;</div>
-                            <div class='left'>&lArr;</div>
-                            <div class='right'>&rArr;</div>
-                            <div class='down'>&dArr;</div>
-                            <div class='rotate'>☺</div>
-                          </div>
+                <div class="dirs">
 
-                          <div id="save_settings_img"><i class="far fa-save"></i></div>
+                    <div class="rotate"><i class="fas fa-undo"></i><span>Rotate Left</span></div>
+                
+                    <div class="left"><i class="fas fa-arrow-left"></i><span>Move Left</span></div>
+                    <div class="up"><i style=" transform: rotate(-90deg); " class="fas fa-arrow-right"></i><span>Move Up</span></div>
+                    <div class="down"><i style=" transform: rotate(90deg); " class="fas fa-arrow-right"></i><span>Move Down</span></div>
+                    <div class="right"><i class="fas fa-arrow-right"></i><span>Move Right</span></div>
+                
+                    <div class="rotate_neg"><i style="transform:scaleX(-1)" class="fas fa-undo"></i><span>Rotate Right</span></div>
+                </div>
+
+                <div id="save_settings_img"><i class="fas fa-save"></i><span>Save</span></div>
             
             </div>
         <div id="lightbox"><div class="close_image_shower">X</div></div>

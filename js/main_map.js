@@ -1,5 +1,5 @@
 var map = L.mapbox.map('map').setView([37.97126667776918, 23.734406391203606], 14);
-//var map = L.mapbox.map('map').setView([40.595409521631176,23.039895966293173], 14);
+//var map = L.mapbox.map('map').setView([40.595409521631176,23.039895966293173], 18);
 //var map = L.mapbox.map('map').setView([40.595409521631176,23.039895966293173], 18);
 
 
@@ -111,6 +111,7 @@ jQuery('div#save_button').click(function() {
         fs.mkdir('./projects/' + plan_name, function() {
             fs.writeFileSync('projects/' + plan_name + '/map_data.geojson', JSON.stringify(featureGroup.toGeoJSON()));
             fs.writeFileSync('projects/' + plan_name + '/proj_settings.json', grab_data());
+            fs.writeFileSync('projects/' + plan_name + '/image_settings.json', '{ "ImageSettings": [ { "title": "", "Rotate": 0, "Top": 0, "Left":0 } ] }');
         });
 
         //Create Dir in Order to save images that drone sends

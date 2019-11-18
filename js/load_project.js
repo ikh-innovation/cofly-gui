@@ -11,21 +11,21 @@ jQuery(document).ready(function() {
         //var get_path_images = './projects/' + localStorage.getItem("LoadProject").replace(" ", "") + '/project_images/';
         //const testFolder = __dirname + '/projects/' + localStorage.getItem("LoadProject").replace(" ", "") + '/project_images/';
         var pathsad = require("path");
-        var final_correct_path = pathsad.resolve(__dirname, './projects/').replace(/\\/g,"/")+ "/" +localStorage.getItem("LoadProject") + "/project_images/";
+        var final_correct_path = pathsad.resolve(__dirname, './projects/').replace(/\\/g, "/") + "/" + localStorage.getItem("LoadProject") + "/project_images/";
         var fix_location = final_correct_path.split("/resources/app");
         const fs = require('fs');
 
-        if(fix_location[1] == null){
+        if (fix_location[1] == null) {
             var final_link = fix_location[0];
-        }else{
-            var final_link = fix_location[0]+ fix_location[1];
+        } else {
+            var final_link = fix_location[0] + fix_location[1];
         }
 
-        fs.readdirSync(final_link.replace(" ","")).forEach(file => {
+        fs.readdirSync(final_link.replace(" ", "")).forEach(file => {
 
             if (file.indexOf(".jpg") != -1 || file.indexOf(".png") != -1 || file.indexOf(".jpeg") != -1) {
                 //console.log(file);
-                jQuery('ul.project_gallery_render').append('<li class="nav-item"><div class="gallery_image_Settings_hover"><i class="far fa-eye"></i></div><img src="' + final_link.replace(" ","") + file + '"></li>');
+                jQuery('ul.project_gallery_render').append('<li class="nav-item"><div class="gallery_image_Settings_hover"><i class="far fa-eye"></i></div><img src="' + final_link.replace(" ", "") + file + '"></li>');
             }
 
         });
@@ -45,15 +45,14 @@ jQuery(document).ready(function() {
     var map = L.mapbox.map('map').setView([parseFloat(clean_center[1]), parseFloat(clean_center[0])], 17);
 
     // Disable Zoom Map 
+    /*
     map.touchZoom.disable();
     map.doubleClickZoom.disable();
     map.scrollWheelZoom.disable();
+*/
 
 
 
-
-    
-    
     //var map = L.mapbox.map('map').setView([23.736116731514866, 37.97002501526711], 17);
 
 
@@ -104,90 +103,89 @@ jQuery(document).ready(function() {
         shadowAnchor: [4, 62], // the same for the shadow
         */
         popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
-        
+
     });
 
     const path = require('path');
 
 
     var image_count = 0;
-    function post_image_with_marker(file_link){
+
+    function post_image_with_marker(file_link) {
 
         image_count++;
         jQuery('#photo_picker_receiver_start').slideDown();
         // Diabazw to onoma ths eikones pou molis irthe apo to drone kai me splits katalabainw to lat lon
-        var read_file_link = file_link.split("Lat=",3);
-        var lat = read_file_link[1].split(",Lon=",3);
-        var lon = lat[1].split(",Alt=",3);
+        var read_file_link = file_link.split("Lat=", 3);
+        var lat = read_file_link[1].split(",Lon=", 3);
+        var lon = lat[1].split(",Alt=", 3);
         // Ean einai h prwth photo kalo to wizard.
-        if(jQuery('ul.navbar-nav.mb-md-3.collapsed.project_gallery_render li').length == 0){
-            image_settings_wizard(lat[0],lon[0]);
-        }else{
-                
-            // draw new marker [Current] drone location
-            /*
-            var marker = L.marker(
-                [lat[0],lon[0]], {
-                    title: 'Received new image',
-                    icon: image_icon
-                }
-            ).addTo(map);
-            */  
+        //if (jQuery('ul.navbar-nav.mb-md-3.collapsed.project_gallery_render li').length == 0) {
+        //    image_settings_wizard(lat[0], lon[0]);
+       // } else {
 
-            //marker.bindPopup(newpopup,{ maxWidth: "50%" });
-           // marker.bindPopup('<img width="150px" src="./projects/'+localStorage.getItem('LoadProject').replace(" ","") + '/project_images/' + file_link + '">').openPopup();
+           
 
-                
-            L.popup({closeButton:false,closeOnClick: false,keepInView: true})
-            .setLatLng([lat[0],lon[0]])
-            .setContent('<img give_id="marker_'+image_count+'" width="150px" src="./projects/'+localStorage.getItem('LoadProject').replace(" ","") + '/project_images/' + file_link + '">')
-            .addTo(map);
+            L.popup({
+                    closeButton: false,
+                    closeOnClick: false,
+                    keepInView: true
+                })
+                .setLatLng([lat[0], lon[0]])
+                .setContent('<img give_id="marker_' + image_count + '" width="150px" src="./projects/' + localStorage.getItem('LoadProject').replace(" ", "") + '/project_images/' + file_link + '">')
+                .addTo(map);
 
 
             //give each mark an id
-            jQuery('.leaflet-marker-pane img').last().attr('id','marker_'+image_count);
+            jQuery('.leaflet-marker-pane img').last().attr('id', 'marker_' + image_count);
             //create image puzzle div
-            jQuery('#image_container').append('<div marker_id="marker_'+image_count+'" class="image_toggle_button"><i class="far fa-image"></i> <p>Image #'+image_count+'</p></div>');
-            
+            jQuery('#image_container').append('<div marker_id="marker_' + image_count + '" class="image_toggle_button"><i class="far fa-image"></i> <p>Image #' + image_count + '</p></div>');
+
 
 
             console.log(file_link);
-            console.log(lat[0],lon[0]);
-        }
+            console.log(lat[0], lon[0]);
+       // }
 
     }
 
 
     // Trigger zoom event on map ( Change all markers size )
-     var prevZoom = map.getZoom();
-     console.log('GET ZOOM: '+prevZoom);
-    
-map.on('zoomend',function(e){
-	//debugger;
-	var currZoom = map.getZoom();
-    var diff = prevZoom - currZoom;
-    if(diff > 0){
-         console.log('zoomed out', currZoom);
-         
-         var newzoom = '' + ((250) * currZoom) +'px';
-         console.log(newzoom);
-         $('.leaflet-popup-content img').css({'width':newzoom,'height':'auto'}); 
+    var prevZoom = map.getZoom();
+    console.log('GET ZOOM: ' + prevZoom);
 
-    } else if(diff < 0) {
-         console.log('zoomed in' + currZoom);
-         var newzoom = '' + ((250) /currZoom) +'px';
-         console.log(newzoom);
-         $('.leaflet-popup-content img').css({'width':newzoom,'height':'auto'}); 
-    } else {
-  	   alert('no change');
-    }
+    map.on('zoomend', function(e) {
+        //debugger;
+        var currZoom = map.getZoom();
+        var diff = prevZoom - currZoom;
+        if (diff > 0) {
+            console.log('zoomed out', currZoom);
 
-    prevZoom = currZoom;
-});
+            var newzoom = '' + ((250) * currZoom) + 'px';
+            console.log(newzoom);
+            $('.leaflet-popup-content img').css({
+                'width': newzoom,
+                'height': 'auto'
+            });
+
+        } else if (diff < 0) {
+            console.log('zoomed in' + currZoom);
+            var newzoom = '' + ((250) / currZoom) + 'px';
+            console.log(newzoom);
+            $('.leaflet-popup-content img').css({
+                'width': newzoom,
+                'height': 'auto'
+            });
+        } else {
+            alert('no change');
+        }
+
+        prevZoom = currZoom;
+    });
 
 
 
-    function image_settings_wizard(lat,lon){
+    function image_settings_wizard(lat, lon) {
         console.log('Image settings wizard');
         var lat_f = lat;
         var lon_f = lon;
@@ -195,13 +193,13 @@ map.on('zoomend',function(e){
         // Draw image in order to rotate
         var center = [lat_f, lon_f];
         var imageUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Sydney_Opera_House_-_Dec_2008.jpg/1024px-Sydney_Opera_House_-_Dec_2008.jpg',
-        imageBounds = [center, [-10,-20]];
+            imageBounds = [center, [-10, -20]];
 
-        L.imageOverlay(imageUrl, imageBounds).addTo(map); 
+        L.imageOverlay(imageUrl, imageBounds).addTo(map);
 
         // Slide Down Image Settings
         jQuery('div#photo_wizard_start').slideDown();
-        console.log(lat_f,lon_f);
+        console.log(lat_f, lon_f);
     }
 
     /* LISTEN NEW SERVICE  UPLOAD FILE TO PROJECT FILE */
@@ -214,14 +212,16 @@ map.on('zoomend',function(e){
     var app = express();
     app.use(express.static(__dirname));
 
-    app.use(bodyParser.urlencoded({ extended: false }));
+    app.use(bodyParser.urlencoded({
+        extended: false
+    }));
     app.use(bodyParser.json());
 
 
     app.post('/drone_location', function(req, res) {
 
         var location = req.body;
-         
+
         var drone_longtitude = location.DataObject.position[0]["longitude"];
         var drone_latitude = location.DataObject.position[0]["latitude"];
 
@@ -229,8 +229,8 @@ map.on('zoomend',function(e){
         jQuery('.leaflet-marker-pane img').remove();
 
         // draw new marker [Current] drone location
-               var marker = L.marker(
-            [drone_longtitude,drone_latitude], {
+        var marker = L.marker(
+            [drone_longtitude, drone_latitude], {
                 title: 'Drone Current Position',
                 icon: drone_icon
             }
@@ -238,35 +238,35 @@ map.on('zoomend',function(e){
 
         map.panTo(new L.LatLng(drone_longtitude, drone_latitude));
 
-        
 
-        
-       res.status(200).send('Drone Location Received');
+
+
+        res.status(200).send('Drone Location Received');
     });
 
     // To python script apo KETA stelnei se auto to link to ypologismeno monopati pou tha akoloutheisei to drone.
 
     app.post('/calculated_path', function(req, res) {
         //console.log(req.body);
-        
-        
+
+
         var path = req.body;
         console.log(path);
         var pointList = [];
-        
-        for(var points=0; points < path.DataObject.path.waypoints.length; points++){
-           
+
+        for (var points = 0; points < path.DataObject.path.waypoints.length; points++) {
+
             //var tmp_point = new L.LatLng(path.DataObject.path.waypoints[points]);
 
 
-            var test= String(path.DataObject.path.waypoints[points]);
+            var test = String(path.DataObject.path.waypoints[points]);
             //console.log(test);
             var res_g = test.split("{latitude: ", 3);
             var res_t = test.split(", lognitude :", 3);
-            var lon = res_t[1].split(" }",3);
-            var lat = res_g[1].split(" ,",3);
+            var lon = res_t[1].split(" }", 3);
+            var lat = res_g[1].split(" ,", 3);
 
-            var tmp_point = new L.LatLng($.trim(lon[0]),$.trim(lat[0]));
+            var tmp_point = new L.LatLng($.trim(lon[0]), $.trim(lat[0]));
             pointList.push(tmp_point);
         }
         console.log(pointList);
@@ -280,48 +280,48 @@ map.on('zoomend',function(e){
         firstpolyline.addTo(map);
 
         //console.log(pointList);
-        
-       res.status(200).send('Path Received');
 
-       jQuery('#pop_up_container').fadeOut();
-       jQuery('.button_all_ok').attr('style','display:block;');
+        res.status(200).send('Path Received');
 
-       // Exei lifthei to monopati opote to apothikeuw se arxeio ston fakelo tou project
+        jQuery('#pop_up_container').fadeOut();
+        jQuery('.button_all_ok').attr('style', 'display:block;');
+
+        // Exei lifthei to monopati opote to apothikeuw se arxeio ston fakelo tou project
 
         // register variables in order to send it to json
-        var altitude = jQuery('#altitude_show').val().split("m",2);
-        var gimbal_pitch = jQuery('input#gimbal_pitch').val().split("°",2);
-        var n_speed = jQuery('input#drone_speed').val().split("m/s",2);
+        var altitude = jQuery('#altitude_show').val().split("m", 2);
+        var gimbal_pitch = jQuery('input#gimbal_pitch').val().split("°", 2);
+        var n_speed = jQuery('input#drone_speed').val().split("m/s", 2);
 
-        var create_json = '{ "SenderID":"IKHEditor", "DataObject": { "path": { "waypoints": '+JSON.stringify(pointList)+' , "altitude": '+parseFloat(altitude[0])+', "speed": '+parseFloat(n_speed[0])+', "Gimbal Pitch": '+parseFloat(gimbal_pitch[0])+' } } }'; 
-        
-       // get pathname of project
-       var plan_name = jQuery('input#plan_name').val();
-       console.log('Trying to create the folder');
-       // make dir if does not exist and create file with path included
-       fs.mkdir('./projects/' + plan_name + '/paths', function() {
-           fs.writeFileSync('./projects/' + plan_name + '/paths/calculated_path.json', JSON.stringify(create_json));
-       });
+        var create_json = '{ "SenderID":"IKHEditor", "DataObject": { "path": { "waypoints": ' + JSON.stringify(pointList) + ' , "altitude": ' + parseFloat(altitude[0]) + ', "speed": ' + parseFloat(n_speed[0]) + ', "Gimbal Pitch": ' + parseFloat(gimbal_pitch[0]) + ' } } }';
 
-       // Send post with json data to DJI ADAPTOR
-       /*
-       jQuery.ajax({
-            type: "POST",
-            url: "http://localhost:5000/",
-            // The key needs to match your method's input parameter (case-sensitive).
-            data: JSON.stringify(create_json),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function(data){console.log('Received from the server');},
-            failure: function(errMsg) {
-                console.log(errMsg);
-            }
-        });       
-        */
+        // get pathname of project
+        var plan_name = jQuery('input#plan_name').val();
+        console.log('Trying to create the folder');
+        // make dir if does not exist and create file with path included
+        fs.mkdir('./projects/' + plan_name + '/paths', function() {
+            fs.writeFileSync('./projects/' + plan_name + '/paths/calculated_path.json', JSON.stringify(create_json));
+        });
+
+        // Send post with json data to DJI ADAPTOR
+        /*
+        jQuery.ajax({
+             type: "POST",
+             url: "http://localhost:5000/",
+             // The key needs to match your method's input parameter (case-sensitive).
+             data: JSON.stringify(create_json),
+             contentType: "application/json; charset=utf-8",
+             dataType: "json",
+             success: function(data){console.log('Received from the server');},
+             failure: function(errMsg) {
+                 console.log(errMsg);
+             }
+         });       
+         */
 
 
     });
-    
+
 
 
     // GET POST UPLOAD IMAGE FUNCTION erxetai apo to drone kai ginontai sync oi eikones
@@ -390,7 +390,11 @@ map.on('zoomend',function(e){
     // Calculate path button trigger
     jQuery('div#calculate_path_planing').click(function() {
 
-        var get_time_now = new Date().toLocaleTimeString('en-GB', { hour: "numeric", minute: "numeric",second: "numeric"});
+        var get_time_now = new Date().toLocaleTimeString('en-GB', {
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric"
+        });
 
         var polygon_object = JSON.parse(load_map_project_w_o_render());
         var coordnites = polygon_object["features"][0]["geometry"]["coordinates"];
@@ -399,7 +403,7 @@ map.on('zoomend',function(e){
         for (var f = 0; f < coordnites[0].length; f++) {
 
             if (f + 1 == coordnites[0].length) {
-               //console.log('{"latitude": ' + coordnites[0][f][0] + ', "longitude": ' + coordnites[0][f][1] + '}],');
+                //console.log('{"latitude": ' + coordnites[0][f][0] + ', "longitude": ' + coordnites[0][f][1] + '}],');
                 create_polygon.push('{"latitude": ' + coordnites[0][f][1] + ', "longitude": ' + coordnites[0][f][0] + '}],');
             } else if (f == 0) {
                 //console.log('[{"latitude": ' + coordnites[0][f][0] + ', "longitude": ' + coordnites[0][f][1] + '},');
@@ -412,15 +416,15 @@ map.on('zoomend',function(e){
         }
 
         // final creation of polygon 
-        var final_string = '{ "SenderID":"IKHEditor", "DataObject": { "mission_id": 1, "start_time": "'+get_time_now+'", "area": { "polygon":';
+        var final_string = '{ "SenderID":"IKHEditor", "DataObject": { "mission_id": 1, "start_time": "' + get_time_now + '", "area": { "polygon":';
         for (var final_text = 0; final_text < create_polygon.length; final_text++) {
             final_string += create_polygon[final_text];
         }
-        final_string += '"scanning_distance": '+jQuery('input#scanning_distance_now').val().replace("m","")+' } } }';
+        final_string += '"scanning_distance": ' + jQuery('input#scanning_distance_now').val().replace("m", "") + ' } } }';
         console.log(final_string);
 
         // Send to python script the polygon
-        var data = ''+ final_string;
+        var data = '' + final_string;
 
         jQuery.ajax({
             type: "POST",
@@ -429,7 +433,9 @@ map.on('zoomend',function(e){
             data: JSON.stringify(data),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            success: function(data){console.log('Received from the server');},
+            success: function(data) {
+                console.log('Received from the server');
+            },
             failure: function(errMsg) {
                 console.log(errMsg);
             }
@@ -439,7 +445,7 @@ map.on('zoomend',function(e){
         jQuery('#pop_up_container').fadeIn();
         jQuery('.pop_up_content').prepend('<div class="loader loader--style5" title="4"> <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="30px" viewBox="0 0 24 30" style="enable-background:new 0 0 50 50;" xml:space="preserve"> <rect x="0" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="10" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.2s" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="20" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.4s" dur="0.6s" repeatCount="indefinite" /> </rect> </svg> </div>');
         jQuery('.pop_up_content p').text('Path Calculation Started');
-        jQuery('.button_all_ok').attr('style','display:none;');
+        jQuery('.button_all_ok').attr('style', 'display:none;');
 
     });
 
@@ -463,7 +469,7 @@ map.on('zoomend',function(e){
 
     //initialize project map and render it into map
     load_map_project();
-
+    
     // render again input slider 
     function load_map_project() {
         var fs = require('fs');
@@ -530,18 +536,17 @@ map.on('zoomend',function(e){
 
 
     // Gallery Image click listener
-    
+
     jQuery(document).on("click", '.nav-item div', function() {
 
         var get_image_path = jQuery(this).closest('li').find('img').attr('src');
         //console.log(get_image_path);
-        if(jQuery('#div#lightbox').css('display') == 'none')
-        {
-            jQuery('div#lightbox').attr('style','background-image:url("'+get_image_path+'"); display:block;');
+        if (jQuery('#div#lightbox').css('display') == 'none') {
+            jQuery('div#lightbox').attr('style', 'background-image:url("' + get_image_path + '"); display:block;');
 
-        }else{
-            jQuery('div#lightbox').css('display','block');
-            jQuery('div#lightbox').attr('style','background-image:url("'+get_image_path+'"); display:block;');
+        } else {
+            jQuery('div#lightbox').css('display', 'block');
+            jQuery('div#lightbox').attr('style', 'background-image:url("' + get_image_path + '"); display:block;');
 
         }
 
@@ -550,52 +555,53 @@ map.on('zoomend',function(e){
 
     // Close Image Shower Action
 
-    jQuery('.close_image_shower').click(function(){
+    jQuery('.close_image_shower').click(function() {
 
         jQuery('div#lightbox').fadeOut();
 
     });
 
     // Close Top Bar with images from drone receiver
-    jQuery('div#close_map_photo_picker i').click(function(){
+    jQuery('div#close_map_photo_picker i').click(function() {
 
-        jQuery('div#photo_picker_receiver_start').slideUp();
-        
+        if(jQuery('div#open_image_settings_map i').hasClass('open_it')){}else{jQuery('div#photo_picker_receiver_start').slideUp();}
+
     });
 
     // Variable in order to trigger selection mode of printed images on map
     var selection_mode = false;
     // Toogle to open menu bar for images
-    jQuery('div#open_image_settings_map i').click(function(){
+    jQuery('div#open_image_settings_map i').click(function() {
 
 
-        if(jQuery('div#open_image_settings_map i').hasClass('open_it')){
-        jQuery(this).removeClass('open_it');
-        jQuery('#photo_wizard_start').slideUp();
-        
-        }else{
-        jQuery(this).addClass('open_it');
-        jQuery('#photo_wizard_start').slideDown();
-        // Set selectrion mode on true
-        selection_mode = true;
-        // Grayscale all the images in order to select which one will we move.
-        jQuery('.leaflet-popup-content img').css('filter','grayscale(1)');
-        
+        if (jQuery('div#open_image_settings_map i').hasClass('open_it')) {
+            jQuery(this).removeClass('open_it');
+            jQuery('#photo_wizard_start').slideUp();
+
+        } else {
+            jQuery(this).addClass('open_it');
+            jQuery('#photo_wizard_start').slideDown();
+            // Set selectrion mode on true
+            selection_mode = true;
+            // Grayscale all the images in order to select which one will we move.
+            jQuery('.leaflet-popup-content img').css('filter', 'grayscale(1)');
+
         }
-        
-        
+
+
     });
 
     // Variable gia na exw to id thw eikonas pou tha xeirizete o controller
     var selected_image_for_control = '';
     // Function pou kanw trigger to click se eikona poy exei postaristei otan to selection mode einai true
-    jQuery(document).on('click','.leaflet-popup-content img', function(){
-        
-        if(selection_mode){
+    jQuery(document).on('click', '.leaflet-popup-content img', function() {
+
+        if (selection_mode) {
             selection_mode = false;
             selected_image_for_control = jQuery(this).attr('give_id');
-            jQuery('img[give_id="'+jQuery(this).attr('give_id')+'"]').addClass('selected_edit_image');
+            jQuery('img[give_id="' + jQuery(this).attr('give_id') + '"]').addClass('selected_edit_image');
             console.log('Selected image is: ' + selected_image_for_control);
+            check_for_existing_values();
         }
 
     });
@@ -605,59 +611,46 @@ map.on('zoomend',function(e){
     var i_left = -55;
     var angle = 0;
 
-    jQuery(document).on('click','.image_toggle_button', function(){
+    function check_for_existing_values(){
 
-        var read_id = jQuery(this).attr('marker_id');
-            
-        
-        if(jQuery(this).hasClass('inactive')){
-            jQuery(this).removeClass('inactive');
-            jQuery('img[give_id="'+read_id+'"]').fadeIn();
-        }else{
-            jQuery(this).addClass('inactive');
-            jQuery('img[give_id="'+read_id+'"]').fadeOut();
+        var demo = JSON.parse(load_image_settings());
+
+        for (k in demo['ImageSettings']) {
+
+            var image_title = jQuery('.selected_edit_image').attr('src');
+            if (demo['ImageSettings'][k]['title'] == image_title) {
+                //alert('Brethike Eikona');
+                i_top = parseInt(demo['ImageSettings'][k]['Top'].replace("px",""));
+                i_left = parseInt(demo['ImageSettings'][k]['Left'].replace("px",""));
+                angle = i_top = parseInt(demo['ImageSettings'][k]['Rotate']);
+                console.log('Found Values Already',i_top,i_left,angle);
+            }
+
         }
         
-    
+    }
+
+    jQuery(document).on('click', '.image_toggle_button', function() {
+
+        var read_id = jQuery(this).attr('marker_id');
+
+
+        if (jQuery(this).hasClass('inactive')) {
+            jQuery(this).removeClass('inactive');
+            jQuery('img[give_id="' + read_id + '"]').fadeIn();
+        } else {
+            jQuery(this).addClass('inactive');
+            jQuery('img[give_id="' + read_id + '"]').fadeOut();
+        }
+
+
     });
 
-/*
-    jQuery(document).on('mousedown','.dirs .up', function(){
-        jQuery('.leaflet-popup-pane img').css('top',i_top--);
-        console.log('Top: ' + jQuery('.leaflet-popup-pane img').css('top'));
-     });
 
-     jQuery(document).on('mousedown','.dirs .down', function(){
-        jQuery('.leaflet-popup-pane img').css('top',i_top++);
-        console.log('Top: ' + jQuery('.leaflet-popup-pane img').css('top'));
-     });
+    var timer = 0;
 
-     jQuery(document).on('mousedown','.dirs .left', function(){
-        jQuery('.leaflet-popup-pane img').css('left',i_left--);
-        console.log('Left: ' + jQuery('.leaflet-popup-pane img').css('left'));
-     });
-
-     jQuery(document).on('mousedown','.dirs .right', function(){
-        jQuery('.leaflet-popup-pane img').css('left',i_left++);
-        console.log('Left: ' + jQuery('.leaflet-popup-pane img').css('left'));
-     });
-
-     jQuery(document).on('mousedown','.dirs .rotate', function(){
-        jQuery('.leaflet-popup-pane img').attr('style','transform:rotate('+angle+++'deg)');
-        console.log('Rotate: ' + jQuery('.leaflet-popup-pane img').css('transform'));
-     });
-
-     jQuery(document).on('mousedown','.dirs .rotate_neg', function(){
-        jQuery('.leaflet-popup-pane img').css('transform','rotate('+angle--+'deg)');
-        jQuery('.leaflet-popup-pane img').attr('style','transform: rotate('+angle--+'deg)');
-        console.log('Rotate: ' + jQuery('.leaflet-popup-pane img').css('transform'));
-     });
-     */
-
-     var timer = 0;
-
-     $('.dirs .rotate_neg').on('mousedown', function() {
-        timer = setInterval(rotatePositive,"50");
+    $('.dirs .rotate_neg').on('mousedown', function() {
+        timer = setInterval(rotatePositive, "50");
         console.log('MouseDown on div');
     }).on('mouseup mouseleave', function() {
         console.log('MouseUp on div');
@@ -666,7 +659,7 @@ map.on('zoomend',function(e){
 
 
     $('.dirs .rotate').on('mousedown', function() {
-        timer = setInterval(rotateNegative,"50");
+        timer = setInterval(rotateNegative, "50");
         console.log('MouseDown on div');
     }).on('mouseup mouseleave', function() {
         console.log('MouseUp on div');
@@ -674,7 +667,7 @@ map.on('zoomend',function(e){
     });
 
     $('.dirs .right').on('mousedown', function() {
-        timer = setInterval(move_right,"50");
+        timer = setInterval(move_right, "50");
         console.log('MouseDown on div');
     }).on('mouseup mouseleave', function() {
         console.log('MouseUp on div');
@@ -682,7 +675,7 @@ map.on('zoomend',function(e){
     });
 
     $('.dirs .left').on('mousedown', function() {
-        timer = setInterval(move_left,"50");
+        timer = setInterval(move_left, "50");
         console.log('MouseDown on div');
     }).on('mouseup mouseleave', function() {
         console.log('MouseUp on div');
@@ -690,7 +683,7 @@ map.on('zoomend',function(e){
     });
 
     $('.dirs .up').on('mousedown', function() {
-        timer = setInterval(move_up,"50");
+        timer = setInterval(move_up, "50");
         console.log('MouseDown on div');
     }).on('mouseup mouseleave', function() {
         console.log('MouseUp on div');
@@ -698,7 +691,7 @@ map.on('zoomend',function(e){
     });
 
     $('.dirs .down').on('mousedown', function() {
-        timer = setInterval(move_down,"50");
+        timer = setInterval(move_down, "50");
         console.log('MouseDown on div');
     }).on('mouseup mouseleave', function() {
         console.log('MouseUp on div');
@@ -707,52 +700,161 @@ map.on('zoomend',function(e){
 
 
 
-    function rotatePositive(){
-        jQuery('img[give_id="'+selected_image_for_control+'"]').attr('style','transform:rotate('+angle+++'deg); margin-top: '+i_top+'px; margin-left:'+i_left+'px');
-        console.log('Rotate: ' + jQuery('img[give_id="'+selected_image_for_control+'"]').css('transform'));
+    function rotatePositive() {
+        jQuery('img[give_id="' + selected_image_for_control + '"]').attr('style', 'transform:rotate(' + angle++ + 'deg); margin-top: ' + i_top + 'px; margin-left:' + i_left + 'px');
+        console.log('Rotate: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('transform'));
     }
 
-    function rotateNegative(){
-        jQuery('img[give_id="'+selected_image_for_control+'"]').attr('style','transform:rotate('+angle--+'deg); margin-top: '+i_top+'px; margin-left:'+i_left+'px');
-        console.log('Rotate: ' + jQuery('img[give_id="'+selected_image_for_control+'"]').css('transform'));
+    function rotateNegative() {
+        jQuery('img[give_id="' + selected_image_for_control + '"]').attr('style', 'transform:rotate(' + angle-- + 'deg); margin-top: ' + i_top + 'px; margin-left:' + i_left + 'px');
+        console.log('Rotate: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('transform'));
     }
 
-    function move_right(){
-        jQuery('img[give_id="'+selected_image_for_control+'"]').attr('style','transform:rotate('+angle+'deg); margin-top: '+i_top+'px; margin-left:'+i_left+++'px');
-        console.log('Left: ' + jQuery('img[give_id="'+selected_image_for_control+'"]').css('left'));
+    function move_right() {
+        jQuery('img[give_id="' + selected_image_for_control + '"]').attr('style', 'transform:rotate(' + angle + 'deg); margin-top: ' + i_top + 'px; margin-left:' + i_left++ + 'px');
+        console.log('Left: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('left'));
     }
 
-    function move_left(){
-        jQuery('img[give_id="'+selected_image_for_control+'"]').attr('style','transform:rotate('+angle+'deg); margin-top: '+i_top+'px; margin-left:'+i_left--+'px');
-        console.log('Left: ' + jQuery('img[give_id="'+selected_image_for_control+'"]').css('left'));
+    function move_left() {
+        jQuery('img[give_id="' + selected_image_for_control + '"]').attr('style', 'transform:rotate(' + angle + 'deg); margin-top: ' + i_top + 'px; margin-left:' + i_left-- + 'px');
+        console.log('Left: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('left'));
     }
 
-    function move_up(){
-        jQuery('img[give_id="'+selected_image_for_control+'"]').attr('style','transform:rotate('+angle+'deg); margin-top: '+i_top--+'px; margin-left:'+i_left+'px');
-        console.log('Top: ' + jQuery('img[give_id="'+selected_image_for_control+'"]').css('top'));
+    function move_up() {
+        jQuery('img[give_id="' + selected_image_for_control + '"]').attr('style', 'transform:rotate(' + angle + 'deg); margin-top: ' + i_top-- + 'px; margin-left:' + i_left + 'px');
+        console.log('Top: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('top'));
     }
 
-    function move_down(){
-        jQuery('img[give_id="'+selected_image_for_control+'"]').attr('style','transform:rotate('+angle+'deg); margin-top: '+i_top+++'px; margin-left:'+i_left+'px');
-        console.log('Top: ' + jQuery('img[give_id="'+selected_image_for_control+'"]').css('top'));
+    function move_down() {
+        jQuery('img[give_id="' + selected_image_for_control + '"]').attr('style', 'transform:rotate(' + angle + 'deg); margin-top: ' + i_top++ + 'px; margin-left:' + i_left + 'px');
+        console.log('Top: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('top'));
     }
 
 
     // Save Button for printed images on map clicked
-    jQuery('#save_settings_img i').click(function(){
-
-        angle = 0;
-        i_left = 0;
+    jQuery('#save_settings_img i').click(function() {
+        console.log('Debug edw: ' + jQuery('.selected_edit_image').attr('src'));
         i_top = 0;
+        i_left = -55;
+        angle = 0;
+
+        // TODO CREATE JSON FILE AND SAVE IMAGE SETTINGS
+        // ean den exei idio onoma me rythmiseis sto json image settings
+        if (!check_if_image_settings_already_exists()) {
+
+            var demo = JSON.parse(load_image_settings());
+
+            var read_left = jQuery('.selected_edit_image').css('margin-left');
+            var read_top = jQuery('.selected_edit_image').css('margin-top');
+            var read_rotate = jQuery('.selected_edit_image').attr('style');
+            var keep_deg = read_rotate.split("rotate(", 3);
+            keep_deg = keep_deg[1].split("deg);", 3);
+
+            demo['ImageSettings'].push({
+                "title": jQuery('.selected_edit_image').attr('src'),
+                "Rotate": keep_deg[0],
+                "Top": read_top,
+                "Left": read_left
+            });
+            console.log('Add new Item', demo);
+            json_data = JSON.stringify(demo);
+            // SAVE JSON FILE
+            var fs = require('fs');
+            //alert(plan_name);
+            
+            fs.mkdir('./projects/' + localStorage.getItem("LoadProject").replace(" ",""), function() {
+                fs.writeFileSync('projects/' + localStorage.getItem("LoadProject").replace(" ","") + '/image_settings.json', JSON.stringify(demo));
+            });
+
+
+
+
+        }
 
         jQuery('.selected_edit_image').removeClass('selected_edit_image');
         jQuery('#photo_wizard_start').slideUp();
         jQuery('#open_image_settings_map i').removeClass('open_it');
-        jQuery('.leaflet-popup-pane img').css('filter','grayscale(0)');
-        // TODO CREATE JSON FILE AND SAVE IMAGE SETTINGS
+        jQuery('.leaflet-popup-pane img').css('filter', 'grayscale(0)');
+
+
+
 
     });
 
+    function check_if_image_settings_already_exists() {
+
+        var demo = JSON.parse(load_image_settings());
+
+        for (k in demo['ImageSettings']) {
+
+            //console.log(demo['ImageSettings'][k]['title']);
+            var image_title = jQuery('.selected_edit_image').attr('src');
+            if (demo['ImageSettings'][k]['title'] == image_title) {
+                //alert('Brethike Eikona');
+
+                var read_left = jQuery('.selected_edit_image').css('margin-left');
+                var read_top = jQuery('.selected_edit_image').css('margin-top');
+                var read_rotate = jQuery('.selected_edit_image').attr('style');
+                var keep_deg = read_rotate.split("rotate(", 3);
+                keep_deg = keep_deg[1].split("deg);", 3);
+
+                demo['ImageSettings'][k]['Rotate'] = keep_deg[0];
+                demo['ImageSettings'][k]['Top'] = read_top;
+                demo['ImageSettings'][k]['Left'] = read_left;
+                // SAVE JSON FILE
+                var fs = require('fs');
+                fs.mkdir('./projects/' + localStorage.getItem("LoadProject").replace(" ",""), function() {
+                    fs.writeFileSync('projects/' + localStorage.getItem("LoadProject").replace(" ","") + '/image_settings.json', JSON.stringify(demo));
+                });
+    
+                console.log('Change Existing Item', demo);
+                return true;
+            }
+
+        }
+
+        return false;
+
+
+    }
+
+
+    function load_image_settings() {
+        var fs = require('fs');
+
+        var contents = fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/image_settings.json', 'utf8');
+        return contents;
+    }
+
+    jQuery('input[type="file"]').change(function(){
+
+        export_project(document.getElementsByTagName('input')[0].files[0].path);
+
+    });
+    
+
+    function export_project(out_dir){
+
+
+        jQuery('#pop_up_container').fadeIn();
+        jQuery('.pop_up_content').prepend('<div class="loader loader--style5" title="4"> <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="30px" viewBox="0 0 24 30" style="enable-background:new 0 0 50 50;" xml:space="preserve"> <rect x="0" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="10" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.2s" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="20" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.4s" dur="0.6s" repeatCount="indefinite" /> </rect> </svg> </div>');
+        jQuery('.pop_up_content p').text('Exporting...');
+        jQuery('.button_all_ok').attr('style', 'display:none;');
+       
+        const zl = require("zip-lib");
+    
+        zl.archiveFolder('./projects/' + localStorage.getItem("LoadProject").replace(" ", "")+'/', out_dir+"/"+localStorage.getItem("LoadProject").replace(" ","")+".zip").then(function () {
+            console.log("Export done");
+            jQuery('#pop_up_container').fadeOut();
+            jQuery('.button_all_ok').attr('style', 'display:block;');
+        }, function (err) {
+            console.log(err);
+        });
+
+
+    }
+
+    //export_project();
 
 
 

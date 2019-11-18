@@ -607,6 +607,7 @@ div#photo_wizard_start .dirs {
     margin: 0 auto;
     color: #fff;
     font-size: 30px;
+    margin-top:12px;
 }
 
 .leaflet-popup-content img:hover {
@@ -616,4 +617,44 @@ div#photo_wizard_start .dirs {
 .leaflet-popup-content img.selected_edit_image{
     border: 2px dashed #fec840;
     filter: grayscale(0) !important;
+}
+
+.dirs div span {
+    display: table;
+    font-size: 12px;
+    color: #fff;
+}
+
+.dirs div {
+    margin: 0 0 0 20px;
+    font-size: 25px;
+    color: #fec840;
+}
+
+div#save_settings_img {
+    float: right;
+    position: absolute;
+    right: 2%;
+    top: 10%;
+    color: #fec840;
+    font-size: 30px;
+    text-align: center;
+    cursor: pointer;
+}
+
+div#save_settings_img:hover {
+    opacity: .8;
+}
+
+div#save_settings_img span {
+    display: table;
+    font-size: 10px;
+    text-align: center;
+    margin-left: 2px;
+    color:#fff;
+}
+
+.dirs div:hover {
+    cursor: pointer;
+    opacity: .8;
 }
