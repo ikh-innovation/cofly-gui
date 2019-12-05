@@ -658,3 +658,16 @@ div#save_settings_img span {
     cursor: pointer;
     opacity: .8;
 }
+
+/* Hide input type file */
+a.navbar-brand.pt-0 input[type="file"] {
+    display: none;
+}
+
+/* On Map Button */
+div#DrawOnMapGallery {
+    width: 94%;
+    margin-left: 0px;
+    margin-bottom: 10px;
+    padding: 5px 5px 5px 5px;
+}

@@ -72,6 +72,9 @@
 
   </style>
 
+
+<input type="file" accept=".zip" >
+
   <div class="buttons_holder">
       
       <div class="ld_projects">Load Projects</div><div class="ne_project">New Project</div>
@@ -90,7 +93,7 @@
         });
 
 
-                jQuery('.ld_projects').click(function(){
+        jQuery('.ld_projects').click(function(){
 
           window.location = "./all_projects.html";
 
@@ -109,7 +112,7 @@
 
     }
 
-         // Check if projects exists else build it
+    // Check if projects exists else build it
     if (fs.existsSync("projects_centers")) {
         // Do something
         //alert('PROJECT ALREADY EXISTS');
@@ -117,10 +120,146 @@
         fs.mkdir('projects_centers', function() {
             fs.writeFileSync('./projects_centers/centers.txt',"plan_name:0;x:0;y:0");
         });
-
     }
 
       });
+    </script>
+
+    <script>
+    jQuery(document).ready(function(){
+
+        jQuery('input[type="file"]').change(function(){
+            var get_file_path = document.getElementsByTagName('input')[0].files[0].path;
+            var get_file_name = document.getElementsByTagName('input')[0].files[0].name;
+            //console.log(get_file_name);
+            // diabazw onoma gia na mporesw na ftiaxw path
+            var read_name = get_file_name.split(".zip",3);
+            //console.log(read_name);
+            console.log(read_name[0]);
+
+            const fs = require("fs"); // Or `import fs from "fs";` with ESM
+            if (fs.existsSync('projects/'+read_name[0])) {
+                // Do something
+                //alert('PROJECT ALREADY EXISTS');
+                extract_zip('/projects/'+read_name[0],get_file_path,read_name[0]);
+            } else {
+                //console.log("not exist");
+                fs.mkdir('projects/'+read_name[0], function() {
+                    extract_zip('/projects/'+read_name[0],get_file_path,read_name[0]);
+                });
+
+            }
+
+            
+
+
+
+            
+            
+        });
+        
+        // Extract Zip 
+        function extract_zip(project_path,zip_path,project_name){
+
+            console.log(project_path,zip_path);
+                
+            var path = require('path');
+            var appDir = path.dirname(require.main.filename);
+            var project_names = [];
+            var extract = require('extract-zip');
+            var source = zip_path;
+            var target = appDir + project_path;
+            console.log(target);
+
+
+            extract(source, {dir: target}, function (err) {
+            // extraction is complete. make sure to handle the err
+            try{
+                var data = JSON.parse(load_project_polygon(target+'/'));
+                alert('Project Imoprted Succcesfully');
+            }catch(error){
+                console.log('Cant load');
+                
+                var rimraf = require("rimraf");
+                rimraf(appDir+"/projects/"+project_name, function () { 
+                    console.log("Remove Done"); 
+                });
+            }
+            
+            console.log(data["features"][0]["geometry"]);
+
+            var polygonCenter = require('geojson-polygon-center');
+            var center = polygonCenter(data["features"][0]["geometry"]);
+
+
+            var load_centers = load_projects_centers();
+            var split_projects_center = load_centers.split(",");
+            
+            jQuery.each(split_projects_center, function( index, value ) {
+                temp_name = value.split("plan_name:");
+                keep_name = temp_name[1].split(";");
+                project_names.push(keep_name[0]);
+            });
+
+            var item_exists = jQuery.inArray( project_name, project_names );
+
+            if(item_exists > 0){
+
+                console.log('Do not touch center of project');
+
+            }else{
+
+                load_centers += ',plan_name:'+project_name+';x:'+center["coordinates"][0]+';y:'+center["coordinates"][1];
+
+            const fs = require("fs");
+            fs.mkdir('projects_centers', function() {
+                fs.writeFileSync('./projects_centers/centers.txt', load_centers);
+            });
+
+
+            console.log('Centers Updated');
+
+            }
+
+        
+            
+
+            });
+
+        }
+
+
+        // Function in order to Call User database ( /login_system/users.txt)
+        function load_project_polygon(file_path) {
+            var fs = require('fs');
+            //var rimraf = require("rimraf");
+            //rimraf("/some/directory", function () { console.log("done"); });
+
+           try {
+                var contents = fs.readFileSync(file_path+'/map_data.geojson', 'utf8');
+            }
+            catch(error) {
+                 console.error('Cant find Map_data.geojson');
+            // expected output: ReferenceError: nonExistentFunction is not defined
+            // Note - error messages will vary depending on browser
+            }
+            
+            return contents;
+        }
+
+        // Function in order to Call User database ( /login_system/users.txt)
+        function load_projects_centers() {
+            var fs = require('fs');
+            var contents = fs.readFileSync('./projects_centers/centers.txt', 'utf8');
+            return contents;
+        }
+
+
+        
+
+
+        
+    });
     </script>
 
   </body>

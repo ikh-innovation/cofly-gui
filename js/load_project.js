@@ -33,6 +33,17 @@ jQuery(document).ready(function() {
     }
 
 
+    // RUN EXCECUTABLE HERE
+    var child = require('child_process').execFile;
+var executablePath = "C:/Python36/dist/app.exe";
+//var parameters = ["--incognito"];
+
+child(executablePath, function(err, data) {
+     console.log(err)
+     console.log(data.toString());
+});
+
+
 
     // check if load proejext exists
     var project_path = localStorage.getItem("LoadProject");
@@ -45,11 +56,11 @@ jQuery(document).ready(function() {
     var map = L.mapbox.map('map').setView([parseFloat(clean_center[1]), parseFloat(clean_center[0])], 17);
 
     // Disable Zoom Map 
-    /*
+    
     map.touchZoom.disable();
     map.doubleClickZoom.disable();
     map.scrollWheelZoom.disable();
-*/
+
 
 
 
@@ -124,8 +135,7 @@ jQuery(document).ready(function() {
         //    image_settings_wizard(lat[0], lon[0]);
        // } else {
 
-           
-
+        
             L.popup({
                     closeButton: false,
                     closeOnClick: false,
@@ -143,8 +153,8 @@ jQuery(document).ready(function() {
 
 
 
-            console.log(file_link);
-            console.log(lat[0], lon[0]);
+            //console.log(file_link);
+            //console.log(lat[0], lon[0]);
        // }
 
     }
@@ -284,6 +294,8 @@ jQuery(document).ready(function() {
         res.status(200).send('Path Received');
 
         jQuery('#pop_up_container').fadeOut();
+        jQuery('div#calculate_path_planing').fadeOut();
+        jQuery('div#start_scanning').fadeIn();
         jQuery('.button_all_ok').attr('style', 'display:block;');
 
         // Exei lifthei to monopati opote to apothikeuw se arxeio ston fakelo tou project
@@ -610,6 +622,7 @@ jQuery(document).ready(function() {
     var i_top = 0;
     var i_left = -55;
     var angle = 0;
+    var opacity = 0;
 
     function check_for_existing_values(){
 
@@ -651,50 +664,50 @@ jQuery(document).ready(function() {
 
     $('.dirs .rotate_neg').on('mousedown', function() {
         timer = setInterval(rotatePositive, "50");
-        console.log('MouseDown on div');
+        //console.log('MouseDown on div');
     }).on('mouseup mouseleave', function() {
-        console.log('MouseUp on div');
+        //console.log('MouseUp on div');
         clearInterval(timer);
     });
 
 
     $('.dirs .rotate').on('mousedown', function() {
         timer = setInterval(rotateNegative, "50");
-        console.log('MouseDown on div');
+        //console.log('MouseDown on div');
     }).on('mouseup mouseleave', function() {
-        console.log('MouseUp on div');
+        //console.log('MouseUp on div');
         clearInterval(timer);
     });
 
     $('.dirs .right').on('mousedown', function() {
         timer = setInterval(move_right, "50");
-        console.log('MouseDown on div');
+        //console.log('MouseDown on div');
     }).on('mouseup mouseleave', function() {
-        console.log('MouseUp on div');
+        //console.log('MouseUp on div');
         clearInterval(timer);
     });
 
     $('.dirs .left').on('mousedown', function() {
         timer = setInterval(move_left, "50");
-        console.log('MouseDown on div');
+        //console.log('MouseDown on div');
     }).on('mouseup mouseleave', function() {
-        console.log('MouseUp on div');
+        //console.log('MouseUp on div');
         clearInterval(timer);
     });
 
     $('.dirs .up').on('mousedown', function() {
         timer = setInterval(move_up, "50");
-        console.log('MouseDown on div');
+        //console.log('MouseDown on div');
     }).on('mouseup mouseleave', function() {
-        console.log('MouseUp on div');
+        //console.log('MouseUp on div');
         clearInterval(timer);
     });
 
     $('.dirs .down').on('mousedown', function() {
         timer = setInterval(move_down, "50");
-        console.log('MouseDown on div');
+        //console.log('MouseDown on div');
     }).on('mouseup mouseleave', function() {
-        console.log('MouseUp on div');
+        //console.log('MouseUp on div');
         clearInterval(timer);
     });
 
@@ -702,32 +715,44 @@ jQuery(document).ready(function() {
 
     function rotatePositive() {
         jQuery('img[give_id="' + selected_image_for_control + '"]').attr('style', 'transform:rotate(' + angle++ + 'deg); margin-top: ' + i_top + 'px; margin-left:' + i_left + 'px');
-        console.log('Rotate: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('transform'));
+        //console.log('Rotate: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('transform'));
     }
 
     function rotateNegative() {
         jQuery('img[give_id="' + selected_image_for_control + '"]').attr('style', 'transform:rotate(' + angle-- + 'deg); margin-top: ' + i_top + 'px; margin-left:' + i_left + 'px');
-        console.log('Rotate: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('transform'));
+        //console.log('Rotate: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('transform'));
     }
 
     function move_right() {
         jQuery('img[give_id="' + selected_image_for_control + '"]').attr('style', 'transform:rotate(' + angle + 'deg); margin-top: ' + i_top + 'px; margin-left:' + i_left++ + 'px');
-        console.log('Left: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('left'));
+        //console.log('Left: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('left'));
     }
 
     function move_left() {
         jQuery('img[give_id="' + selected_image_for_control + '"]').attr('style', 'transform:rotate(' + angle + 'deg); margin-top: ' + i_top + 'px; margin-left:' + i_left-- + 'px');
-        console.log('Left: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('left'));
+        //console.log('Left: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('left'));
     }
 
     function move_up() {
         jQuery('img[give_id="' + selected_image_for_control + '"]').attr('style', 'transform:rotate(' + angle + 'deg); margin-top: ' + i_top-- + 'px; margin-left:' + i_left + 'px');
-        console.log('Top: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('top'));
+        //console.log('Top: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('top'));
     }
 
     function move_down() {
+        opacity_down();
         jQuery('img[give_id="' + selected_image_for_control + '"]').attr('style', 'transform:rotate(' + angle + 'deg); margin-top: ' + i_top++ + 'px; margin-left:' + i_left + 'px');
-        console.log('Top: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('top'));
+        //console.log('Top: ' + jQuery('img[give_id="' + selected_image_for_control + '"]').css('top'));
+    }
+
+    function opacity_up(){
+        jQuery('img[give_id="' + selected_image_for_control + '"]').attr('style', 'transform:rotate(' + angle + 'deg); margin-top: ' + i_top + 'px; margin-left:' + i_left + 'px; opacity:'+opacity++);
+        
+    }
+
+    
+    function opacity_down(){
+        jQuery('img[give_id="' + selected_image_for_control + '"]').attr('style', 'transform:rotate(' + angle + 'deg); margin-top: ' + i_top + 'px; margin-left:' + i_left + 'px; opacity:'+opacity--);
+        
     }
 
 
@@ -833,6 +858,8 @@ jQuery(document).ready(function() {
     });
     
 
+
+    // initialise function Export Project 
     function export_project(out_dir){
 
 
@@ -854,8 +881,29 @@ jQuery(document).ready(function() {
 
     }
 
-    //export_project();
+    // Draw Map Click Handler
+    jQuery('div#DrawOnMapGallery').click(function(){
 
+
+        DrawImagesOnMap();
+        
+        
+    });
+
+    // Initialise function draw images on map
+    function DrawImagesOnMap(){
+
+        // Dropdown menu 
+        jQuery('div#photo_picker_receiver_start').slideDown();
+        // Clear all markers from the images toolbox
+        console.log('working');
+    
+    }
+
+
+
+
+    
 
 
 
