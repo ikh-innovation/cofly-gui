@@ -13,74 +13,74 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
     <!-- Icons -->
     <!-- CSS Files -->
-    <link href="css/argon-dashboard.css?v=1.1.0" rel="stylesheet" />
-    <link href="css/style.css" rel="stylesheet" />
+    
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+	
+	        <link href="https://fonts.googleapis.com/css?family=Pathway+Gothic+One|Source+Sans+Pro:400" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+<link rel="stylesheet" href="css/3divs_css.css">
 
-    
-        <!--Add mapbox.js -->
-    <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.css' rel='stylesheet' />
-
-    <!--Add draw plugin -->
-    <link rel='stylesheet' href='http://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.css' />
-    <script src='http://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.js'></script>
+	
+	
   
 </head>
 
 <body class="action_picker">
 
-  <style>
-
-.ld_projects {
-    width: 15%;
-    margin: 0 auto;
-}
-
-.buttons_holder {
-    width: 100vw;
-    margin: 0 auto;
-    text-align: center;
-    margin-top: 27%;
-    position: absolute;
-}
-
-.ne_project {
-    width: 20%;
-    margin: 0 auto;
-    display: inline-block;
-    background: transparent;
-    color: #333;
-    padding: 10px;
-    font-size: 20px;
-    border: 1px solid #fec840;
-    cursor: pointer;
-}
-
-.ld_projects {
-    width: 20%;
-    margin: 0 auto;
-    display: inline-block;
-    background: #fec840;
-    color: #333;
-    padding: 10px;
-    font-size: 20px;
-    margin-right: 10%;
-    cursor: pointer;
-}
-
-  </style>
 
 
-<input type="file" accept=".zip" >
-
-  <div class="buttons_holder">
-      
-      <div class="ld_projects">Load Projects</div><div class="ne_project">New Project</div>
-      
-      <div class=""></div>
+<input type="file" accept=".zip" style="display:none;">
+	
+	<section id="timeline">
+  
+  <div class="tl-item ld_projects">
+    
+    <div class="tl-bg" style="background-image: url(img/img1.jpg);"></div>
+    
+    <div class="tl-year">
+      <p class="f2 heading--sanSerif">LOAD PROJECT</p>
     </div>
+
+    <div class="tl-content">
+      <h1>Lorem ipsum dolor sit</h1>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit.</p>
+    </div>
+  </div>
+
+  <div class="tl-item ne_project">
+    
+    <div class="tl-bg" style="background-image: url(img/img2.jpg);"></div>
+    
+    <div class="tl-year">
+      <p class="f2 heading--sanSerif">CREATE PROJECT</p>
+    </div>
+
+    <div class="tl-content">
+      <h1 class="f3 text--accent ttu">Vestibulum laoreet lorem</h1>
+      <p>Suspendisse potenti. Sed sollicitudin eros lorem, eget accumsan risus dictum id. Maecenas dignissim ipsum vel mi rutrum egestas. Donec mauris nibh, facilisis ut hendrerit vel, fringilla sed felis. Morbi sed nisl et arcu.</p>
+    </div>
+
+  </div>
+  
+  <div class="tl-item im_project">
+    
+    <div class="tl-bg" style="background-image: url(img/img3.jpg);"></div>
+    
+    <div class="tl-year">
+      <p class="f2 heading--sanSerif">IMPORT PROJECT</p>
+    </div>
+
+    <div class="tl-content">
+      <h1 class="f3 text--accent ttu">Vestibulum laoreet lorem</h1>
+      <p>Suspendisse potenti. Sed sollicitudin eros lorem, eget accumsan risus dictum id. Maecenas dignissim ipsum vel mi rutrum egestas. Donec mauris nibh, facilisis ut hendrerit vel, fringilla sed felis. Morbi sed nisl et arcu.</p>
+    </div>
+
+  </div>
+
+
+ 
+</section>
 
     <script type="text/javascript">
       
@@ -98,6 +98,16 @@
           window.location = "./all_projects.html";
 
         });
+		
+		
+        jQuery('.im_project').click(function(){
+
+          jQuery('input[type="file"]').click();
+
+        });
+		
+		
+		
 
             // Check if projects exists else build it
     const fs = require("fs"); // Or `import fs from "fs";` with ESM

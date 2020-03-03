@@ -5,6 +5,7 @@ jQuery(document).ready(function() {
 
     print_project_gallery();
     var show_slide = true;
+    var can_save_image = false;
     /* BETA TESTING FOR DIRECTORY FILES */
     function print_project_gallery() {
         jQuery('ul.project_gallery_render li').remove();
@@ -33,20 +34,25 @@ jQuery(document).ready(function() {
     }
 
 
+
+
+
     // RUN EXCECUTABLE HERE
     var child = require('child_process').execFile;
-var executablePath = "C:/Python36/dist/app.exe";
-//var parameters = ["--incognito"];
+    var executablePath = "C:/Python36/dist/app.exe";
+    //var parameters = ["--incognito"];
 
-child(executablePath, function(err, data) {
-     console.log(err)
-     console.log(data.toString());
-});
+    child(executablePath, function(err, data) {
+        console.log(err)
+        console.log(data.toString());
+    });
+
 
 
 
     // check if load proejext exists
     var project_path = localStorage.getItem("LoadProject");
+    load_project_calulated_path();
 
     var get_center = localStorage.getItem("LoadedProjectCenter");
     var clean_center = get_center.split(",");
@@ -55,12 +61,14 @@ child(executablePath, function(err, data) {
     // Initialize map
     var map = L.mapbox.map('map').setView([parseFloat(clean_center[1]), parseFloat(clean_center[0])], 17);
 
+
     // Disable Zoom Map 
     
     map.touchZoom.disable();
     map.doubleClickZoom.disable();
     map.scrollWheelZoom.disable();
 
+    
 
 
 
@@ -80,6 +88,8 @@ child(executablePath, function(err, data) {
     }).addTo(map);
 
     var featureGroup = L.featureGroup().addTo(map);
+
+    
 
     var drawControl = new L.Control.Draw({
         edit: {
@@ -116,13 +126,46 @@ child(executablePath, function(err, data) {
         popupAnchor: [0, 0] // point from which the popup should open relative to the iconAnchor
 
     });
+    
+    /* Apofugei empodiwn draw new polygons */
+    
+    // test oti fortwnw sto featurefroup layers 
+    //featureGroup.addLayer(disabled_paths());
+    //console.log(disabled_paths());
+    map.on('draw:created', function(e) {
+        //alert('Create new');
+        
+        // Each time a feaute is created, it's added to the over arching feature group
+        featureGroup.addLayer(e.layer);
+        all_new_disabled_paths = featureGroup.toGeoJSON();
+        var old_disabled = disabled_paths_read();
+        temp_json = JSON.stringify(all_new_disabled_paths["features"]).slice(0,-1);
+        if(old_disabled == "" || old_disabled == " "){
+            alert('einai adeio');
+            fs.writeFileSync('./projects/' + project_path.replace(" ", "") + '/disabled_paths.geojson','{"type":"FeatureCollection","features":['+temp_json.slice(1) + ']}');
+        }else{
+            var old_disabled = disabled_paths_read().slice(0,-2);
+            console.log(old_disabled + ','+ temp_json.slice(1) + ']}');
+            fs.writeFileSync('./projects/' + project_path.replace(" ", "") + '/disabled_paths.geojson', old_disabled + ','+ temp_json.slice(1) + ']}');
+        }
+        
+
+
+        //console.log(JSON.stringify(featureGroup.toGeoJSON()));
+    
+    
+    });
+
+
 
     const path = require('path');
 
 
     var image_count = 0;
 
-    function post_image_with_marker(file_link) {
+    
+
+/*     function post_image_with_marker(file_link) {
 
         image_count++;
         jQuery('#photo_picker_receiver_start').slideDown();
@@ -157,7 +200,7 @@ child(executablePath, function(err, data) {
             //console.log(lat[0], lon[0]);
        // }
 
-    }
+    } */
 
 
     // Trigger zoom event on map ( Change all markers size )
@@ -194,24 +237,6 @@ child(executablePath, function(err, data) {
     });
 
 
-
-    function image_settings_wizard(lat, lon) {
-        console.log('Image settings wizard');
-        var lat_f = lat;
-        var lon_f = lon;
-
-        // Draw image in order to rotate
-        var center = [lat_f, lon_f];
-        var imageUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Sydney_Opera_House_-_Dec_2008.jpg/1024px-Sydney_Opera_House_-_Dec_2008.jpg',
-            imageBounds = [center, [-10, -20]];
-
-        L.imageOverlay(imageUrl, imageBounds).addTo(map);
-
-        // Slide Down Image Settings
-        jQuery('div#photo_wizard_start').slideDown();
-        console.log(lat_f, lon_f);
-    }
-
     /* LISTEN NEW SERVICE  UPLOAD FILE TO PROJECT FILE */
     const express = require('express');
     const multer = require('multer');
@@ -221,70 +246,137 @@ child(executablePath, function(err, data) {
 
     var app = express();
     app.use(express.static(__dirname));
-
+/*
     app.use(bodyParser.urlencoded({
-        extended: false
+        extended: true
     }));
+    */
+    app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({limit: '50mb'}));
     app.use(bodyParser.json());
 
 
-    app.post('/drone_location', function(req, res) {
+    app.post('/post_location', function(req, res) {
+      
 
+        
+//console.log(res.req.body);
         var location = req.body;
 
-        var drone_longtitude = location.DataObject.position[0]["longitude"];
-        var drone_latitude = location.DataObject.position[0]["latitude"];
+        var drone_longtitude = res.req.body.lng;
+        var drone_latitude = res.req.body.lat;
 
         //delete previous mark if exist
         jQuery('.leaflet-marker-pane img').remove();
 
         // draw new marker [Current] drone location
         var marker = L.marker(
-            [drone_longtitude, drone_latitude], {
+            [drone_latitude,drone_longtitude], {
                 title: 'Drone Current Position',
                 icon: drone_icon
             }
         ).addTo(map);
 
-        map.panTo(new L.LatLng(drone_longtitude, drone_latitude));
+        map.panTo(new L.LatLng(drone_latitude, drone_longtitude));
 
-
+            
 
 
         res.status(200).send('Drone Location Received');
     });
 
+
+
+    app.post('/scan_completed', function(req, res) {
+
+        var path = req.body;
+        //alert('Job Done');
+        console.log(path);
+        can_save_image = false;
+        show_slide = true;
+        res.status(200).send('ok');
+
+        jQuery('#scan_completed').fadeIn();
+        jQuery('div#start_scanning').fadeIn();
+        jQuery('div#cancel_scanning').fadeOut();
+
+        var get_center = localStorage.getItem('LoadedProjectCenter').split(",");
+        // create link depending the center of project and call the weather api 
+        // http://api.openweathermap.org/data/2.5/weather?lat=37.969059771389645&lon=23.746398389339447&APPID=f6f1b45b882965c039fae9390a8250e4
+        jQuery.get( 'http://api.openweathermap.org/data/2.5/weather?lat='+get_center[1]+'&lon='+get_center[0]+'&APPID=f6f1b45b882965c039fae9390a8250e4', function( data ) {
+            console.log(data);
+
+            var wind_speed = data.wind["speed"];
+            var max_temp = Math.abs(data.main["temp_max"]-272.15);
+            var min_temp = Math.abs(data.main["temp_min"]-272.15);
+            var humidity = data.main["humidity"];
+            var weather_description = data.weather[0]["description"];
+
+            let unix_timestamp = data.sys["sunset"];
+            var date = new Date(unix_timestamp * 1000);
+            var hours = date.getHours();
+            var minutes = "0" + date.getMinutes();
+            var seconds = "0" + date.getSeconds();
+            var sunset = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+            
+            //console.log(parseInt(max_temp),parseInt(min_temp),humidity,wind_speed,sunset,weather_description);
+            // Set Content 
+            jQuery('span#weather_desc').text(weather_description);
+            jQuery('.weather_stats ul li:nth-child(1) p').text(parseInt(min_temp) + ' - ' + parseInt(max_temp) + ' °C');
+            jQuery('.weather_stats ul li:nth-child(2) p').text(humidity + ' %');
+            jQuery('.weather_stats ul li:nth-child(3) p').text(wind_speed + ' km/h');
+            jQuery('.weather_stats ul li:nth-child(4) p').text(sunset);
+
+          });
+
+
+    });
+
+
+
+    // Receive data to trigger save image
+    app.post('/can_save_image', function(req, res) {
+
+        can_save_image = true;
+        res.status(200).send('ok');
+        
+
+    });
+    
+
     // To python script apo KETA stelnei se auto to link to ypologismeno monopati pou tha akoloutheisei to drone.
 
     app.post('/calculated_path', function(req, res) {
-        //console.log(req.body);
-
-
-        var path = req.body;
-        console.log(path);
-        var pointList = [];
-
-        for (var points = 0; points < path.DataObject.path.waypoints.length; points++) {
-
-            //var tmp_point = new L.LatLng(path.DataObject.path.waypoints[points]);
-
-
-            var test = String(path.DataObject.path.waypoints[points]);
-            //console.log(test);
-            var res_g = test.split("{latitude: ", 3);
-            var res_t = test.split(", lognitude :", 3);
-            var lon = res_t[1].split(" }", 3);
-            var lat = res_g[1].split(" ,", 3);
-
-            var tmp_point = new L.LatLng($.trim(lon[0]), $.trim(lat[0]));
-            pointList.push(tmp_point);
-        }
+        
+            //console.log(req.body);
+    
+    
+            var path = req.body;
+            console.log(path);
+            var pointList = [];
+    
+            for (var points = 0; points < path.DataObject.path.waypoints.length; points++) {
+    
+                //var tmp_point = new L.LatLng(path.DataObject.path.waypoints[points]);
+    
+    
+                var test = String(path.DataObject.path.waypoints[points]);
+                //console.log(test);
+                var res_g = test.split("{latitude: ", 3);
+                var res_t = test.split(", lognitude :", 3);
+                var lon = res_t[1].split(" }", 3);
+                var lat = res_g[1].split(" ,", 3);
+    
+                var tmp_point = new L.LatLng($.trim(lon[0]), $.trim(lat[0]));
+                pointList.push(tmp_point);
+            }
         console.log(pointList);
         var firstpolyline = new L.Polyline(pointList, {
-            color: 'red',
+            color: 'purple',
             weight: 3,
-            opacity: 0.5,
-            smoothFactor: 1
+            opacity: 0.8,
+            smoothFactor: 1,
+            className : 'CalculatedPathRender'
         });
         // This is an amazing polyline in order to communicate 
         firstpolyline.addTo(map);
@@ -297,6 +389,7 @@ child(executablePath, function(err, data) {
         jQuery('div#calculate_path_planing').fadeOut();
         jQuery('div#start_scanning').fadeIn();
         jQuery('.button_all_ok').attr('style', 'display:block;');
+        jQuery('path.leaflet-clickable').first().attr('style','fill:transparent;');
 
         // Exei lifthei to monopati opote to apothikeuw se arxeio ston fakelo tou project
 
@@ -338,24 +431,34 @@ child(executablePath, function(err, data) {
 
     // GET POST UPLOAD IMAGE FUNCTION erxetai apo to drone kai ginontai sync oi eikones
     app.post('/post_image/', upload.any(), (req, res) => {
-        //console.log('POST /post_image/');
-        //console.log('Files: ', req.files);
-        if (show_slide) {
-            show_slide_message("Gallery Sync Started");
-        }
-        fs.writeFile('./projects/' + localStorage.getItem("LoadProject").replace(" ", "") + '/project_images/' + req.files[0].originalname, req.files[0].buffer, (err) => {
-            if (err) {
-                console.log('Error: ', err);
-                res.status(500).send('An error occurred: ' + err.message);
-            } else {
-                res.status(200).send('ok');
-                post_image_with_marker(req.files[0].originalname);
-                // FS CHECK DIRECTORY IMAGES and recreate thumbnails
-                // function gia na sbisw oles tis photo pou uphrxan kai na rendarw tiw kainourgies
-                print_project_gallery();
 
+        console.log('Can Save: ',can_save_image)
+
+ 
+        var base64Data = req.body.image.replace(/^data:image\/png;base64,/, "");
+        const uuidv4 = require('uuid/v4'); // I chose v4 ‒ you can select others
+        var filename = uuidv4(); // '110ec58a-a0f2-4ac4-8393-c866d813b8d1'
+
+        //console.log('./projects/' + localStorage.getItem("LoadProject").replace(" ", "") +  '/project_images/' + filename + '.jpg');
+        if(can_save_image){
+
+            if (show_slide) {
+                show_slide_message("Gallery Sync Started");
             }
+            
+        
+        require("fs").writeFile(localStorage.getItem('Save_Image_Path') +'/' + filename + '.jpg', base64Data, 'base64', function(err) {
+        
+        if(err){
+            console.log(err);
+        }else{
+            print_project_gallery();
+            res.status(200).send('ok');
+    }
         });
+    }else{
+        res.status(200).send('ok');
+    }
     });
 
 
@@ -370,7 +473,7 @@ child(executablePath, function(err, data) {
     function show_slide_message(message_string) {
         jQuery('.slide_messages ul p').text(message_string);
 
-        if (show_slide = true) {
+        if (show_slide) {
             show_slide = false;
             jQuery(".slide_messages ul").animate({
                 width: 'toggle'
@@ -389,7 +492,7 @@ child(executablePath, function(err, data) {
 
         setTimeout(function() {
 
-            show_slide = true;
+            //show_slide = true;
 
         }, 10000);
 
@@ -459,15 +562,126 @@ child(executablePath, function(err, data) {
         jQuery('.pop_up_content p').text('Path Calculation Started');
         jQuery('.button_all_ok').attr('style', 'display:none;');
 
+
+        // Rewrite json and trigger locked value on
+
+        var plan_name = jQuery('input#plan_name').val();
+        var altitude = jQuery('input#altitude_show').val().replace('m','');
+        var direction_show = jQuery('input#direction_show').val().replace('°','');
+        var scanning_distance = jQuery('input#scanning_distance_now').val().replace('m','');
+        var gimbal_pitch = jQuery('input#gimbal_pitch').val().replace('°','');
+        var drone_speed = jQuery('input#drone_speed').val().replace('m/s','');
+        var acres = jQuery('span#acres_num').text();
+
+        var prepare_json_project = '{"CoFly": { "Plan_Name":"' + plan_name + '", "Calculated_Minutes":"' + '--:--' + '","Calculated_Acres":"' + acres + '","Altitude":"' + altitude + '","Rotation":"' + direction_show + '","Lock_Project":"1","Scanning_Distance":"'+scanning_distance+'","Gimbal_Pitch":"'+gimbal_pitch+'","Drone_Speed":"'+drone_speed+'" } }';
+
+        fs.mkdir('./projects/' + plan_name, function() {
+            fs.writeFileSync('projects/' + plan_name + '/proj_settings.json', prepare_json_project);
+        });
+
+
+
+
+
     });
 
     // START PATH BUTTON TRIGGER
     jQuery('div#start_scanning').click(function() {
 
-        // SEND POST REQUEST TO DRONE IN ORDER TO START THE EXCECUTION OF PATH
+        jQuery('div#cancel_scanning').fadeIn();
+        jQuery(this).fadeOut();
+        // datetime now
+        var date_time = Date.now();
+        //console.log(date_time);
 
+        fs.mkdir('./projects/' + localStorage.getItem("LoadProject").replace(" ","")+'/project_images/'+date_time, function() {
+            localStorage.setItem('Save_Image_Path','./projects/' + localStorage.getItem("LoadProject").replace(" ","")+'/project_images/'+date_time);
+        });
+
+
+        var contents = JSON.parse(fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/paths/calculated_path.json', 'utf8'));
+        var path_obj = JSON.parse(contents);
+        //console.log(JSON.stringify(path_obj.DataObject.path.waypoints));
+    
+        data_send = '{"missionID":1,"time":1575213238186,"waypoints":'+JSON.stringify(path_obj.DataObject.path.waypoints)+',"altitude":15.0,"speed":5.0,"gimbalPitch":45.0}';
+        var new_data = {"missionID":1,"time":1575213238186,"waypoints":[{"lat":37.96801664793166,"lng":23.74654090605244},{"lat":37.967877700862395,"lng":23.746668089091877},{"lat":37.968270729863285,"lng":23.747049354187133},{"lat":37.96840967720364,"lng":23.746922171023495},{"lat":37.96815559500093,"lng":23.746668089091877},{"lat":37.96829992273745,"lng":23.746511997449733},{"lat":37.96880808660068,"lng":23.747020161312964},{"lat":37.968947033909885,"lng":23.746892978149326},{"lat":37.968438869504496,"lng":23.746384814286092},{"lat":37.96858319599752,"lng":23.746228724189667},{"lat":37.96934544179237,"lng":23.74699096998452},{"lat":37.96948438907043,"lng":23.746863786820878},{"lat":37.968722142462354,"lng":23.74610154102603},{"lat":37.96886646771189,"lng":23.745945452475294},{"lat":37.969628713506744,"lng":23.746707698270146},{"lat":37.970050930349025,"lng":23.74629724493785},{"lat":37.9699119836754,"lng":23.746170061898415},{"lat":37.969628713506744,"lng":23.74645333206707},{"lat":37.96886646771189,"lng":23.745691086272217},{"lat":37.96801664793166,"lng":23.74654090605244}],"altitude":15.0,"speed":5.0,"gimbalPitch":45.0 }
+        // SEND POST REQUEST TO DRONE IN ORDER TO START THE EXCECUTION OF PATH
+        setTimeout(function(){ 
+        jQuery.ajax({
+            type: "POST",
+            url: "http://localhost:8080/api/missionStart",
+            data: JSON.stringify(data_send),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){             
+                console.log(data);              
+            },
+            failure: function(errMsg) {
+                alert(errMsg);
+            }
+        });
+        }, 1000);
+        
 
     });
+
+    // ABORT scanning 
+    jQuery('div#cancel_scanning').click(function(){
+
+        console.log('Abort scanning');
+        var data_send = { "missionID": 1, "time": 1575213238186 };
+        console.log(JSON.stringify(data_send));
+        jQuery.ajax({
+            type: "POST",
+            url: "http://localhost:8080/api/missionAbort",
+            // The key needs to match your method's input parameter (case-sensitive).
+            data: JSON.stringify(data_send),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+                
+                console.log(data);
+                jQuery('div#cancel_scanning').fadeOut();
+                jQuery('div#start_scanning').fadeIn();
+ 
+
+                // func in order to delete folder + files
+                var fs = require('fs');
+                var deleteFolderRecursive = function(path) {
+                if( fs.existsSync(path) ) {
+                    fs.readdirSync(path).forEach(function(file,index){
+                    var curPath = path + "/" + file;
+                    if(fs.lstatSync(curPath).isDirectory()) { // recurse
+                        deleteFolderRecursive(curPath);
+                    } else { // delete file
+                        fs.unlinkSync(curPath);
+                    }
+                    });
+                    fs.rmdirSync(path);
+                }
+                };
+
+                // Delete created path + images
+                deleteFolderRecursive(localStorage.getItem('Save_Image_Path') +'/');
+
+                // reset variables
+                can_save_image = false;
+
+
+                
+                
+            },
+            failure: function(errMsg) {
+                alert(errMsg);
+            }
+        });
+
+    });
+
+    function scan_complete(){
+        jQuery('div#cancel_scanning').fadeOut();
+        jQuery('div#start_scanning').fadeIn();
+    }
 
 
     // function in order to call loaded project settings
@@ -479,9 +693,60 @@ child(executablePath, function(err, data) {
         return contents;
     }
 
+       // function in order to call loaded project settings
+
+    function load_project_calulated_path() {
+
+        var fs = require('fs');
+        try{
+            fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/paths/calculated_path.json', 'utf8');
+            var contents = fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/paths/calculated_path.json', 'utf8');
+            jQuery('div#calculate_path_planing').fadeOut();
+            jQuery('div#start_scanning').fadeIn();
+
+        }catch(err){
+            return false;
+        }
+        
+        //console.log(contents);
+        //return contents;
+        try {
+      
+            setTimeout(function(){ 
+            var map_Data_load = JSON.parse(contents);
+            var map_Data = JSON.parse(map_Data_load);
+            var size_of_path = map_Data.DataObject.path.waypoints.length;
+            var pointList = [];
+            for (var points = 0; points < size_of_path; points++) {
+                var tmp_point = new L.LatLng(map_Data.DataObject.path.waypoints[points].lat,map_Data.DataObject.path.waypoints[points].lng);
+                pointList.push(tmp_point);
+            }
+            var firstpolyline = new L.Polyline(pointList, {
+                color: 'red',
+                weight: 3,
+                opacity: 0.8,
+                smoothFactor: 1,
+                className : 'CalculatedPathRender'
+            });
+            // This is an amazing polyline in order to communicate 
+            firstpolyline.addTo(map);
+            jQuery('path.leaflet-clickable').first().attr('style','fill:transparent;');
+        }, 1500);
+          }
+          catch(err) {
+              console.log(err);
+            //console.log('There is not calculated path on the project');
+            //return false;
+          }
+
+    }
+
+
+
     //initialize project map and render it into map
     load_map_project();
-    
+    // initialize project timeline
+    jQuery("div#timeline_div").load("scan_timeline.html");
     // render again input slider 
     function load_map_project() {
         var fs = require('fs');
@@ -490,6 +755,68 @@ child(executablePath, function(err, data) {
         L.geoJson(JSON.parse(contents)).addTo(map);
         return contents;
     }
+
+        //initialize project map and render it into map
+        disabled_paths();
+        // render disabled paths
+        function disabled_paths() {
+            var fs = require('fs');
+    
+            var contents = fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/disabled_paths.geojson', 'utf8');
+            try{
+                L.geoJson(JSON.parse(contents)).addTo(map);
+            }catch(err){
+                console.log(err);
+            }
+            return contents;
+        }
+
+        // function gia na mou epistefei se json to arxeio twn disabled paths kai na mporw na to epexergastw
+        function disabled_paths_read() {
+            var fs = require('fs');
+    
+            var contents = fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/disabled_paths.geojson', 'utf8');
+            return contents;
+        }
+
+/*         jQuery(document).on("click","svg.leaflet-zoom-animated g:nth-child(n+2) path",function() {
+
+            console.log('Must delete svg and regerate layers delete');
+            var index = jQuery("svg.leaflet-zoom-animated g:nth-child(n+2) path").index(this);
+            alert(index);
+            var get_file = JSON.parse(disabled_paths_read());
+            
+
+            get_file["features"].splice(index, 1);
+            console.log(JSON.stringify(get_file));
+            fs.writeFileSync('./projects/' + project_path.replace(" ", "") + '/disabled_paths.geojson', JSON.stringify(get_file));
+            jQuery(this).remove();
+
+            
+        }); */
+
+
+        jQuery('svg.leaflet-zoom-animated g:nth-child(n+2) path').click(function(){
+
+            console.log('Must delete svg and regerate layers delete');
+            var index = jQuery("svg.leaflet-zoom-animated g:nth-child(n+2) path").index(this);
+            console.log(index);
+            var get_file = JSON.parse(disabled_paths_read());
+            
+            if(get_file["features"].length-1 == 0){
+                //alert('prepei na kanw xars');
+                fs.writeFileSync('./projects/' + project_path.replace(" ", "") + '/disabled_paths.geojson', ' ');
+            }else{             
+                get_file["features"].splice(index, 1);
+                console.log(JSON.stringify(get_file));
+                fs.writeFileSync('./projects/' + project_path.replace(" ", "") + '/disabled_paths.geojson', JSON.stringify(get_file));
+            }
+
+            jQuery(this).remove();
+
+            
+        });
+
 
 
     // return polygon map with out render it on map 
@@ -510,6 +837,16 @@ child(executablePath, function(err, data) {
     jQuery('input#altitude_show').val(parseInt(loaded_project.CoFly.Altitude) + 'm');
     jQuery('input#direction_show').val(parseInt(loaded_project.CoFly.Rotation) + '°');
     jQuery('input.input-range--custom.direction').val(parseInt(loaded_project.CoFly.Rotation));
+    jQuery('input#scanning_distance_now').val(parseInt(loaded_project.CoFly.Scanning_Distance) + 'm');
+    jQuery('input#gimbal_pitch').val(parseInt(loaded_project.CoFly.Gimbal_Pitch) + '°');
+    jQuery('input#drone_speed').val(parseInt(loaded_project.CoFly.Drone_Speed) + 'm/s');
+    var is_project_locked = parseInt(loaded_project.CoFly.Lock_Project);
+    if(is_project_locked == 1){
+        jQuery('div#calculate_path_planing').fadeOut();
+        jQuery('div#start_scanning').fadeIn();
+    }
+    console.log('Project Condition:' + is_project_locked);
+    
     update_viewer_slider_altitude();
     update_viewer_slider_rotation();
 
@@ -844,6 +1181,8 @@ child(executablePath, function(err, data) {
     }
 
 
+
+
     function load_image_settings() {
         var fs = require('fs');
 
@@ -899,6 +1238,9 @@ child(executablePath, function(err, data) {
         console.log('working');
     
     }
+
+
+
 
 
 

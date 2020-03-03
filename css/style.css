@@ -671,3 +671,301 @@ div#DrawOnMapGallery {
     margin-bottom: 10px;
     padding: 5px 5px 5px 5px;
 }
+
+div#timeline_div:before {
+    background: rgba(93, 93, 93, 0.7);
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    content: '';
+    left: 0;
+    top: 0;
+}
+
+div#timeline_div {
+    height: 100vh;
+    width: 100%;
+    background: url("../img/img1.jpg") !important;
+    margin-top: -20px;
+    overflow: auto;
+    background-repeat: no-repeat;
+    background-size: cover !important;
+}
+
+div#cancel_scanning {
+    width: 100%;
+    margin-left: 0;
+    background: #d42526;
+    border: #d42526;
+    color: #fff;
+    display:none;
+    margin-bottom:15px;
+}
+
+
+path.CalculatedPathRender.leaflet-clickable {
+    fill: transparent !important;
+    stroke: rgb(254,200,64) !important;
+}
+
+/* SUCCESS ANIMATION UI ANIMATION & STYLE */
+.success-checkmark {
+    width: 80px;
+    height: 115px;
+    margin: 0 auto;
+    margin-top: 15%;
+  }
+  .success-checkmark .check-icon {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    border-radius: 50%;
+    box-sizing: content-box;
+    border: 4px solid #fec840;
+    transform: scale(1.5);
+  }
+  .success-checkmark .check-icon::before {
+    top: 3px;
+    left: -2px;
+    width: 30px;
+    transform-origin: 100% 50%;
+    border-radius: 100px 0 0 100px;
+  }
+  .success-checkmark .check-icon::after {
+    top: 0;
+    left: 30px;
+    width: 60px;
+    transform-origin: 0 50%;
+    border-radius: 0 100px 100px 0;
+    animation: rotate-circle 6.25s ease-in;
+  }
+  .success-checkmark .check-icon::before, .success-checkmark .check-icon::after {
+    content: '';
+    height: 100px;
+    position: absolute;
+    background: #FFFFFF;
+    transform: rotate(-45deg);
+  }
+  .success-checkmark .check-icon .icon-line {
+    height: 5px;
+    background-color: #fec840;
+    display: block;
+    border-radius: 2px;
+    position: absolute;
+    z-index: 10;
+  }
+  .success-checkmark .check-icon .icon-line.line-tip {
+    top: 46px;
+    left: 14px;
+    width: 25px;
+    transform: rotate(45deg);
+    animation: icon-line-tip 0.75s;
+  }
+  .success-checkmark .check-icon .icon-line.line-long {
+    top: 38px;
+    right: 8px;
+    width: 47px;
+    transform: rotate(-45deg);
+    animation: icon-line-long 0.75s;
+  }
+  .success-checkmark .check-icon .icon-circle {
+    top: -4px;
+    left: -4px;
+    z-index: 10;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    position: absolute;
+    box-sizing: content-box;
+    border: 4px solid rgba(254, 200, 64, .5);
+  }
+  .success-checkmark .check-icon .icon-fix {
+    top: 8px;
+    width: 5px;
+    left: 26px;
+    z-index: 1;
+    height: 85px;
+    position: absolute;
+    transform: rotate(-45deg);
+    background-color: #FFFFFF;
+  }
+  
+  @keyframes rotate-circle {
+    0% {
+      transform: rotate(-45deg);
+    }
+    5% {
+      transform: rotate(-45deg);
+    }
+    12% {
+      transform: rotate(-405deg);
+    }
+    100% {
+      transform: rotate(-405deg);
+    }
+  }
+  @keyframes icon-line-tip {
+    0% {
+      width: 0;
+      left: 1px;
+      top: 19px;
+    }
+    54% {
+      width: 0;
+      left: 1px;
+      top: 19px;
+    }
+    70% {
+      width: 50px;
+      left: -8px;
+      top: 37px;
+    }
+    84% {
+      width: 17px;
+      left: 21px;
+      top: 48px;
+    }
+    100% {
+      width: 25px;
+      left: 14px;
+      top: 45px;
+    }
+  }
+  @keyframes icon-line-long {
+    0% {
+      width: 0;
+      right: 46px;
+      top: 54px;
+    }
+    65% {
+      width: 0;
+      right: 46px;
+      top: 54px;
+    }
+    84% {
+      width: 55px;
+      right: 0px;
+      top: 35px;
+    }
+    100% {
+      width: 47px;
+      right: 8px;
+      top: 38px;
+    }
+  }
+
+  div#scan_completed .scan_done h2 {
+    text-align: center;
+    margin-top: 3%;
+    font-size: 40px;
+    text-transform: capitalize;
+    color: #484848;
+    border-bottom: 1px solid #eaeaea;
+}
+
+ul.action_list_done {
+    margin-top: 5%;
+    list-style: none;
+}
+
+ul.action_list_done li {
+    display: inline;
+    margin-right: 25px;
+}
+
+
+
+ul.action_list_done {
+    margin-top: 5%;
+    list-style: none;
+    text-align: center;
+    padding: 20px 0 20px 0;
+    border: 1px solid #eaeaea;
+    border-radius: 15px;
+}
+
+textarea#scan_complete_comments {
+    width: 100%;
+    margin-top: 2%;
+    border: 1px solid #eaeaea;
+    border-radius: 15px;
+    padding: 10px;
+}
+
+div#save_scan_done_details {
+    margin: 0 auto;
+    width: 20%;
+    text-align: center;
+    background: #fec840;
+    border-radius: 15px;
+    cursor: pointer;
+    color: #333;
+    padding: 5px 0 5px 0;
+    font-size: 21px;
+    margin-top:3%;
+}
+
+div#save_scan_done_details:hover {
+    opacity: .8;
+}
+
+.weather_stats ul li {
+    list-style: none;
+}
+
+
+
+.weather_stats ul li p {
+    float: left;
+}
+
+.weather_stats ul li {
+    display: table;
+    margin-top: 20px;
+}
+
+.weather_stats ul {
+    padding: 0;
+}
+
+.weather_stats ul li p {
+    float: left;
+    margin-left: 0;
+    color: #333;
+    font-weight: 400;
+    display: inline-block;
+}
+
+.weather_icon {
+    display: table-caption;
+}
+
+.weather_icon img {
+    margin-bottom: 15px;
+}
+
+.container_weather {
+    margin-left: 10%;
+    margin-top: 10%;
+}
+
+.weather_stats ul li img {
+    float: left;
+}
+
+.weather_stats ul li img {
+    float: left;
+    position: absolute;
+    left: 45px;
+}
+
+span#weather_desc {
+    font-weight: 400;
+    color: #333;
+    margin-left: 10px;
+    text-transform: capitalize;
+}
+
+textarea#scan_complete_comments:focus {
+    outline: none !important;
+}

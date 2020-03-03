@@ -386,10 +386,6 @@ template {
   display: none;
 }
 
-[hidden] {
-  display: none !important;
-}
-
 h1,
 h2,
 h3,

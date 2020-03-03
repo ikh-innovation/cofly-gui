@@ -111,7 +111,9 @@ jQuery('div#save_button').click(function() {
         fs.mkdir('./projects/' + plan_name, function() {
             fs.writeFileSync('projects/' + plan_name + '/map_data.geojson', JSON.stringify(featureGroup.toGeoJSON()));
             fs.writeFileSync('projects/' + plan_name + '/proj_settings.json', grab_data());
+            fs.writeFileSync('projects/' + plan_name + '/disabled_paths.geojson', '');
             fs.writeFileSync('projects/' + plan_name + '/image_settings.json', '{ "ImageSettings": [ { "title": "", "Rotate": 0, "Top": 0, "Left":0 } ] }');
+            fs.writeFileSync('projects/' + plan_name + '/field_actions.json', '{"field_actions":[]}');
         });
 
         //Create Dir in Order to save images that drone sends
@@ -153,7 +155,7 @@ function grab_data() {
     var altitude = jQuery('input.input-range--custom.altitude').val();
     var rotation = jQuery('input.input-range--custom.direction').val();
 
-    var prepare_json_project = '{"CoFly": { "Plan_Name":"' + plan_name + '", "Calculated_Minutes":"' + calc_minutes + '","Calculated_Acres":"' + calc_acres + '","Altitude":"' + altitude + '","Rotation":"' + rotation + '" } }';
+    var prepare_json_project = '{"CoFly": { "Plan_Name":"' + plan_name + '", "Calculated_Minutes":"' + calc_minutes + '","Calculated_Acres":"' + calc_acres + '","Altitude":"' + altitude + '","Rotation":"' + rotation + '","Lock_Project":"0","Scanning_Distance":"0","Gimbal_Pitch":"0","Drone_Speed":"0" } }';
 
     return prepare_json_project;
     //console.log(prepare_json_project);

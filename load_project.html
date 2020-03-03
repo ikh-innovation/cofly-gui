@@ -13,8 +13,11 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
     <!-- Icons -->
     <!-- CSS Files -->
-    <link href="css/argon-dashboard.css?v=1.1.0" rel="stylesheet" />
+    <link rel="stylesheet" href="css/reveal.css">
     <link href="css/style.css" rel="stylesheet" />
+    <link href="css/argon-dashboard.css" rel="stylesheet" />
+ 
+ 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 
@@ -28,6 +31,10 @@
     <script src='http://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.js'></script>
 
     <script src='js/lib/leaflet.ajax.min.js'></script>
+    <link rel="stylesheet" href="css/timeline.css">
+    <link rel="stylesheet" href="css/datetimepicker.css">
+    
+    
     <style type="text/css">
 #map {
     position: absolute;
@@ -60,14 +67,31 @@
     stroke: rgb(254,200,64);
 }
 
+svg.leaflet-zoom-animated g:nth-child(n+2) path {
+    fill: #fb0303;
+    stroke: #fb0303;
+}
+
+path.CalculatedPathRender.leaflet-clickable:hover {
+    opacity: 1 !important;
+    cursor: auto !important;
+}
+
+svg.leaflet-zoom-animated g:nth-child(n+2):hover path{
+    opacity: .5;
+    cursor: url('./img/delete.png'), pointer;
+}
+
+
+
 .leaflet-top.leaflet-left {
     margin-top: 20%;
 }
 
 
-.leaflet-top.leaflet-left {
+/* .leaflet-top.leaflet-left {
     display: none !important;
-}
+} */
 
 .leaflet-top.leaflet-right {
     display: none !important;
@@ -115,6 +139,7 @@ a.leaflet-popup-close-button {
 }
 
 
+
     </style>
 
 </head>
@@ -122,118 +147,335 @@ a.leaflet-popup-close-button {
 <body class="">
 
     <nav class="navbar navbar-vertical fixed-left navbar-expand-md navbar-light bg-white" id="sidenav-main">
-        <div class="container-fluid">
-
-            <a class="navbar-brand pt-0" href="./index.html">
-                <img src="img/coFLY_logo.png" class="navbar-brand-img" alt="...">
-                <input type="file" webkitdirectory directory/>
-            </a>
-
-            <!-- Collapse -->
-            <div class="collapse navbar-collapse" id="sidenav-collapse-main">
-
-                <hr class="my-3 white">
-
-                <div class="input_holder">
-                    <label>Plan Name</label>
-                    <input id="plan_name" class="input_main" disabled>
-                </div>
-
-                <hr class="my-3 white">
-
-                <div class="double_sett_holder">
-                    <div class="fifty_percent">
-                        <h7><i class="fas fa-clock"></i> Duration</h7><span id="minutes_calc">--:-- Minutes</span></div>
-                    <div class="fifty_percent">
-                        <h7><i class="fas fa-vector-square"></i> Acres</h7><span id="acres_num">0 Acres</span></div>
-                </div>
-
-                <hr class="my-3 white">
-
-                <div style="width: 100%">
-                    <div class="slider_title"><i class="fas fa-plane-departure"></i>
-                        <label>Altitude</label>
+            <div class="container-fluid">
+    
+                <a class="navbar-brand pt-0" href="./index.html">
+                    <img src="img/coFLY_logo.png" class="navbar-brand-img" alt="...">
+                    <input type="file" webkitdirectory directory/>
+                </a>
+    
+                <!-- Collapse -->
+                <div class="collapse navbar-collapse" id="sidenav-collapse-main">
+    
+                    <hr class="my-3 white">
+    
+                    <div class="input_holder">
+                        <label>Plan Name</label>
+                        <input id="plan_name" class="input_main" disabled>
                     </div>
-                    <input type="range" class="input-range--custom altitude" min="0" max="300">
-                    <input type="text" id="altitude_show" name="name" class="input_slider_shower"
-       minlength="4" maxlength="8" size="1">
-                </div>
-
-                <hr class="my-3 white">
-
-                <div style="width: 100%">
-                    <div class="slider_title"><i class="fas fa-undo"></i>
-                        <label>Flight Direction</label>
+    
+                    <hr class="my-3 white">
+    
+                    <div class="double_sett_holder">
+                        <div class="fifty_percent">
+                            <h7><i class="fas fa-clock"></i> Duration</h7><span id="minutes_calc">--:-- Minutes</span></div>
+                        <div class="fifty_percent">
+                            <h7><i class="fas fa-vector-square"></i> Acres</h7><span id="acres_num">0 Acres</span></div>
                     </div>
-                    <input type="range" class="input-range--custom direction" min="0" max="360">
-                    <input type="text" id="direction_show" name="name" class="input_slider_shower"
-       minlength="4" maxlength="8" size="1">
-                </div>
-<hr class="my-3 white">
-                <div style="width: 100%">
-                    <div class="slider_title"><i class="fas fa-ruler-horizontal"></i>
-                        <label>Scanning Distance</label>
+    
+                    <hr class="my-3 white">
+    
+                    <div style="width: 100%">
+                        <div class="slider_title"><i class="fas fa-plane-departure"></i>
+                            <label>Altitude</label>
+                        </div>
+                        <input type="range" class="input-range--custom altitude" min="0" max="300">
+                        <input type="text" id="altitude_show" name="name" class="input_slider_shower"
+           minlength="4" maxlength="8" size="1">
                     </div>
-                    <input type="range" class="input-range--custom scanning_distance" min="0" max="20">
-                    <input type="text" id="scanning_distance_now" name="name" class="input_slider_shower"
-       minlength="4" maxlength="8" size="1">
+    
+                    <hr class="my-3 white">
+    
+                    <div style="width: 100%">
+                        <div class="slider_title"><i class="fas fa-undo"></i>
+                            <label>Flight Direction</label>
+                        </div>
+                        <input type="range" class="input-range--custom direction" min="0" max="360">
+                        <input type="text" id="direction_show" name="name" class="input_slider_shower"
+           minlength="4" maxlength="8" size="1">
+                    </div>
+    <hr class="my-3 white">
+                    <div style="width: 100%">
+                        <div class="slider_title"><i class="fas fa-ruler-horizontal"></i>
+                            <label>Scanning Distance</label>
+                        </div>
+                        <input type="range" class="input-range--custom scanning_distance" min="0" max="20">
+                        <input type="text" id="scanning_distance_now" name="name" class="input_slider_shower"
+           minlength="4" maxlength="8" size="1">
+                    </div>
+    
+                    <hr class="my-3 white">
+                    <!-- Heading -->
+                    <div class="collapsed_menu">
+                        <h6 class="navbar-heading "><i class="fas fa-cogs"></i> Advanced<i class="fas fa-caret-down"></i></h6>
+                        <ul class="navbar-nav mb-md-3 collapsed">
+                            
+                            <li class="nav-item slider_inside_li">
+                                <div class="slider_title"><i class="far fa-compass"></i>
+                                    <label>Gimbal Pitch</label>
+                                </div>
+                            <input type="range" class="input-range--custom gimbal_pitch" min="0" max="360">
+                            <input type="text" id="gimbal_pitch" name="name" class="input_slider_shower" minlength="4" maxlength="8" size="1">
+                            </li>
+    
+    
+                            <li class="nav-item slider_inside_li">
+                                <div class="slider_title"><i class="fas fa-tachometer-alt"></i>
+                                    <label>Speed</label>
+                                </div>
+                            <input type="range" class="input-range--custom drone_speed_slider" min="1" max="10">
+                            <input type="text" id="drone_speed" name="name" class="input_slider_shower" minlength="4" maxlength="8" size="1">
+                            </li>
+    
+                        </ul>
+                    </div>
+                    <hr class="my-3 white">
+    <!--
+                    <div class="collapsed_menu">
+                        <h6 class="navbar-heading "><i class="fas fa-road"></i> Fly My Map<i class="fas fa-caret-down"></i></h6>
+                        <ul class="navbar-nav mb-md-3 collapsed">
+       
+                        </ul>
+                    </div>
+                    <hr class="my-3 white">
+    -->
+                    <div class="collapsed_menu">
+                        <h6 class="navbar-heading project_gallery"><i class="far fa-image"></i> Project Gallery<i class="fas fa-caret-down"></i></h6>
+                        <ul class="navbar-nav mb-md-3 collapsed project_gallery_render">
+                            <div id="DrawOnMapGallery" class="button_full">DRAW ON MAP GALLERY</div>
+                        </ul>
+                    </div>
+    
+                    <hr class="my-3 white">
+    
+                    <div class="action_buttons_container">
+                        <div id="calculate_path_planing" class="button_full">CALCULATE PATH</div>
+                        <div id="cancel_scanning" style="display:none;" class="button_full" style="display: block;">ABORT</div>
+                        <div id="start_scanning" class="button_full">START SCANNING</div>
+                      <div id="exit_button" class="button_hollow">EXIT</div>
+                      <div id="save_button" class="button_full">SAVE</div></div>
+    
                 </div>
-
-                <hr class="my-3 white">
-                <!-- Heading -->
-                <div class="collapsed_menu">
-                    <h6 class="navbar-heading "><i class="fas fa-cogs"></i> Advanced<i class="fas fa-caret-down"></i></h6>
-                    <ul class="navbar-nav mb-md-3 collapsed">
-                        
-                        <li class="nav-item slider_inside_li">
-                            <div class="slider_title"><i class="far fa-compass"></i>
-                                <label>Gimbal Pitch</label>
-                            </div>
-                        <input type="range" class="input-range--custom gimbal_pitch" min="0" max="360">
-                        <input type="text" id="gimbal_pitch" name="name" class="input_slider_shower" minlength="4" maxlength="8" size="1">
-                        </li>
-
-
-                        <li class="nav-item slider_inside_li">
-                            <div class="slider_title"><i class="fas fa-tachometer-alt"></i>
-                                <label>Speed</label>
-                            </div>
-                        <input type="range" class="input-range--custom drone_speed_slider" min="1" max="10">
-                        <input type="text" id="drone_speed" name="name" class="input_slider_shower" minlength="4" maxlength="8" size="1">
-                        </li>
-
-                    </ul>
-                </div>
-                <hr class="my-3 white">
-<!--
-                <div class="collapsed_menu">
-                    <h6 class="navbar-heading "><i class="fas fa-road"></i> Fly My Map<i class="fas fa-caret-down"></i></h6>
-                    <ul class="navbar-nav mb-md-3 collapsed">
-   
-                    </ul>
-                </div>
-                <hr class="my-3 white">
--->
-                <div class="collapsed_menu">
-                    <h6 class="navbar-heading project_gallery"><i class="far fa-image"></i> Project Gallery<i class="fas fa-caret-down"></i></h6>
-                    <ul class="navbar-nav mb-md-3 collapsed project_gallery_render">
-                        <div id="DrawOnMapGallery" class="button_full">DRAW ON MAP GALLERY</div>
-                    </ul>
-                </div>
-
-                <hr class="my-3 white">
-
-                <div class="action_buttons_container">
-                    <div id="calculate_path_planing" class="button_full">CALCULATE PATH</div>
-                    <div id="start_scanning" class="button_full">START SCANNING</div>
-                  <div id="exit_button" class="button_hollow">EXIT</div>
-                  <div id="save_button" class="button_full">SAVE</div></div>
-
+    
             </div>
+        </nav>
 
-        </div>
-    </nav>
+        
+
+    
     <div class="main-content">
+
+        <!-- Alert Box Scan Completed -->
+        <div class="col-md-12" style="display:none;" id="scan_completed">
+        
+            <div class="scan_done weather col-md-6">
+                <div class="container_weather">
+                <div class="weather_icon"><img src="./img/sun_icon.png">
+            <span id="weather_desc">Weather</span></div>
+            
+            <div class="weather_stats">
+                
+                <ul>
+                    <li> <img src="./img/temperature.png"> <p>5 - 19 °C</p></li>
+                    <li> <img src="./img/humidity.png"> <p>57 %</p></li>
+                    <li> <img src="./img/wind_icon.png"><p> 4.1 km/h</p></li>
+                    <li> <img src="./img/weather.png"><p> 19:40:14 </p></li>
+                </ul>
+            
+            
+            </div>
+        </div>
+            </div>
+    <div class="scan_done col-md-6">
+
+        <div class="success-checkmark">
+            <div class="check-icon">
+              <span class="icon-line line-tip"></span>
+              <span class="icon-line line-long"></span>
+              <div class="icon-circle"></div>
+              <div class="icon-fix"></div>
+            </div>
+          </div>
+
+          <h2>Scan Complete</h2>
+          <ul class="action_list_done">
+
+            <li><img src="./img/watering.png"></li>
+            <li><img src="./img/watering.png"></li>
+            <li><img src="./img/watering.png"></li>
+
+          </ul>
+
+          <textarea id="scan_complete_comments" rows="7" placeholder="Add any comment" cols="50"></textarea>
+            <div class="send_button_scan_complete_container">
+                <div id="save_scan_done_details"><span>SAVE</span></div>
+            </div>
+    </div>
+        
+        </div>
+
+
+            <div class="reveal">
+
+                    <!-- Any section element inside of this container is displayed as a slide -->
+                    <div class="slides">
+                        
+                        <section class="present" >
+                                <div id='map'></div>
+                        </section>
+        
+                        <!-- Example of nested vertical slides -->
+                        <section class="stack future" style="top: 0px; display: block;" data-previous-indexv="0" hidden="" aria-hidden="true">
+                            <section style="top: 138px; display: block;" class="" aria-hidden="true">
+                                <div id="timeline_div">
+                                    
+                                    <!-- AJAX LOAD TIMELINE .html 
+                                    
+                                    // NewTere
+jQuery("div#timeline_div").load("scan_timeline.html");
+                                    
+                                    -->
+
+                                </div> 
+                                
+                                
+                                <div class="" style="position:absolute;width: 40%;bottom: 5%;left: 30%;" ng-app="dateTimeApp" ng-controller="dateTimeCtrl as ctrl" ng-cloak>
+		
+                                    <div date-picker
+                                         datepicker-title="Select Date"
+                                         picktime="true"
+                                         pickdate="true"
+                                         pickpast="false"
+                                         mondayfirst="false"
+                                         custom-message="You have selected"
+                                         selecteddate="ctrl.selected_date"
+                                         updatefn="ctrl.updateDate(newdate)">
+                                    
+                                        <div class="datepicker"
+                                             ng-class="{
+                                                'am': timeframe == 'am',
+                                                'pm': timeframe == 'pm',
+                                                'compact': compact
+                                            }">
+                                            <div class="datepicker-header">
+                                                <div class="datepicker-title" ng-if="datepicker_title">{{ datepickerTitle }}</div>
+                                                <div class="datepicker-subheader">{{ customMessage }} {{ selectedDay }} {{ monthNames[localdate.getMonth()] }} {{ localdate.getDate() }}, {{ localdate.getFullYear() }}</div>
+                                            </div>
+                                            <div class="datepicker-calendar">
+                                                <div class="calendar-header">
+                                                    <div class="goback" ng-click="moveBack()" ng-if="pickdate">
+                                                        <svg width="30" height="30">
+                                                            <path fill="none" stroke="#333" stroke-width="3" d="M19,6 l-9,9 l9,9"/>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="current-month-container">{{ currentViewDate.getFullYear() }} {{ currentMonthName() }}</div>
+                                                    <div class="goforward" ng-click="moveForward()" ng-if="pickdate">
+                                                        <svg width="30" height="30">
+                                                            <path fill="none" stroke="#333" stroke-width="3" d="M11,6 l9,9 l-9,9" />
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                <div class="calendar-day-header">
+                                                    <span ng-repeat="day in days" class="day-label">{{ day.short }}</span>
+                                                </div>
+                                                <div class="calendar-grid" ng-class="{false: 'no-hover'}[pickdate]">
+                                                    <div
+                                                        ng-class="{'no-hover': !day.showday}"
+                                                        ng-repeat="day in month"
+                                                        class="datecontainer"
+                                                        ng-style="{'margin-left': calcOffset(day, $index)}"
+                                                        track by $index>
+                                                        <div class="datenumber" ng-class="{'day-selected': day.selected }" ng-click="selectDate(day)">
+                                                            {{ day.daydate }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="timepicker" ng-if="picktime == 'true'">
+                                                <div ng-class="{'am': timeframe == 'am', 'pm': timeframe == 'pm' }">
+                                                    <div class="timepicker-container-outer" selectedtime="time" timetravel>
+                                                        <div class="timepicker-container-inner">
+                                                            <div class="timeline-container" ng-mousedown="timeSelectStart($event)" sm-touchstart="timeSelectStart($event)">
+                                                                <div class="current-time">
+                                                                    <div class="actual-time">{{ time }}</div>
+                                                                </div>
+                                                                <div class="timeline">
+                                                                </div>
+                                                                <div class="hours-container">
+                                                                    <div class="hour-mark" ng-repeat="hour in getHours() track by $index"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="display-time">
+                                                                <div class="decrement-time" ng-click="adjustTime('decrease')">
+                                                                    <svg width="24" height="24">
+                                                                        <path stroke="white" stroke-width="2" d="M8,12 h8"/>
+                                                                    </svg>
+                                                                </div>
+                                                                <div class="time" ng-class="{'time-active': edittime.active}">
+                                                                    <input type="text" class="time-input" ng-model="edittime.input" ng-keydown="changeInputTime($event)" ng-focus="edittime.active = true; edittime.digits = [];" ng-blur="edittime.active = false"/>
+                                                                    <div class="formatted-time">{{ edittime.formatted }}</div>
+                                                                </div>
+                                                                <div class="increment-time" ng-click="adjustTime('increase')">
+                                                                    <svg width="24" height="24">
+                                                                        <path stroke="white" stroke-width="2" d="M12,7 v10 M7,12 h10"/>
+                                                                    </svg>
+                                                                </div>
+                                                            </div>
+                                                            <div class="am-pm-container">
+                                                                <div class="am-pm-button" ng-click="changetime('am');">am</div>
+                                                                <div class="am-pm-button" ng-click="changetime('pm');">pm</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div style="display:none;" class="section_two_actions_button"><span class="scan_info_title">Select Field Action:</span><ul class="add_new_action_calendar"><li><img src="./img/watering.png"></li><li><img src="./img/watering.png"></li><li><img src="./img/watering.png"></li></ul></div>
+                                            <div style="display:none;" class="section_two_actions_comments"><span class="scan_info_title">Write Extra Comments:</span><textarea placeholder="Comments" id="add_extra_field_comments" rows="4" cols="50"></textarea></div>
+
+                                            
+                                            <div class="buttons-container">
+                                                <div id="cancel_field_action" class="cancel-button">CANCEL</div>
+                                                <div id="add_field_action" can_save="0" class="save-button">NEXT</div>
+                                            </div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                              
+
+
+
+
+
+                                <div id="add_to_calendar_new_action" class="button_full">ADD NEW ACTION TO CALENDAR FIELD</div>
+
+
+                                
+                               
+                            </section>
+                            <section class="future"  hidden="" aria-hidden="true">
+                                <h2>Basement Level 1</h2>
+                                <p>Nested slides are useful for adding additional detail underneath a high level horizontal slide.</p>
+                            </section>
+                            <section class="future" style="top: 154px; display: none;" hidden="" aria-hidden="true">
+                                <h2>Basement Level 2</h2>
+                                <p>That's it, time to go back up.</p>
+                                <br>
+                                <a href="#/2">
+                                    <img width="178" height="238" alt="Up arrow" style="transform: rotate(180deg); -webkit-transform: rotate(180deg);" src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" data-lazy-loaded="">
+                                </a>
+                            </section>
+                        </section>
+        
+        
+                    </div>
+        
+                </div>
+
+
             <div id="photo_picker_receiver_start"><div id="image_container">  </div><div id="open_image_settings_map"><i class="fas fa-wrench"></i></div><div id="close_map_photo_picker"><i class="fas fa-times"></i></div></div>
             <div id="photo_wizard_start">
                 
@@ -281,7 +523,7 @@ a.leaflet-popup-close-button {
 <!-- End Navbar -->
         <!-- Header -->
 
-    <div id='map'></div>
+    
 
 
 
@@ -290,6 +532,76 @@ a.leaflet-popup-close-button {
     <script src="js/main_script.js"></script>
     <!--<script src="js/main_map.js"></script>-->
     <script src="js/load_project.js"></script>
+
+    <script src="js/lib/angular.min.js"></script>
+    <script src="js/lib/datetime_picker_js.js"></script>
+    
+    
+
+    
+
+
+
+    <script src="js/reveal.js"></script>
+    <script src="js/timeline_manager.js"></script>
+        
+        
+
+		<script>
+
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: false,
+				center: true,
+				hash: true,
+
+				transition: 'convex', // none/fade/slide/convex/concave/zoom
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true },
+					{ src: 'plugin/search/search.js', async: true },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+            });
+            
+
+
+
+        </script>
+
+
+
+    <style>
+    .slides {
+    zoom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+
+
+.slides {
+    zoom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    transform: none !important;
+    left: 0px !important;
+    top: 0px !important;
+}
+
+section:nth-child(1) {
+    top: 0px !important;
+}
+
+
+    </style>
+        
+       
 
   </body>
 
