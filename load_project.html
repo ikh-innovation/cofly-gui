@@ -138,6 +138,37 @@ a.leaflet-popup-close-button {
     margin-left: -55px;
 }
 
+.f-modal-alert {
+    background-color: #333;
+    box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    margin: 20px;
+    padding: 50px;
+    position: absolute;
+    right: 27%;
+    top: 33%;
+    width: 25%;
+    z-index: 9999;
+    float: right;
+}
+
+h2.error_popup_title {
+    color: #fff;
+    width: 100% !important;
+    min-width: 200px;
+    position: absolute;
+    top: -85%;
+    left: -75%;
+    text-align: center;
+    font-weight: 400;
+    font-size: 18px;
+    color: #fec840;
+}
+
+.f-modal-alert{
+    display:none;
+}
+
 
 
     </style>
@@ -145,7 +176,27 @@ a.leaflet-popup-close-button {
 </head>
 
 <body class="">
-
+    <div class="f-modal-alert">
+       <!--  <div class="f-modal-icon f-modal-error animate">
+            <span class="f-modal-x-mark">
+                <span class="f-modal-line f-modal-left animateXLeft"></span>
+                <span class="f-modal-line f-modal-right animateXRight"></span>
+            </span>
+            <div class="f-modal-placeholder"></div>
+            <div class="f-modal-fix"></div>
+        </div> -->
+        <div class="f-modal-icon f-modal-warning scaleWarning">
+            <h2 class="error_popup_title">Excecution Path Cannot Be Done</h2>
+            <span class="f-modal-body pulseWarningIns"></span>
+            <span class="f-modal-dot pulseWarningIns"></span>
+        </div>
+        <!-- <div class="f-modal-icon f-modal-success animate">
+            <span class="f-modal-line f-modal-tip animateSuccessTip"></span>
+            <span class="f-modal-line f-modal-long animateSuccessLong"></span>
+            <div class="f-modal-placeholder"></div>
+            <div class="f-modal-fix"></div>
+        </div> -->
+    </div>
     <nav class="navbar navbar-vertical fixed-left navbar-expand-md navbar-light bg-white" id="sidenav-main">
             <div class="container-fluid">
     
@@ -252,6 +303,7 @@ a.leaflet-popup-close-button {
                         <div id="calculate_path_planing" class="button_full">CALCULATE PATH</div>
                         <div id="cancel_scanning" style="display:none;" class="button_full" style="display: block;">ABORT</div>
                         <div id="start_scanning" class="button_full">START SCANNING</div>
+                        <div id="lock_project" class="button_full">LOCK SETTINGS</div>
                       <div id="exit_button" class="button_hollow">EXIT</div>
                       <div id="save_button" class="button_full">SAVE</div></div>
     
@@ -300,9 +352,9 @@ a.leaflet-popup-close-button {
           <h2>Scan Complete</h2>
           <ul class="action_list_done">
 
-            <li><img src="./img/watering.png"></li>
-            <li><img src="./img/watering.png"></li>
-            <li><img src="./img/watering.png"></li>
+            <li is_enabled="0"><img src="./img/watering.png"></li>
+            <li is_enabled="0"><img src="./img/watering.png"></li>
+            <li is_enabled="0"><img src="./img/watering.png"></li>
 
           </ul>
 
@@ -430,7 +482,7 @@ jQuery("div#timeline_div").load("scan_timeline.html");
                                                 </div>
                                             </div>
 
-                                            <div style="display:none;" class="section_two_actions_button"><span class="scan_info_title">Select Field Action:</span><ul class="add_new_action_calendar"><li><img src="./img/watering.png"></li><li><img src="./img/watering.png"></li><li><img src="./img/watering.png"></li></ul></div>
+                                            <div style="display:none;" class="section_two_actions_button"><span class="scan_info_title">Select Field Action:</span><ul class="add_new_action_calendar"><li is_enabled="0"><img src="./img/watering.png"></li><li is_enabled="0"><img src="./img/watering.png"></li><li is_enabled="0"><img src="./img/watering.png"></li></ul></div>
                                             <div style="display:none;" class="section_two_actions_comments"><span class="scan_info_title">Write Extra Comments:</span><textarea placeholder="Comments" id="add_extra_field_comments" rows="4" cols="50"></textarea></div>
 
                                             

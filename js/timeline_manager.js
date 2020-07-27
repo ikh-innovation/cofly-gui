@@ -31,6 +31,9 @@ jQuery(document).ready(function(){
         myDate=myDate.split("/");
         var newDate=myDate[1]+"-"+myDate[0]+"-"+myDate[2];
         console.log(new Date(newDate).getTime());
+
+
+
           
          function sortResults(prop, asc) {
             read_data.field_actions.sort(function(a, b) {
@@ -50,7 +53,10 @@ jQuery(document).ready(function(){
         //read_data.push(myObj);
         console.log(read_data);
         //alert('Insertion Complete');
-	}
+    }
+    
+
+
 	
 
 
@@ -58,7 +64,9 @@ jQuery(document).ready(function(){
 
 	// Trigger DateTimeCalednar in order to show up
 	jQuery('div#add_to_calendar_new_action').click(function(){
-
+        jQuery('#add_field_action').text('NEXT');
+        jQuery('#add_field_action').attr('can_save',"0");
+        jQuery('textarea#add_extra_field_comments').val('');
 		jQuery('.ng-scope[ng-app="dateTimeApp"]').fadeIn();
 		jQuery(this).fadeOut();
 
@@ -74,7 +82,18 @@ jQuery(document).ready(function(){
 
         today = dd + '/' + mm + '/' + yyyy;
 
-        add_field_action(today,'-',"ACTION",jQuery('textarea#scan_complete_comments').val(),1);
+        // Calculate the actions
+        var actions_arr = [];
+        jQuery('ul.action_list_done li').each(function(){
+        if(jQuery(this).is('[is_enabled="0"]')){
+            actions_arr.push(0);
+        }else{
+            actions_arr.push(1);
+        }
+
+        });
+
+        add_field_action(today,'-',JSON.stringify(actions_arr),jQuery('textarea#scan_complete_comments').val(),1);
         jQuery("div#timeline_div").load("scan_timeline.html");
         jQuery('div#scan_completed').fadeOut();
         jQuery('button.navigate-right.enabled.highlight').click();
@@ -92,18 +111,31 @@ jQuery(document).ready(function(){
 		jQuery('.timepicker.ng-scope').fadeOut();
 		if(jQuery(this).attr('can_save') == "1"){
 			//alert('Now Save');
-			// DATA INITIALIZE
+            // DATA INITIALIZE
+            
+            // Calculate the actions
+            var actions_arr = [];
+            jQuery('ul.add_new_action_calendar li').each(function(){
+            if(jQuery(this).is('[is_enabled="0"]')){
+                actions_arr.push(0);
+            }else{
+                actions_arr.push(1);
+            }
 
-			add_field_action(jQuery('.datepicker-subheader.ng-binding').attr('date'),jQuery('input.time-input.ng-pristine.ng-untouched.ng-valid.ng-not-empty').val(),"ACTION",jQuery('#add_extra_field_comments').val(),2);
+            });
 
 
-			// Reset buttons and views of calendar
+
+			add_field_action(jQuery('.datepicker-subheader.ng-binding').attr('date'),jQuery('input.time-input.ng-pristine.ng-untouched.ng-valid.ng-not-empty').val(),JSON.stringify(actions_arr),jQuery('#add_extra_field_comments').val(),2);
+
+
+            // Reset buttons and views of calendar
+
 			jQuery('.section_two_actions_button').fadeOut();
 			jQuery('.section_two_actions_comments').fadeOut();
 			jQuery('.datepicker-calendar').fadeIn();
 			jQuery('.timepicker.ng-scope').fadeIn();
-			jQuery(this).text('NEXT');
-			jQuery(this).attr('can_save',"0");
+
 
 			// reset button and hide the calendar
 			jQuery('.ng-scope[ng-app="dateTimeApp"]').fadeOut();
@@ -118,7 +150,9 @@ jQuery(document).ready(function(){
 		
 		
 		});
-		
+        
+        
+        
 		
 		jQuery('div#cancel_field_action').click(function(){
 		
@@ -132,7 +166,39 @@ jQuery(document).ready(function(){
 		jQuery('.ng-scope[ng-app="dateTimeApp"]').fadeOut();
 		jQuery('div#add_to_calendar_new_action').fadeIn();
 		
-		});
+        });
+        
+
+
+
+        // Timeline Add Action Trigger Button Clicks Scan Completed Form
+        jQuery('ul.action_list_done li').click(function(){
+
+            console.log('Actionclicked',jQuery(this).is('[is_enabled="0"]'));
+            if(jQuery(this).is('[is_enabled="0"]')){
+                jQuery(this).attr('is_enabled','1');
+                jQuery('img',this).attr('src',jQuery('img',this).attr('src').replace('.png','_active.png'));
+            }else{
+                jQuery(this).attr('is_enabled','0');
+                jQuery('img',this).attr('src',jQuery('img',this).attr('src').replace('_active.png','.png'));
+            }
+            
+        });
+
+
+        // Timeline Add Action Trigger Button Clicks Custom Form
+        jQuery('ul.add_new_action_calendar li').click(function(){
+
+            console.log('Actionclicked',jQuery(this).is('[is_enabled="0"]'));
+            if(jQuery(this).is('[is_enabled="0"]')){
+                jQuery(this).attr('is_enabled','1');
+                jQuery('img',this).attr('src',jQuery('img',this).attr('src').replace('.png','_active.png'));
+            }else{
+                jQuery(this).attr('is_enabled','0');
+                jQuery('img',this).attr('src',jQuery('img',this).attr('src').replace('_active.png','.png'));
+            }
+            
+        });
 
 
 

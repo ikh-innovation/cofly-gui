@@ -32,12 +32,49 @@ function load_field_actions(){
 		var fix_date = my_date.split("/");
 		moonLanding = new Date(fix_date[1] + '-' + fix_date[0] + '-' + fix_date[2]);
 
+		
+		//console.log(read_action.slice(1,-1).split(','));
+		read_action = read_action.slice(1,-1).split(',');
+		var build_actions = '';
+
+		// Build Actions html depend on or off
+
+		for(var x =0; x < read_action.length; x++){
+			console.log(read_action[x]);
+			if(x == 0){
+				if(read_action[x] == 0){
+					build_actions = build_actions + '<li><img src="./img/watering.png"></li>';
+				}else{
+					build_actions = build_actions + '<li><img src="./img/watering_active.png"></li>';
+				}
+			}else if(x == 1){
+
+				if(read_action[x] == 0){
+					build_actions = build_actions + '<li><img src="./img/watering.png"></li>';
+				}else{
+					build_actions = build_actions +'<li><img src="./img/watering_active.png"></li>';
+				}
+
+			}else if(x == 2){
+
+				if(read_action[x] == 0){
+					build_actions = build_actions+ '<li><img src="./img/watering.png"></li>';
+				}else{
+					build_actions = build_actions +'<li><img src="./img/watering_active.png"></li>';
+				}
+
+			}
+		}
+		console.log(build_actions);
+
+
 
 		if(read_type == 2){
 			jQuery('.events ol').append('<li><a href="#1" class="special_timeline_event" event-data="0" data-date="'+read_date+'" >'+monthNames[moonLanding.getMonth()]+ ' ' +fix_date[2] +'</a></li>');
+			jQuery('.events-content ol').append('<li data-date="'+read_date+'"> <div class="col-md-12 scan_details"> <div class="scanning_info col-md-6"><span class="scan_info_title">Scanning Info:</span><p>Scan Date: '+read_date+'</p> <p>Scan Time: '+read_time+'</p> <p>Scan duration: --:--:-- (hh/mm/ss/)</p> </div> <div class="scanning_events col-md-6"><span class="scan_info_title">Field Condition:</span><ul class="field_continion_icons">'+build_actions+'</ul></div> <div class="col-md-12 scanning_detailed_text"><span class="scan_info_title">Extra Comments:</span><p>'+read_comments+'</p></div> </div> </li>');
 		}else{
 			jQuery('.events ol').append('<li><a href="#0" data-date="'+read_date+'" >'+monthNames[moonLanding.getMonth()]+ ' ' +fix_date[2] +'</a></li>');
-			jQuery('.events-content ol').append('<li data-date="'+read_date+'"> <div class="col-md-12 scan_details"> <div class="scanning_info col-md-6"><span class="scan_info_title">Scanning Info:</span><p>Scan Date: '+read_date+'</p> <p>Scan Time: '+read_time+'</p> <p>Scan duration: --:--:-- (hh/mm/ss/)</p> </div> <div class="scanning_events col-md-6"><span class="scan_info_title">Field Condition:</span><ul class="field_continion_icons"><li><img src="./img/watering_active.png"></li><li><img src="./img/watering.png"></li><li><img src="./img/watering.png"></li></ul></div> <div class="col-md-12 scanning_detailed_text"><span class="scan_info_title">Extra Comments:</span><p>'+read_comments+'</p></div> </div> </li>');
+			jQuery('.events-content ol').append('<li data-date="'+read_date+'"> <div class="col-md-12 scan_details"> <div class="scanning_info col-md-6"><span class="scan_info_title">Scanning Info:</span><p>Scan Date: '+read_date+'</p> <p>Scan Time: '+read_time+'</p> <p>Scan duration: --:--:-- (hh/mm/ss/)</p> </div> <div class="scanning_events col-md-6"><span class="scan_info_title">Field Condition:</span><ul class="field_continion_icons">'+build_actions+'</ul></div> <div class="col-md-12 scanning_detailed_text"><span class="scan_info_title">Extra Comments:</span><p>'+read_comments+'</p></div> </div> </li>');
 		}
 		
 	});

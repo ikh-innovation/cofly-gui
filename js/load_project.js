@@ -2,10 +2,123 @@ jQuery(document).ready(function() {
     //var pathsad = require("path");
     //console.log(pathsad.resolve(__dirname, './projects/').replace(/\\/g,"/")+ "/" +localStorage.getItem("LoadProject") + "/project_images/");
 
+    // Create Drone Location Marker
+    var drone_icon = L.icon({
+        iconUrl: 'img/our_marker.png',
+        /*shadowUrl: 'img/leaf-shadow.png',*/
+        iconSize: [50, 73], // size of the icon
+        shadowSize: [50, 64], // size of the shadow
+        iconAnchor: [25, 70], // point of the icon which will correspond to marker's location
+        shadowAnchor: [4, 62], // the same for the shadow
+        popupAnchor: [0, -76] // point from which the popup should open relative to the iconAnchor
+    });
+
+    // Connect w the drone mqtt
+    // NEW MQTT 
+    var mqtt = require('mqtt')
+    var client  = mqtt.connect('mqtt://192.168.1.1:60666')
+    var can_save_image = false;
+    var camera_topic;
+
+    client.on('connect', function () {
+        console.log('MQTT SERVER SUCCESSFULLY CONNECTED');
+        
+        client.subscribe('telemetry/dji.phantom.4.pro.hawk.2', function (err) {
+            if (!err) {
+                client.publish('presence', 'Hello mqtt')
+            }
+        })
+        
+
+        client.subscribe('camera/dji.phantom.4.pro.hawk.2', function (err) {
+            if (!err) {
+                client.publish('presence', 'Hello mqtt')
+            }
+        })
+
+        client.subscribe('missionStatus/dji.phantom.4.pro.hawk.2', function (err) {
+            if (!err) {
+                client.publish('presence', 'Hello mqtt')
+            }
+        })
+
+        
+
+    })
+
+    client.on('disconnect', function () {
+        console.log('MQTT DISCONNECTED');
+    })
+
+    client.on('message', function (topic, message) {
+        // message is Buffer
+        
+        // Camera Topic
+        if(topic.toString().indexOf("camera/dji.phantom.4.pro.hawk.2") != -1){
+            if (can_save_image){
+
+            //console.log('Receive Camera');
+            camera_topic = JSON.parse(message);
+            var base64Data = camera_topic.image.replace(/^data:image\/png;base64,/, "");
+            const uuidv4 = require('uuid/v4'); // I chose v4 ‒ you can select others
+            var filename = uuidv4(); // '110ec58a-a0f2-4ac4-8393-c866d813b8d1'
+    
+            require("fs").writeFile(localStorage.getItem('Save_Image_Path') +'/' + filename + '.jpg', base64Data, 'base64', function(err) {
+            
+                if(err){
+                    console.log(err);
+                }else{
+                    print_project_gallery();
+                    console.log('SAVE DONE');
+                }
+            });
+
+            }
+            
+        }
+        // End Camera Topic 
+
+        // Telemetry Topic
+        if(topic.toString().indexOf("telemetry/dji.phantom.4.pro.hawk.2") != -1){
+
+            //console.log('Receive Camera');
+            telemetry_topic = JSON.parse(message);
+            latitude = telemetry_topic.latitude
+            longitude = telemetry_topic.longitude
+
+            //console.log(latitude,longitude);
+
+            jQuery('.leaflet-marker-pane img').remove();
+
+            // draw new marker [Current] drone location
+            var marker = L.marker(
+                [latitude,longitude], {
+                    title: 'Drone Current Position',
+                    icon: drone_icon
+                }
+            ).addTo(map);
+    
+            map.panTo(new L.LatLng(latitude, longitude));
+             
+        }
+        // End Telemetry
+
+        // Mission Status
+        if(topic.toString().indexOf("MissionStatus/dji.phantom.4.pro.hawk.2") != -1){
+
+            console.log('Receive status');
+            console.log(message.toString());
+             
+        }
+        // End Status
+
+
+
+        // client.end()
+    })
 
     print_project_gallery();
     var show_slide = true;
-    var can_save_image = false;
     /* BETA TESTING FOR DIRECTORY FILES */
     function print_project_gallery() {
         jQuery('ul.project_gallery_render li').remove();
@@ -32,20 +145,6 @@ jQuery(document).ready(function() {
         });
 
     }
-
-
-
-
-
-    // RUN EXCECUTABLE HERE
-    var child = require('child_process').execFile;
-    var executablePath = "C:/Python36/dist/app.exe";
-    //var parameters = ["--incognito"];
-
-    child(executablePath, function(err, data) {
-        console.log(err)
-        console.log(data.toString());
-    });
 
 
 
@@ -97,18 +196,7 @@ jQuery(document).ready(function() {
         }
     }).addTo(map);
 
-    // Ftiaxnw ton marker mou pou ousiastika einai to pou briskete to drone mou
-    var drone_icon = L.icon({
-        iconUrl: 'img/our_marker.png',
-        /*shadowUrl: 'img/leaf-shadow.png',*/
 
-        iconSize: [50, 73], // size of the icon
-        shadowSize: [50, 64], // size of the shadow
-        //iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
-        iconAnchor: [25, 70], // point of the icon which will correspond to marker's location
-        shadowAnchor: [4, 62], // the same for the shadow
-        popupAnchor: [0, -76] // point from which the popup should open relative to the iconAnchor
-    });
 
 
     // Ftiaxnw ton marker gia tis eikones pou erxontai
@@ -141,7 +229,7 @@ jQuery(document).ready(function() {
         var old_disabled = disabled_paths_read();
         temp_json = JSON.stringify(all_new_disabled_paths["features"]).slice(0,-1);
         if(old_disabled == "" || old_disabled == " "){
-            alert('einai adeio');
+            //alert('einai adeio');
             fs.writeFileSync('./projects/' + project_path.replace(" ", "") + '/disabled_paths.geojson','{"type":"FeatureCollection","features":['+temp_json.slice(1) + ']}');
         }else{
             var old_disabled = disabled_paths_read().slice(0,-2);
@@ -163,49 +251,10 @@ jQuery(document).ready(function() {
 
     var image_count = 0;
 
-    
-
-/*     function post_image_with_marker(file_link) {
-
-        image_count++;
-        jQuery('#photo_picker_receiver_start').slideDown();
-        // Diabazw to onoma ths eikones pou molis irthe apo to drone kai me splits katalabainw to lat lon
-        var read_file_link = file_link.split("Lat=", 3);
-        var lat = read_file_link[1].split(",Lon=", 3);
-        var lon = lat[1].split(",Alt=", 3);
-        // Ean einai h prwth photo kalo to wizard.
-        //if (jQuery('ul.navbar-nav.mb-md-3.collapsed.project_gallery_render li').length == 0) {
-        //    image_settings_wizard(lat[0], lon[0]);
-       // } else {
-
-        
-            L.popup({
-                    closeButton: false,
-                    closeOnClick: false,
-                    keepInView: true
-                })
-                .setLatLng([lat[0], lon[0]])
-                .setContent('<img give_id="marker_' + image_count + '" width="150px" src="./projects/' + localStorage.getItem('LoadProject').replace(" ", "") + '/project_images/' + file_link + '">')
-                .addTo(map);
-
-
-            //give each mark an id
-            jQuery('.leaflet-marker-pane img').last().attr('id', 'marker_' + image_count);
-            //create image puzzle div
-            jQuery('#image_container').append('<div marker_id="marker_' + image_count + '" class="image_toggle_button"><i class="far fa-image"></i> <p>Image #' + image_count + '</p></div>');
-
-
-
-            //console.log(file_link);
-            //console.log(lat[0], lon[0]);
-       // }
-
-    } */
-
 
     // Trigger zoom event on map ( Change all markers size )
     var prevZoom = map.getZoom();
-    console.log('GET ZOOM: ' + prevZoom);
+    //console.log('GET ZOOM: ' + prevZoom);
 
     map.on('zoomend', function(e) {
         //debugger;
@@ -256,34 +305,6 @@ app.use(express.urlencoded({limit: '50mb'}));
     app.use(bodyParser.json());
 
 
-    app.post('/post_location', function(req, res) {
-      
-
-        
-//console.log(res.req.body);
-        var location = req.body;
-
-        var drone_longtitude = res.req.body.lng;
-        var drone_latitude = res.req.body.lat;
-
-        //delete previous mark if exist
-        jQuery('.leaflet-marker-pane img').remove();
-
-        // draw new marker [Current] drone location
-        var marker = L.marker(
-            [drone_latitude,drone_longtitude], {
-                title: 'Drone Current Position',
-                icon: drone_icon
-            }
-        ).addTo(map);
-
-        map.panTo(new L.LatLng(drone_latitude, drone_longtitude));
-
-            
-
-
-        res.status(200).send('Drone Location Received');
-    });
 
 
 
@@ -408,59 +429,21 @@ app.use(express.urlencoded({limit: '50mb'}));
             fs.writeFileSync('./projects/' + plan_name + '/paths/calculated_path.json', JSON.stringify(create_json));
         });
 
-        // Send post with json data to DJI ADAPTOR
-        /*
-        jQuery.ajax({
-             type: "POST",
-             url: "http://localhost:5000/",
-             // The key needs to match your method's input parameter (case-sensitive).
-             data: JSON.stringify(create_json),
-             contentType: "application/json; charset=utf-8",
-             dataType: "json",
-             success: function(data){console.log('Received from the server');},
-             failure: function(errMsg) {
-                 console.log(errMsg);
-             }
-         });       
-         */
-
 
     });
 
+    // Calculate Path Error Return PopUp Box + Error Text from DICT
+    app.post('/calculation_path_error', function(req, res) {
+        console.log(req.query.error_code);
+        jQuery('.f-modal-alert').fadeIn(); 
+        jQuery('.error_popup_title').text('Demo Beta Error: ' + req.query.error_code); 
+        res.status(200).send('OK');
+        setTimeout(function(){
+            jQuery('.f-modal-alert').fadeOut(); 
+     }, 5000);
 
-
-    // GET POST UPLOAD IMAGE FUNCTION erxetai apo to drone kai ginontai sync oi eikones
-    app.post('/post_image/', upload.any(), (req, res) => {
-
-        console.log('Can Save: ',can_save_image)
-
- 
-        var base64Data = req.body.image.replace(/^data:image\/png;base64,/, "");
-        const uuidv4 = require('uuid/v4'); // I chose v4 ‒ you can select others
-        var filename = uuidv4(); // '110ec58a-a0f2-4ac4-8393-c866d813b8d1'
-
-        //console.log('./projects/' + localStorage.getItem("LoadProject").replace(" ", "") +  '/project_images/' + filename + '.jpg');
-        if(can_save_image){
-
-            if (show_slide) {
-                show_slide_message("Gallery Sync Started");
-            }
-            
-        
-        require("fs").writeFile(localStorage.getItem('Save_Image_Path') +'/' + filename + '.jpg', base64Data, 'base64', function(err) {
-        
-        if(err){
-            console.log(err);
-        }else{
-            print_project_gallery();
-            res.status(200).send('ok');
-    }
-        });
-    }else{
-        res.status(200).send('ok');
-    }
     });
-
+    
 
 
 
@@ -505,65 +488,35 @@ app.use(express.urlencoded({limit: '50mb'}));
     // Calculate path button trigger
     jQuery('div#calculate_path_planing').click(function() {
 
-        var get_time_now = new Date().toLocaleTimeString('en-GB', {
-            hour: "numeric",
-            minute: "numeric",
-            second: "numeric"
-        });
+        console.log('Calculate Path Triggered');
+        const fixPath = require('fix-path');
+//=> '/usr/local/bin:/usr/bin'
+        // RUN EXCECUTABLE HERE
 
-        var polygon_object = JSON.parse(load_map_project_w_o_render());
-        var coordnites = polygon_object["features"][0]["geometry"]["coordinates"];
-        //console.log(coordnites[0].length);
-        var create_polygon = [];
-        for (var f = 0; f < coordnites[0].length; f++) {
+    var child = require('child_process').execFile;
+    var final_path = path.resolve(__dirname+'/third_party_plugins/', 'GeoCordinates.exe');
+    console.log(final_path);
+    var executablePath = final_path;
+    var running_on = path.resolve(__dirname);
+    var parameters = [running_on.replace(/\\/g, "/") + "/projects/"+localStorage.getItem("LoadProject").trim()+"/map_data.geojson", running_on.replace(/\\/g, "/") +"/projects/"+localStorage.getItem("LoadProject").trim()+"/disabled_paths.geojson", jQuery('input#direction_show').val().slice(0,-1), jQuery('input#scanning_distance_now').val().slice(0,-1)];
+    //var parameters = ["./projects/"+localStorage.getItem("LoadProject").trim()+"/map_data.geojson"];
+        console.log(parameters)
+    child(executablePath,parameters, function(err, data) {
+        console.log(err)
+        console.log(data.toString());
+        jQuery('div#pop_up_container').fadeOut();
+    });
 
-            if (f + 1 == coordnites[0].length) {
-                //console.log('{"latitude": ' + coordnites[0][f][0] + ', "longitude": ' + coordnites[0][f][1] + '}],');
-                create_polygon.push('{"latitude": ' + coordnites[0][f][1] + ', "longitude": ' + coordnites[0][f][0] + '}],');
-            } else if (f == 0) {
-                //console.log('[{"latitude": ' + coordnites[0][f][0] + ', "longitude": ' + coordnites[0][f][1] + '},');
-                create_polygon.push('[{"latitude": ' + coordnites[0][f][1] + ', "longitude": ' + coordnites[0][f][0] + '},');
-            } else {
-                create_polygon.push('{"latitude": ' + coordnites[0][f][1] + ', "longitude": ' + coordnites[0][f][0] + '},');
-                //console.log('{"latitude": ' + coordnites[0][f][0] + ', "longitude": ' + coordnites[0][f][1] + '},');
-            }
-
-        }
-
-        // final creation of polygon 
-        var final_string = '{ "SenderID":"IKHEditor", "DataObject": { "mission_id": 1, "start_time": "' + get_time_now + '", "area": { "polygon":';
-        for (var final_text = 0; final_text < create_polygon.length; final_text++) {
-            final_string += create_polygon[final_text];
-        }
-        final_string += '"scanning_distance": ' + jQuery('input#scanning_distance_now').val().replace("m", "") + ' } } }';
-        console.log(final_string);
-
-        // Send to python script the polygon
-        var data = '' + final_string;
-
-        jQuery.ajax({
-            type: "POST",
-            url: "http://localhost:5000/",
-            // The key needs to match your method's input parameter (case-sensitive).
-            data: JSON.stringify(data),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function(data) {
-                console.log('Received from the server');
-            },
-            failure: function(errMsg) {
-                console.log(errMsg);
-            }
-        });
-
-        // show loading pop up
-        jQuery('#pop_up_container').fadeIn();
-        jQuery('.pop_up_content').prepend('<div class="loader loader--style5" title="4"> <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="30px" viewBox="0 0 24 30" style="enable-background:new 0 0 50 50;" xml:space="preserve"> <rect x="0" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="10" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.2s" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="20" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.4s" dur="0.6s" repeatCount="indefinite" /> </rect> </svg> </div>');
-        jQuery('.pop_up_content p').text('Path Calculation Started');
-        jQuery('.button_all_ok').attr('style', 'display:none;');
+            // show loading pop up
+            jQuery('#pop_up_container').fadeIn();
+            jQuery('.pop_up_content').prepend('<div class="loader loader--style5" title="4"> <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="30px" viewBox="0 0 24 30" style="enable-background:new 0 0 50 50;" xml:space="preserve"> <rect x="0" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="10" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.2s" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="20" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.4s" dur="0.6s" repeatCount="indefinite" /> </rect> </svg> </div>');
+            jQuery('.pop_up_content p').text('Path Calculation Started');
+            jQuery('.button_all_ok').attr('style', 'display:none;');
 
 
-        // Rewrite json and trigger locked value on
+    });
+
+    jQuery('div#lock_project').click(function(){
 
         var plan_name = jQuery('input#plan_name').val();
         var altitude = jQuery('input#altitude_show').val().replace('m','');
@@ -579,48 +532,51 @@ app.use(express.urlencoded({limit: '50mb'}));
             fs.writeFileSync('projects/' + plan_name + '/proj_settings.json', prepare_json_project);
         });
 
-
-
-
-
+        jQuery(this).fadeOut();
+        jQuery('div#start_scanning').fadeIn();
+        jQuery('div#calculate_path_planing').fadeOut();
+ 
+        
     });
 
     // START PATH BUTTON TRIGGER
     jQuery('div#start_scanning').click(function() {
 
+        // Should be fixed ( When read status ongoing from missionstatus drone)
+        can_save_image = true;
+        console.log('Start Excecution of path');
         jQuery('div#cancel_scanning').fadeIn();
         jQuery(this).fadeOut();
-        // datetime now
-        var date_time = Date.now();
-        //console.log(date_time);
 
+        // Create subdirectory on images in order to save the incoming images from server
+        var date_time = Date.now();
         fs.mkdir('./projects/' + localStorage.getItem("LoadProject").replace(" ","")+'/project_images/'+date_time, function() {
             localStorage.setItem('Save_Image_Path','./projects/' + localStorage.getItem("LoadProject").replace(" ","")+'/project_images/'+date_time);
         });
 
-
-        var contents = JSON.parse(fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/paths/calculated_path.json', 'utf8'));
-        var path_obj = JSON.parse(contents);
-        //console.log(JSON.stringify(path_obj.DataObject.path.waypoints));
-    
-        data_send = '{"missionID":1,"time":1575213238186,"waypoints":'+JSON.stringify(path_obj.DataObject.path.waypoints)+',"altitude":15.0,"speed":5.0,"gimbalPitch":45.0}';
-        var new_data = {"missionID":1,"time":1575213238186,"waypoints":[{"lat":37.96801664793166,"lng":23.74654090605244},{"lat":37.967877700862395,"lng":23.746668089091877},{"lat":37.968270729863285,"lng":23.747049354187133},{"lat":37.96840967720364,"lng":23.746922171023495},{"lat":37.96815559500093,"lng":23.746668089091877},{"lat":37.96829992273745,"lng":23.746511997449733},{"lat":37.96880808660068,"lng":23.747020161312964},{"lat":37.968947033909885,"lng":23.746892978149326},{"lat":37.968438869504496,"lng":23.746384814286092},{"lat":37.96858319599752,"lng":23.746228724189667},{"lat":37.96934544179237,"lng":23.74699096998452},{"lat":37.96948438907043,"lng":23.746863786820878},{"lat":37.968722142462354,"lng":23.74610154102603},{"lat":37.96886646771189,"lng":23.745945452475294},{"lat":37.969628713506744,"lng":23.746707698270146},{"lat":37.970050930349025,"lng":23.74629724493785},{"lat":37.9699119836754,"lng":23.746170061898415},{"lat":37.969628713506744,"lng":23.74645333206707},{"lat":37.96886646771189,"lng":23.745691086272217},{"lat":37.96801664793166,"lng":23.74654090605244}],"altitude":15.0,"speed":5.0,"gimbalPitch":45.0 }
-        // SEND POST REQUEST TO DRONE IN ORDER TO START THE EXCECUTION OF PATH
-        setTimeout(function(){ 
-        jQuery.ajax({
-            type: "POST",
-            url: "http://localhost:8080/api/missionStart",
-            data: JSON.stringify(data_send),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function(data){             
-                console.log(data);              
-            },
-            failure: function(errMsg) {
-                alert(errMsg);
-            }
-        });
-        }, 1000);
+        // Waiting from mqtt server send us mission status ONGOING
+        client.publish('missionStart/dji.phantom.4.pro.hawk.2', JSON.stringify({
+            "timestamp":1591881061228,
+            "missionId":"ee31b81e-ceaf-4539-8f97-a225f258ff31",
+            "destinationSystem":"dji.phantom.4.pro.hawk.1",
+            "sourceSystem":"choosepath-backend",
+            "speed":10.0,
+            "timeout":1800.0,
+            "cornerRadius":2.0,
+            "gimbalPitch":-87.0,
+            "waypoints":[
+               {
+                  "latitude":9.023959787799186,
+                  "longitude":23.743319065035404,
+                  "altitude":35.0
+               },
+               {
+                  "latitude":38.02260849889491,
+                  "longitude":23.743339065022948,
+                  "altitude":35.0
+               }
+            ]
+         }))
         
 
     });
@@ -628,53 +584,18 @@ app.use(express.urlencoded({limit: '50mb'}));
     // ABORT scanning 
     jQuery('div#cancel_scanning').click(function(){
 
-        console.log('Abort scanning');
-        var data_send = { "missionID": 1, "time": 1575213238186 };
-        console.log(JSON.stringify(data_send));
-        jQuery.ajax({
-            type: "POST",
-            url: "http://localhost:8080/api/missionAbort",
-            // The key needs to match your method's input parameter (case-sensitive).
-            data: JSON.stringify(data_send),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function(data){
-                
-                console.log(data);
-                jQuery('div#cancel_scanning').fadeOut();
-                jQuery('div#start_scanning').fadeIn();
- 
+        can_save_image = false;
+        client.publish('missionAbort/dji.phantom.4.pro.hawk.2', JSON.stringify({
+            "timestamp":1591881233874,
+            "missionId":"4027d485-760d-4c54-b951-7a11ca7a6a8d",
+            "timeout":2.0
+         }))
 
-                // func in order to delete folder + files
-                var fs = require('fs');
-                var deleteFolderRecursive = function(path) {
-                if( fs.existsSync(path) ) {
-                    fs.readdirSync(path).forEach(function(file,index){
-                    var curPath = path + "/" + file;
-                    if(fs.lstatSync(curPath).isDirectory()) { // recurse
-                        deleteFolderRecursive(curPath);
-                    } else { // delete file
-                        fs.unlinkSync(curPath);
-                    }
-                    });
-                    fs.rmdirSync(path);
-                }
-                };
+         console.log('Trigger Abort');
 
-                // Delete created path + images
-                deleteFolderRecursive(localStorage.getItem('Save_Image_Path') +'/');
+         jQuery(this).fadeOut();
+         jQuery('#start_scanning').fadeIn();
 
-                // reset variables
-                can_save_image = false;
-
-
-                
-                
-            },
-            failure: function(errMsg) {
-                alert(errMsg);
-            }
-        });
 
     });
 
@@ -734,7 +655,7 @@ app.use(express.urlencoded({limit: '50mb'}));
         }, 1500);
           }
           catch(err) {
-              console.log(err);
+            console.log(err);
             //console.log('There is not calculated path on the project');
             //return false;
           }
@@ -843,6 +764,7 @@ app.use(express.urlencoded({limit: '50mb'}));
     var is_project_locked = parseInt(loaded_project.CoFly.Lock_Project);
     if(is_project_locked == 1){
         jQuery('div#calculate_path_planing').fadeOut();
+        jQuery('div#lock_project').fadeOut();
         jQuery('div#start_scanning').fadeIn();
     }
     console.log('Project Condition:' + is_project_locked);
@@ -1143,6 +1065,8 @@ app.use(express.urlencoded({limit: '50mb'}));
 
     });
 
+
+
     function check_if_image_settings_already_exists() {
 
         var demo = JSON.parse(load_image_settings());
@@ -1191,9 +1115,7 @@ app.use(express.urlencoded({limit: '50mb'}));
     }
 
     jQuery('input[type="file"]').change(function(){
-
         export_project(document.getElementsByTagName('input')[0].files[0].path);
-
     });
     
 
@@ -1231,22 +1153,10 @@ app.use(express.urlencoded({limit: '50mb'}));
 
     // Initialise function draw images on map
     function DrawImagesOnMap(){
-
         // Dropdown menu 
         jQuery('div#photo_picker_receiver_start').slideDown();
         // Clear all markers from the images toolbox
         console.log('working');
-    
     }
-
-
-
-
-
-
-
-    
-
-
 
 });

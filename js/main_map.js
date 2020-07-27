@@ -1,4 +1,4 @@
-var map = L.mapbox.map('map').setView([37.97126667776918, 23.734406391203606], 14);
+var map = L.mapbox.map('map').setView([38.023349, 23.744271], 14);
 //var map = L.mapbox.map('map').setView([40.595409521631176,23.039895966293173], 18);
 //var map = L.mapbox.map('map').setView([40.595409521631176,23.039895966293173], 18);
 
