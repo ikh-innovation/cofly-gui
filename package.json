@@ -5,27 +5,35 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "pack": "build --dir"
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "build": "electron-packager . --all"
   },
   "author": "egglezos",
   "license": "ISC",
   "devDependencies": {
     "electron": "^5.0.12",
-    "electron-packager": "^14.1.0"
+    "electron-builder": "^22.8.0",
+    "electron-packager": "^15.1.0"
   },
   "dependencies": {
     "@mapbox/geojson-area": "^0.2.2",
     "all": "0.0.0",
     "archiver": "^3.1.1",
     "body-parser": "^1.19.0",
+    "decode-tiff": "^0.2.1",
     "express": "^4.17.1",
     "fix-path": "^3.0.0",
     "geojson-polygon-center": "0.0.0",
     "grunt-contrib-imagemin": "^4.0.0",
+    "jimp": "^0.16.1",
     "mqtt": "^4.1.0",
     "multer": "^1.4.2",
+    "ncp": "^2.0.0",
     "request": "^2.88.0",
     "rimraf": "^3.0.2",
+    "sharp": "^0.26.0",
+    "tiff-to-png": "^2.0.2",
     "uuid": "^3.3.3",
     "zip-a-folder": "0.0.9",
     "zip-lib": "^0.5.0"

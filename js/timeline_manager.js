@@ -7,8 +7,9 @@ jQuery(document).ready(function(){
 	    
     function load_field_actions(){
         var fs = require('fs');
-
-        var contents = fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/field_actions.json', 'utf8');
+        const path = require('path');
+        var running_on = path.resolve(__dirname);
+        var contents = fs.readFileSync(running_on + '/projects/' + project_path.replace(" ", "") + '/field_actions.json', 'utf8');
         return contents;
     }
 
@@ -47,20 +48,15 @@ jQuery(document).ready(function(){
 
         sortResults('date', true);
           
-
-        fs.writeFileSync('./projects/' + project_path.replace(" ", "") + '/field_actions.json',JSON.stringify(read_data));
+        const path = require('path');
+        var running_on = path.resolve(__dirname);
+        fs.writeFileSync(running_on + '/projects/' + project_path.replace(" ", "") + '/field_actions.json',JSON.stringify(read_data));
 
         //read_data.push(myObj);
         console.log(read_data);
         //alert('Insertion Complete');
     }
     
-
-
-	
-
-
-
 
 	// Trigger DateTimeCalednar in order to show up
 	jQuery('div#add_to_calendar_new_action').click(function(){

@@ -170,12 +170,73 @@ h2.error_popup_title {
 }
 
 
+/* New button calculation of rgb vls */
+div#calculate_rgb_vls {
+    background: #fec840;
+    padding: 24px;
+    color: #000;
+    cursor: pointer;
+}
+
+div#export_project {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 11%;
+}
+
 
     </style>
 
 </head>
 
 <body class="">
+
+    <div id="stiching_progress">
+
+        <svg version="1.1" id="L3" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve">
+    <circle fill="none" stroke="#fff" stroke-width="4" cx="50" cy="50" r="44" style="opacity:0.5;"></circle>
+      <circle fill="#fff" stroke="#fec840" stroke-width="3" cx="8" cy="54" r="6" transform="rotate(0.78084 50 48.0087)">
+        <animateTransform attributeName="transform" dur="2s" type="rotate" from="0 50 48" to="360 50 52" repeatCount="indefinite"></animateTransform>
+        
+      </circle>
+    </svg>
+    
+    <style>
+    #stiching_progress svg {
+        width: 100px;
+        height: 100px;
+        margin: 20px;
+        display: inline-block;
+      }
+
+      div#stiching_progress p {
+    font-size: 11px;
+    padding: 10px;
+    color: #fec840;
+    margin: 0;
+    text-align: center;
+}
+
+#stiching_progress svg {
+    margin-left: 30px;
+}
+
+div#stiching_progress {
+    display: none;
+    position: absolute;
+    bottom: 0%;
+    left: 23%;
+    z-index: 99;
+    background: #101010;
+}
+
+    </style>
+    
+        <p>Stiching Progress is running</p>
+        <p class="step_to_complete"><span id="stich_step">0</span> / 11</p>
+    
+    </div>
+
     <div class="f-modal-alert">
        <!--  <div class="f-modal-icon f-modal-error animate">
             <span class="f-modal-x-mark">
@@ -202,7 +263,7 @@ h2.error_popup_title {
     
                 <a class="navbar-brand pt-0" href="./index.html">
                     <img src="img/coFLY_logo.png" class="navbar-brand-img" alt="...">
-                    <input type="file" webkitdirectory directory/>
+                    <!-- <input type="file" webkitdirectory directory/>-->
                 </a>
     
                 <!-- Collapse -->
@@ -254,6 +315,17 @@ h2.error_popup_title {
                         <input type="text" id="scanning_distance_now" name="name" class="input_slider_shower"
            minlength="4" maxlength="8" size="1">
                     </div>
+                    <hr class="my-3 white">
+                    <div style="width: 100%">
+                       
+                        
+                        <div class="slider_title"><i class="fas fa-tachometer-alt"></i>
+                            <label>Speed</label>
+                        </div>
+
+                    <input type="range" class="input-range--custom drone_speed_slider" min="1" max="10">
+                    <input type="text" id="drone_speed" name="name" class="input_slider_shower" minlength="4" maxlength="8" size="1">
+                </div>
     
                     <hr class="my-3 white">
                     <!-- Heading -->
@@ -268,19 +340,18 @@ h2.error_popup_title {
                             <input type="range" class="input-range--custom gimbal_pitch" min="0" max="360">
                             <input type="text" id="gimbal_pitch" name="name" class="input_slider_shower" minlength="4" maxlength="8" size="1">
                             </li>
-    
-    
-                            <li class="nav-item slider_inside_li">
-                                <div class="slider_title"><i class="fas fa-tachometer-alt"></i>
-                                    <label>Speed</label>
-                                </div>
-                            <input type="range" class="input-range--custom drone_speed_slider" min="1" max="10">
-                            <input type="text" id="drone_speed" name="name" class="input_slider_shower" minlength="4" maxlength="8" size="1">
-                            </li>
+
     
                         </ul>
                     </div>
                     <hr class="my-3 white">
+
+                   
+
+
+                    
+
+
     <!--
                     <div class="collapsed_menu">
                         <h6 class="navbar-heading "><i class="fas fa-road"></i> Fly My Map<i class="fas fa-caret-down"></i></h6>
@@ -291,7 +362,7 @@ h2.error_popup_title {
                     <hr class="my-3 white">
     -->
                     <div class="collapsed_menu">
-                        <h6 class="navbar-heading project_gallery"><i class="far fa-image"></i> Project Gallery<i class="fas fa-caret-down"></i></h6>
+                        <h6 class="navbar-heading project_gallery"><i class="far fa-image"></i> Photo Indices<i class="fas fa-caret-down"></i></h6>
                         <ul class="navbar-nav mb-md-3 collapsed project_gallery_render">
                             <div id="DrawOnMapGallery" class="button_full">DRAW ON MAP GALLERY</div>
                         </ul>
@@ -306,6 +377,8 @@ h2.error_popup_title {
                         <div id="lock_project" class="button_full">LOCK SETTINGS</div>
                       <div id="exit_button" class="button_hollow">EXIT</div>
                       <div id="save_button" class="button_full">SAVE</div></div>
+                      <div id="export_project" class="button_full">EXPORT PROJECT</div>
+                <input type="file" webkitdirectory="" name="export_proj" directory="" style="display:none !important;">
     
                 </div>
     
@@ -509,16 +582,18 @@ jQuery("div#timeline_div").load("scan_timeline.html");
                                
                             </section>
                             <section class="future"  hidden="" aria-hidden="true">
-                                <h2>Basement Level 1</h2>
-                                <p>Nested slides are useful for adding additional detail underneath a high level horizontal slide.</p>
+                                <h2>Gallery of Missions</h2>
+                                <p>..</p>
                             </section>
                             <section class="future" style="top: 154px; display: none;" hidden="" aria-hidden="true">
-                                <h2>Basement Level 2</h2>
-                                <p>That's it, time to go back up.</p>
+                                <h2>DEMO PROPOSES BUTTONS</h2>
+                                <div id="calculate_rgb_vls">CALCULATE RGB</div>
+                                <p>Mission Type: <input id="mission_type" type="text" value="1"></p><br>
+                                
                                 <br>
-                                <a href="#/2">
+                                <!-- <a href="#/2">
                                     <img width="178" height="238" alt="Up arrow" style="transform: rotate(180deg); -webkit-transform: rotate(180deg);" src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" data-lazy-loaded="">
-                                </a>
+                                </a> -->
                             </section>
                         </section>
         
@@ -597,7 +672,8 @@ jQuery("div#timeline_div").load("scan_timeline.html");
     <script src="js/reveal.js"></script>
     <script src="js/timeline_manager.js"></script>
         
-        
+    
+
 
 		<script>
 

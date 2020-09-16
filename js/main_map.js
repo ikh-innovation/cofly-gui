@@ -1,6 +1,9 @@
-var map = L.mapbox.map('map').setView([38.023349, 23.744271], 14);
+//var map = L.mapbox.map('map').setView([38.023349, 23.744271], 14);
+var map = L.mapbox.map('map').setView([40.57300986880264, 22.99893490662799], 25);
 //var map = L.mapbox.map('map').setView([40.595409521631176,23.039895966293173], 18);
 //var map = L.mapbox.map('map').setView([40.595409521631176,23.039895966293173], 18);
+
+
 
 
 // Add layers to the map
@@ -35,6 +38,15 @@ map.on('draw:created', function(e) {
 
 
 });
+//C:\Users\keglezos\Desktop\out_of\Resulted_Vis_image_representations\14-09-2020
+//C:/Users/keglezos/Desktop/test.png
+
+
+/* 
+πανω: 40.57421474094349, 22.99714166131528
+κατω: 40.57170592118361, 23.000285736115654
+*/
+
 
 
 map.on('draw:edited', function(e) {
@@ -108,18 +120,30 @@ jQuery('div#save_button').click(function() {
             fs.writeFileSync('./projects_centers/centers.txt', prepare_data);
         });
         var plan_name = jQuery('input#plan_name').val();
-        fs.mkdir('./projects/' + plan_name, function() {
-            fs.writeFileSync('projects/' + plan_name + '/map_data.geojson', JSON.stringify(featureGroup.toGeoJSON()));
-            fs.writeFileSync('projects/' + plan_name + '/proj_settings.json', grab_data());
-            fs.writeFileSync('projects/' + plan_name + '/disabled_paths.geojson', '');
-            fs.writeFileSync('projects/' + plan_name + '/image_settings.json', '{ "ImageSettings": [ { "title": "", "Rotate": 0, "Top": 0, "Left":0 } ] }');
-            fs.writeFileSync('projects/' + plan_name + '/field_actions.json', '{"field_actions":[]}');
+        const path = require('path');
+        var running_on = path.resolve(__dirname);
+        console.log(running_on);
+        fs.mkdir(running_on + '/projects/' + plan_name, function() {
+            fs.writeFileSync(running_on + '/projects/' + plan_name + '/map_data.geojson', JSON.stringify(featureGroup.toGeoJSON()));
+            fs.writeFileSync(running_on + '/projects/' + plan_name + '/proj_settings.json', grab_data());
+            fs.writeFileSync(running_on + '/projects/' + plan_name + '/disabled_paths.geojson', '');
+            fs.writeFileSync(running_on + '/projects/' + plan_name + '/image_settings.json', '{ "ImageSettings": [ { "title": "", "Rotate": 0, "Top": 0, "Left":0 } ] }');
+            fs.writeFileSync(running_on + '/projects/' + plan_name + '/field_actions.json', '{"field_actions":[]}');
+            fs.writeFileSync(running_on + '/projects/' + plan_name + '/preview_project.json', '{"Name":"'+plan_name+'", "Center":"'+center["coordinates"][0]+','+center["coordinates"][1]+'" }');
         });
 
         //Create Dir in Order to save images that drone sends
-        fs.mkdir('./projects/' + plan_name + '/project_images/', function() {
+        fs.mkdir(running_on + '/projects/' + plan_name + '/project_images/', function() {
 
         });
+
+        // Create Dir in order to save RGB VLS outoups of missions
+        fs.mkdir(running_on + '/projects/' + plan_name + '/rgb_vls_results/', function() {
+        });
+
+        // Create Dir in order to save Stiched Images
+        fs.mkdir(running_on + '/projects/' + plan_name + '/stiched_images/', function() {
+                });
 
         localStorage.setItem("LoadProject", jQuery('input#plan_name').val());
         window.location = "./load_project.html";

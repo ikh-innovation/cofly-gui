@@ -1,4 +1,6 @@
 jQuery(document).ready(function() {
+
+
     //var pathsad = require("path");
     //console.log(pathsad.resolve(__dirname, './projects/').replace(/\\/g,"/")+ "/" +localStorage.getItem("LoadProject") + "/project_images/");
 
@@ -16,7 +18,7 @@ jQuery(document).ready(function() {
     // Connect w the drone mqtt
     // NEW MQTT 
     var mqtt = require('mqtt')
-    var client  = mqtt.connect('mqtt://192.168.1.1:60666')
+    var client  = mqtt.connect('mqtt://192.168.211.108:60666')
     var can_save_image = false;
     var camera_topic;
 
@@ -117,7 +119,7 @@ jQuery(document).ready(function() {
         // client.end()
     })
 
-    print_project_gallery();
+    //print_project_gallery();
     var show_slide = true;
     /* BETA TESTING FOR DIRECTORY FILES */
     function print_project_gallery() {
@@ -125,7 +127,7 @@ jQuery(document).ready(function() {
         //var get_path_images = './projects/' + localStorage.getItem("LoadProject").replace(" ", "") + '/project_images/';
         //const testFolder = __dirname + '/projects/' + localStorage.getItem("LoadProject").replace(" ", "") + '/project_images/';
         var pathsad = require("path");
-        var final_correct_path = pathsad.resolve(__dirname, './projects/').replace(/\\/g, "/") + "/" + localStorage.getItem("LoadProject") + "/project_images/";
+        var final_correct_path = running_on + localStorage.getItem("LoadProject") + "/project_images/";
         var fix_location = final_correct_path.split("/resources/app");
         const fs = require('fs');
 
@@ -134,6 +136,9 @@ jQuery(document).ready(function() {
         } else {
             var final_link = fix_location[0] + fix_location[1];
         }
+
+        const path = require('path');
+        var running_on = path.resolve(__dirname);
 
         fs.readdirSync(final_link.replace(" ", "")).forEach(file => {
 
@@ -146,12 +151,10 @@ jQuery(document).ready(function() {
 
     }
 
-
-
-
-    // check if load proejext exists
+    // check if load project exists
     var project_path = localStorage.getItem("LoadProject");
     load_project_calulated_path();
+    draw_stiched_image();
 
     var get_center = localStorage.getItem("LoadedProjectCenter");
     var clean_center = get_center.split(",");
@@ -162,10 +165,10 @@ jQuery(document).ready(function() {
 
 
     // Disable Zoom Map 
-    
-    map.touchZoom.disable();
-    map.doubleClickZoom.disable();
-    map.scrollWheelZoom.disable();
+    // Disable ZOOM
+    //map.touchZoom.disable();
+    //map.doubleClickZoom.disable();
+    //map.scrollWheelZoom.disable();
 
     
 
@@ -261,19 +264,19 @@ jQuery(document).ready(function() {
         var currZoom = map.getZoom();
         var diff = prevZoom - currZoom;
         if (diff > 0) {
-            console.log('zoomed out', currZoom);
+            //console.log('zoomed out', currZoom);
 
             var newzoom = '' + ((250) * currZoom) + 'px';
-            console.log(newzoom);
+            //console.log(newzoom);
             $('.leaflet-popup-content img').css({
                 'width': newzoom,
                 'height': 'auto'
             });
 
         } else if (diff < 0) {
-            console.log('zoomed in' + currZoom);
+            //console.log('zoomed in' + currZoom);
             var newzoom = '' + ((250) / currZoom) + 'px';
-            console.log(newzoom);
+            //console.log(newzoom);
             $('.leaflet-popup-content img').css({
                 'width': newzoom,
                 'height': 'auto'
@@ -370,12 +373,16 @@ app.use(express.urlencoded({limit: '50mb'}));
     app.post('/calculated_path', function(req, res) {
         
             //console.log(req.body);
-    
+
+            // Remove extra layer if exist from previous calculation
+            if(jQuery('.CalculatedPathRender').length > 0){
+                jQuery('.CalculatedPathRender').remove();
+            }
     
             var path = req.body;
-            console.log(path);
+            //console.log(path);
             var pointList = [];
-    
+        
             for (var points = 0; points < path.DataObject.path.waypoints.length; points++) {
     
                 //var tmp_point = new L.LatLng(path.DataObject.path.waypoints[points]);
@@ -407,7 +414,7 @@ app.use(express.urlencoded({limit: '50mb'}));
         res.status(200).send('Path Received');
 
         jQuery('#pop_up_container').fadeOut();
-        jQuery('div#calculate_path_planing').fadeOut();
+        //jQuery('div#calculate_path_planing').fadeOut();
         jQuery('div#start_scanning').fadeIn();
         jQuery('.button_all_ok').attr('style', 'display:block;');
         jQuery('path.leaflet-clickable').first().attr('style','fill:transparent;');
@@ -494,11 +501,11 @@ app.use(express.urlencoded({limit: '50mb'}));
         // RUN EXCECUTABLE HERE
 
     var child = require('child_process').execFile;
-    var final_path = path.resolve(__dirname+'/third_party_plugins/', 'GeoCordinates.exe');
+    var final_path = path.resolve(__dirname+'/third_party_plugins/PathPlanning', 'GeoCordinates.exe');
     console.log(final_path);
     var executablePath = final_path;
     var running_on = path.resolve(__dirname);
-    var parameters = [running_on.replace(/\\/g, "/") + "/projects/"+localStorage.getItem("LoadProject").trim()+"/map_data.geojson", running_on.replace(/\\/g, "/") +"/projects/"+localStorage.getItem("LoadProject").trim()+"/disabled_paths.geojson", jQuery('input#direction_show').val().slice(0,-1), jQuery('input#scanning_distance_now').val().slice(0,-1)];
+    var parameters = [running_on.replace(/\\/g, "/") + "/projects/"+localStorage.getItem("LoadProject").trim()+"/map_data.geojson", running_on.replace(/\\/g, "/") +"/projects/"+localStorage.getItem("LoadProject").trim()+"/disabled_paths.geojson", jQuery('input#direction_show').val().slice(0,-1), jQuery('input#scanning_distance_now').val().slice(0,-1),jQuery('#mission_type').val(),jQuery('input#drone_speed').val().replace("m/s","")];
     //var parameters = ["./projects/"+localStorage.getItem("LoadProject").trim()+"/map_data.geojson"];
         console.log(parameters)
     child(executablePath,parameters, function(err, data) {
@@ -514,7 +521,66 @@ app.use(express.urlencoded({limit: '50mb'}));
             jQuery('.button_all_ok').attr('style', 'display:none;');
 
 
+
+
+    // Debug kill after 1 min if path doesn't appear
+    setTimeout(function(){ 
+        
+        if(!jQuery('div#pop_up_container').is(':hidden')){
+            //jQuery('#pop_up_container').fadeOut();
+            //alert('ERROR WHILE CALCULATING THE PATH');
+            console.log('CALCULATION TIME IS SLOW - MAYBE ERROR !?');
+
+        }
+
+    }, 60000);
+
+
+
     });
+
+
+    // Excecute RGB VLS INDECES 
+    // Pattern Navigation: projects/[project_name]/rgb_vls_results/
+
+    jQuery('div#calculate_rgb_vls').click(function(){
+
+
+
+        
+        console.log('Calculate Path Triggered');
+        const fixPath = require('fix-path');
+//=> '/usr/local/bin:/usr/bin'
+        // RUN EXCECUTABLE HERE
+
+    var child = require('child_process').execFile;
+    var final_path = path.resolve(__dirname+'/third_party_plugins/RGB_VLS', 'RGB-VIs.exe');
+    console.log(final_path);
+    var executablePath = final_path;
+    var running_on = path.resolve(__dirname);
+    var parameters = [running_on.replace(/\\/g, "/") + "/projects/"+localStorage.getItem("LoadProject").trim()+"/map_data.geojson", running_on.replace(/\\/g, "/") +"/projects/"+localStorage.getItem("LoadProject").trim()+"/disabled_paths.geojson", jQuery('input#direction_show').val().slice(0,-1)];
+    //var parameters = ["./projects/"+localStorage.getItem("LoadProject").trim()+"/map_data.geojson"];
+        console.log(parameters)
+    child(executablePath,parameters, function(err, data) {
+        console.log(err)
+        console.log(data.toString());
+        jQuery('div#pop_up_container').fadeOut();
+    });
+
+            // show loading pop up
+            jQuery('#pop_up_container').fadeIn();
+            jQuery('.pop_up_content').prepend('<div class="loader loader--style5" title="4"> <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="30px" viewBox="0 0 24 30" style="enable-background:new 0 0 50 50;" xml:space="preserve"> <rect x="0" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="10" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.2s" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="20" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.4s" dur="0.6s" repeatCount="indefinite" /> </rect> </svg> </div>');
+            jQuery('.pop_up_content p').text('Trigger Photo Indeces');
+            jQuery('.button_all_ok').attr('style', 'display:none;');
+
+
+
+
+
+
+    });
+
+    // Trigger Mechanism to lock the settings of the project
 
     jQuery('div#lock_project').click(function(){
 
@@ -609,8 +675,9 @@ app.use(express.urlencoded({limit: '50mb'}));
 
     function load_project_settings() {
         var fs = require('fs');
-
-        var contents = fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/proj_settings.json', 'utf8');
+        const path = require('path');
+        var running_on = path.resolve(__dirname);
+        var contents = fs.readFileSync(running_on + '/projects/' + project_path.replace(" ", "") + '/proj_settings.json', 'utf8');
         return contents;
     }
 
@@ -620,16 +687,18 @@ app.use(express.urlencoded({limit: '50mb'}));
 
         var fs = require('fs');
         try{
-            fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/paths/calculated_path.json', 'utf8');
-            var contents = fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/paths/calculated_path.json', 'utf8');
-            jQuery('div#calculate_path_planing').fadeOut();
+            const path = require('path');
+            var running_on = path.resolve(__dirname);
+            fs.readFileSync(running_on + '/projects/' + project_path.replace(" ", "") + '/paths/calculated_path.json', 'utf8');
+            var contents = fs.readFileSync(running_on + '/projects/' + project_path.replace(" ", "") + '/paths/calculated_path.json', 'utf8');
+            //jQuery('div#calculate_path_planing').fadeOut();
             jQuery('div#start_scanning').fadeIn();
 
         }catch(err){
             return false;
         }
         
-        //console.log(contents);
+        console.log(contents);
         //return contents;
         try {
       
@@ -672,7 +741,10 @@ app.use(express.urlencoded({limit: '50mb'}));
     function load_map_project() {
         var fs = require('fs');
 
-        var contents = fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/map_data.geojson', 'utf8');
+        const path = require('path');
+        var running_on = path.resolve(__dirname);
+
+        var contents = fs.readFileSync(running_on +'/projects/' + project_path.replace(" ", "") + '/map_data.geojson', 'utf8');
         L.geoJson(JSON.parse(contents)).addTo(map);
         return contents;
     }
@@ -682,8 +754,9 @@ app.use(express.urlencoded({limit: '50mb'}));
         // render disabled paths
         function disabled_paths() {
             var fs = require('fs');
-    
-            var contents = fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/disabled_paths.geojson', 'utf8');
+            const path = require('path');
+            var running_on = path.resolve(__dirname);
+            var contents = fs.readFileSync(running_on + '/projects/' + project_path.replace(" ", "") + '/disabled_paths.geojson', 'utf8');
             try{
                 L.geoJson(JSON.parse(contents)).addTo(map);
             }catch(err){
@@ -695,26 +768,11 @@ app.use(express.urlencoded({limit: '50mb'}));
         // function gia na mou epistefei se json to arxeio twn disabled paths kai na mporw na to epexergastw
         function disabled_paths_read() {
             var fs = require('fs');
-    
-            var contents = fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/disabled_paths.geojson', 'utf8');
+            const path = require('path');
+            var running_on = path.resolve(__dirname);
+            var contents = fs.readFileSync(running_on + '/projects/' + project_path.replace(" ", "") + '/disabled_paths.geojson', 'utf8');
             return contents;
         }
-
-/*         jQuery(document).on("click","svg.leaflet-zoom-animated g:nth-child(n+2) path",function() {
-
-            console.log('Must delete svg and regerate layers delete');
-            var index = jQuery("svg.leaflet-zoom-animated g:nth-child(n+2) path").index(this);
-            alert(index);
-            var get_file = JSON.parse(disabled_paths_read());
-            
-
-            get_file["features"].splice(index, 1);
-            console.log(JSON.stringify(get_file));
-            fs.writeFileSync('./projects/' + project_path.replace(" ", "") + '/disabled_paths.geojson', JSON.stringify(get_file));
-            jQuery(this).remove();
-
-            
-        }); */
 
 
         jQuery('svg.leaflet-zoom-animated g:nth-child(n+2) path').click(function(){
@@ -743,8 +801,9 @@ app.use(express.urlencoded({limit: '50mb'}));
     // return polygon map with out render it on map 
     function load_map_project_w_o_render() {
         var fs = require('fs');
-
-        var contents = fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/map_data.geojson', 'utf8');
+        const path = require('path');
+        var running_on = path.resolve(__dirname);
+        var contents = fs.readFileSync(running_on + '/projects/' + project_path.replace(" ", "") + '/map_data.geojson', 'utf8');
         return contents;
     }
 
@@ -1109,14 +1168,225 @@ app.use(express.urlencoded({limit: '50mb'}));
 
     function load_image_settings() {
         var fs = require('fs');
-
-        var contents = fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/image_settings.json', 'utf8');
+        const path = require('path');
+        var running_on = path.resolve(__dirname);
+        var contents = fs.readFileSync(running_on + '/projects/' + project_path.replace(" ", "") + '/image_settings.json', 'utf8');
         return contents;
     }
 
-    jQuery('input[type="file"]').change(function(){
-        export_project(document.getElementsByTagName('input')[0].files[0].path);
+
+    jQuery('div#export_project').click(function(){
+
+
+        jQuery('input[type="file"]').click();
+        
     });
+
+    jQuery('input[type="file"]').change(function(){
+        export_project(this.files[0].path);
+    });
+
+
+
+    /* TEST DOCKER INTEGRATION */
+    jQuery('i.fas.fa-clock').click(function(){
+
+        var intervalHandle = null;
+        const path = require('path');
+        var running_on = path.resolve(__dirname);
+        console.log(running_on+"/third_party_plugins/ODM_Docker/docker_run.bat "+running_on + "/projects/"+ project_path.replace(" ", "")+'/docker_stitching/');
+        require('child_process').exec(running_on+"/third_party_plugins/ODM_Docker/docker_run.bat "+running_on + "/projects/"+ project_path.replace(" ", "")+'/docker_stitching/',{maxBuffer: 1024 * 50000}, function (err, stdout, stderr) {
+            if (err) {
+                // Ooops.
+                // console.log(stderr);
+
+                // Go and copy all images to the folder
+                var ncp = require('ncp').ncp;
+ 
+                //ncp.limit = 16;
+
+                // images source
+                var source = "C:/Users/keglezos/Desktop/new_try/project/images";
+
+                const path = require('path');
+                var running_on = path.resolve(__dirname);
+
+                var destination = running_on + '/projects/' +project_path.replace(" ", "")+'/docker_stitching/project/images';
+                //alert(destination);
+                ncp(source, destination, function (err) {
+                if (err) {
+                    alert('Docker dashboard must be running');
+                return console.error(err);
+                }
+                console.log('done! copy all photos from source to destination for stiching');
+                jQuery('i.fas.fa-clock').click();
+                jQuery('#stiching_progress').slideDown();
+                // in the head
+                
+
+                // in the onclick to set
+                intervalHandle = setInterval(function(){ 
+                    
+
+                    var fs = require('fs');
+                        const path = require('path');
+                        var running_on = path.resolve(__dirname);
+                        var contents = fs.readFileSync(running_on + "/projects/" +project_path.replace(" ", "") +'/docker_stitching/project/benchmark.txt', 'utf8');
+                        console.log(contents.split('\n'));
+                        jQuery('span#stich_step').text(contents.split('\n').length - 1);
+                    
+
+                }, 5000);
+
+// in the onclick to clear
+//clearInterval(intervalHandle);
+                });
+
+                return console.log(err);
+            }
+        
+            // Done.
+            console.log(stdout);
+            jQuery('#stiching_progress').slideUp();
+            clearInterval(intervalHandle);
+
+            // CONVERT STICHED IMAGE FROM TIFF TO PNG
+
+            const path = require('path');
+            var running_on = path.resolve(__dirname);
+            //alert( running_on +'/'+ project_path.replace(" ", ""));
+            
+            const sharp = require('sharp');
+
+            const main = async () => {
+                if (process.argv.length < 4) {
+                    console.log('arguments: srcFile dstFile');
+                    console.log('supports reading JPEG, PNG, WebP, TIFF, GIF and SVG images.');
+                    console.log('output images can be in JPEG, PNG, WebP and TIFF formats.');
+                    return;
+                }
+
+                const path = require('path');
+                var running_on = path.resolve(__dirname);
+                const srcFile = running_on+'/projects/'+project_path.replace(" ", "")+'/docker_stitching/project/odm_orthophoto/odm_orthophoto.tif';
+                const dstFile = running_on+'/projects/'+project_path.replace(" ", "")+'/stiched_images/stiched.png';
+
+                try {
+                    const info = await sharp(srcFile).toFile(dstFile);
+                    console.log(info);
+
+                    // TODO MKLAB SEND US CALCULATION SCRIPTS OF BOUNDS
+                    // DRAW STICHED IMAGE
+                    draw_stiched_image();
+
+                    //CALL PHOTO INDICES CALCULATION
+                    calculate_photo_indeces();
+
+
+
+                } catch (err) {
+                    console.error(err);
+                }
+            };
+            main();
+
+
+
+
+        });
+
+
+
+    });
+
+    // Function that calculate the photo indeces of stiched image
+    function calculate_photo_indeces(){
+        const pathsb = require('path');
+        var running_on = pathsb.resolve(__dirname);
+
+        var stiched_image = running_on+'/projects/'+project_path.replace(" ", "")+'/stiched_images/stiched.png';;
+        var output_path = running_on+'/projects/'+project_path.replace(" ", "")+'/rgb_vls_results';
+
+
+                
+        console.log('Calculate Path Triggered');
+        
+
+
+        var child = require('child_process').execFile;
+        var final_path = path.resolve(__dirname+'/third_party_plugins/RGB_VLS', 'RGB-VIs.exe');
+        console.log(final_path);
+        var executablePath = final_path;
+        var running_on = path.resolve(__dirname);
+        //var parameters = [running_on.replace(/\\/g, "/") + "/projects/"+localStorage.getItem("LoadProject").trim()+"/map_data.geojson", running_on.replace(/\\/g, "/") +"/projects/"+localStorage.getItem("LoadProject").trim()+"/disabled_paths.geojson", jQuery('input#direction_show').val().slice(0,-1)];
+        var parameters = [stiched_image,output_path];
+        //console.log(parameters)
+        child(executablePath,parameters, function(err, data) {
+            console.log(err)
+            console.log(data.toString());
+            jQuery('div#pop_up_container').fadeOut();
+        });
+
+                // show loading pop up
+                jQuery('#pop_up_container').fadeIn();
+                jQuery('.pop_up_content').prepend('<div class="loader loader--style5" title="4"> <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="30px" viewBox="0 0 24 30" style="enable-background:new 0 0 50 50;" xml:space="preserve"> <rect x="0" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="10" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.2s" dur="0.6s" repeatCount="indefinite" /> </rect> <rect x="20" y="0" width="4" height="10" fill="#333"> <animateTransform attributeType="xml" attributeName="transform" type="translate" values="0 0; 0 20; 0 0" begin="0.4s" dur="0.6s" repeatCount="indefinite" /> </rect> </svg> </div>');
+                jQuery('.pop_up_content p').text('Trigger Photo Indices');
+                jQuery('.button_all_ok').attr('style', 'display:none;');
+
+
+
+
+
+
+    }
+    // Function that checks if stiched image exists and than draw it on map
+    function draw_stiched_image(){
+        const fs = require('fs');
+        const paths = require('path');
+        var running_on = paths.resolve(__dirname);
+
+        const path =  running_on+'/projects/'+project_path.replace(" ", "")+'/stiched_images/stiched.png';
+
+        fs.access(path, fs.F_OK, (err) => {
+        if (err) {
+            //console.error(err)
+            console.log('THERE IS NO STICHED IMAGE YET');
+            return
+        }
+
+        //file exists can draw
+        var imageUrl = running_on+'/projects/'+project_path.replace(" ", "")+'/stiched_images/stiched.png',
+        //var imageUrl = 'C://users/keglezos/desktop/test.png',
+
+        /* 
+        πανω: 40.57421474094349, 22.99714166131528
+        κατω: 40.57170592118361, 23.000285736115654
+        */
+        
+        
+        //var bounds = L.bounds([{lat: 40.57421474094349, lng:22.99714166131528},{lat: 40.57170592118361, lng: 23.000285736115654}]);
+        //var bounds = L.bounds( {lat: 40.57421474094349, lng:22.99714166131528},{lat: 40.57170592118361, lng: 23.000285736115654});
+        cimageBounds = L.bounds([[40.573994502284826, 22.997514351202266],[40.57201471549072, 23.00005946100994]]);
+        console.log(cimageBounds.getCenter());
+        imageBounds = [cimageBounds.getCenter(), [40.573994502284826, 22.997514351202266],[40.57201471549072, 23.00005946100994]];
+        L.imageOverlay(imageUrl, imageBounds).addTo(map);
+
+
+
+        })
+    }
+
+    // Function That Draws Photo Indices 
+    function draw_photo_indices(){
+        
+        // prepare today date in order to find the folder
+        var date = new Date();
+        var correct_date = date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear();
+
+        //console.log(correct_date);
+
+
+    }
     
 
 
@@ -1144,11 +1414,7 @@ app.use(express.urlencoded({limit: '50mb'}));
 
     // Draw Map Click Handler
     jQuery('div#DrawOnMapGallery').click(function(){
-
-
         DrawImagesOnMap();
-        
-        
     });
 
     // Initialise function draw images on map

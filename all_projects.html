@@ -67,8 +67,8 @@ div#load_this_project {
     position: absolute;
     bottom: 2%;
     z-index: 9;
-    left: 50%;
-    width: 30%;
+    left: 40%;
+    width: 40%;
     height: 55px;
     border-radius: 5px;
     padding: 10px;
@@ -79,7 +79,7 @@ div#load_this_project {
 }
 
 .forget_it {
-    width: 45%;
+    width: 31%;
     background: transparent;
     border: 1px solid #fec840;
     text-align: center;
@@ -93,7 +93,7 @@ div#load_this_project {
 }
 
 .load_it {
-    width: 45%;
+    width: 31%;
     background: #fec840;
     border: 1px solid #fec840;
     text-align: center;
@@ -101,15 +101,38 @@ div#load_this_project {
     padding: 5px;
     color: #222;
     cursor: pointer;
-    float: right;
+    float: left;
     display: inline-block;
     position: relative;
+}
+.delete_it {
+    width: 31%;
+    background: transparent;
+    border: 1px solid #fec840;
+    text-align: center;
+    border-radius: 22px;
+    padding: 5px;
+    color: #fec840;
+    cursor: pointer;
+    float: left;
+    display: inline-block;
+    position: relative;
+}
+
+div#load_this_project div {
+    margin-right: 2%;
+}
+
+.delete_it:hover {
+    background: #ff3c3cc7;
+    border-color: #000;
+    color: #fff;
 }
     </style>
 </head>
 
 <body class="">
-    <div id="load_this_project"><div class="forget_it">Close</div><div class="load_it">Load Project</div></div>
+    <div id="load_this_project"><div class="forget_it">Close</div><div class="delete_it" path="">Delete Project</div><div class="load_it">Load Project</div></div>
     <nav class="navbar navbar-vertical fixed-left navbar-expand-md navbar-light bg-white" id="sidenav-main">
         <div class="container-fluid">
 
@@ -136,7 +159,7 @@ div#load_this_project {
 
 
     </div>
-    <script src="js/main_script.js"></script>
+    <!-- <script src="js/main_script.js"></script> -->
         <script>
         var map = L.mapbox.map('map')
             .setView([38.6008630095356,24.187002848625298], 7);
@@ -181,8 +204,6 @@ div#load_this_project {
         
 jQuery(document).ready(function() {
 
-
-    // Ftiaxnw ton marker mou gia na mporesw na ton kalw meta mesa sthn for gia na ftiaxnw ta projects mou
     var greenIcon = L.icon({
         iconUrl: 'img/our_marker.png',
         /*shadowUrl: 'img/leaf-shadow.png',*/
@@ -196,48 +217,53 @@ jQuery(document).ready(function() {
     });
 
 
+    // Draw All projects
+    const fs = require('fs');
+    const path = require('path');
+    var running_on = path.resolve(__dirname);
+
+    fs.readdir(running_on + '/projects', (err, files) => {
+        files.forEach(file => {
+        var pr_data = JSON.parse(read_project_preview_data(file));
+        var coords = pr_data["Center"].split(",");
+        //console.log(coords);
+        jQuery('div#sidenav-collapse-main').append('<div long="' + coords[0] + '"lat="' + coords[1] + '" class="project_button"> <label><i class="fas fa-map-pin"></i>' +pr_data["Name"] + '</label> </div>');
+        // Call Drawing pin func
+        draw_marks(pr_data["Name"],parseFloat(coords[0]),parseFloat(coords[1]));
+        
+
+        });
+
+    });
 
 
-    var tpm_centers = load_projects_centers();
-    var all_centers = tpm_centers.split(",");
-    for (var i = 0; i < all_centers.length; i++) {
-        var tmp_name = all_centers[i].split(';');
-        //console.log(tmp_name[0].replace("plan_name:",""));
-        var longtitude = parseFloat(tmp_name[1].replace("x:", ""));
-        var latitude = parseFloat(tmp_name[2].replace("y:", ""));
-        console.log(longtitude, latitude);
-
-        //build marker on location
-        //L.marker([latitude, longtitude], {icon: greenIcon}).addTo(map).bindPopup("I am a green leaf.");
-        // L.DomUtil.addClass( marker._icon, 'leaflet-marker-icon-color-green' );
-
+    // Function gia drawing pins twn project
+    function draw_marks(name,lat,lon){
+        console.log(name,lat,lon);
         var marker = L.marker(
-            [latitude, longtitude], {
-                title: tmp_name[0].replace("plan_name:", ""),
+            [lon, lat], {
+                title: name,
                 icon: greenIcon
             }
-        ).addTo(map).bindPopup('<h3>'+tmp_name[0].replace('plan_name:', '')+'</h3>');
-        L.DomUtil.addClass(marker._icon, tmp_name[0].replace("plan_name:", ""));
-
-
-
-        if(tmp_name[0].replace("plan_name:", "") != "0"){
-            jQuery('div#sidenav-collapse-main').append('<div long="' + longtitude + '"lat="' + latitude + '" class="project_button"> <label><i class="fas fa-map-pin"></i>' + tmp_name[0].replace("plan_name:", "") + '</label> </div>');
-        }
-        
+        ).addTo(map).bindPopup('<h3>'+name+'</h3>');
+        L.DomUtil.addClass(marker._icon,name);
 
     }
 
-
-    // Function in order to Call User database ( /login_system/users.txt)
-    function load_projects_centers() {
+    
+    // Function that returns the project view json
+    function read_project_preview_data(name){
         var fs = require('fs');
-        var contents = fs.readFileSync('./projects_centers/centers.txt', 'utf8');
+        const path = require('path');
+        var running_on = path.resolve(__dirname);
+        var contents = fs.readFileSync(running_on + '/projects/'+name+'/preview_project.json', 'utf8');
         return contents;
     }
 
 
-    jQuery('.project_button').click(function() {
+
+    jQuery(document).on("click",".project_button",function() {
+        //console.log("aa");
         jQuery('.leaflet-objects-pane svg g').remove();
         jQuery('.project_button').removeClass('prj_active');
         jQuery(this).addClass('prj_active');
@@ -246,6 +272,7 @@ jQuery(document).ready(function() {
         var lat = parseFloat(jQuery(this).attr('lat'));
 
         //map.panTo(new L.LatLng(lat, long), 14);
+        //console.log(lat,long);
         map.setView([lat,long], 18);
         L.circle([lat, long], 100).addTo(map);
         //jQuery('.img.leaflet-marker-icon.leaflet-zoom-animated.leaflet-clickable').removeClass('marker_inactive');
@@ -253,9 +280,12 @@ jQuery(document).ready(function() {
         jQuery('img.leaflet-marker-icon.leaflet-zoom-animated').addClass('marker_inactive');
         jQuery('.' + jQuery(this).text().replace(" ", "")).removeClass('marker_inactive');
         jQuery('.load_it').attr('path', jQuery(this).text().replace(" ", ""));
+        jQuery('.delete_it').attr('path', jQuery(this).text().replace(" ", ""));
         jQuery('div#load_this_project').slideDown();
-
     });
+
+
+
 
 
     jQuery('.forget_it').click(function() {
@@ -269,6 +299,44 @@ jQuery(document).ready(function() {
 
         localStorage.setItem("LoadProject", jQuery(this).attr('path'));
         window.location = "./load_project.html";
+
+    });
+
+
+
+    // Trigger Delete function 
+    jQuery('.delete_it').click(function() {
+
+        //localStorage.setItem("LoadProject", jQuery(this).attr('path'));
+        
+        const path = require('path');
+        const fs = require('fs');
+        var running_on = path.resolve(__dirname);
+        
+        
+        var final_path = "" + running_on + "/projects/"+jQuery(this).attr('path');
+        
+        
+        
+        //rmdir directoryname
+        
+        rmDir = function(dirPath) {
+      try { var files = fs.readdirSync(dirPath); }
+      catch(e) { return; }
+      if (files.length > 0)
+        for (var i = 0; i < files.length; i++) {
+          var filePath = dirPath + '/' + files[i];
+          if (fs.statSync(filePath).isFile())
+            fs.unlinkSync(filePath);
+          else
+            rmDir(filePath);
+        }
+      fs.rmdirSync(dirPath);
+    };
+    rmDir(final_path);
+
+
+
 
     });
 

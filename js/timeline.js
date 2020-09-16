@@ -10,8 +10,9 @@ var project_path = localStorage.getItem("LoadProject");
 load_field_actions();
 function load_field_actions(){
 	var fs = require('fs');
-
-	var contents = fs.readFileSync('./projects/' + project_path.replace(" ", "") + '/field_actions.json', 'utf8');
+	const path = require('path');
+	var running_on = path.resolve(__dirname);
+	var contents = fs.readFileSync(running_on + '/projects/' + project_path.replace(" ", "") + '/field_actions.json', 'utf8');
 	
 	var data = JSON.parse(contents);
 	const monthNames = ["Jan", "Febr", "Mar", "Apr", "May", "Jun",
@@ -40,7 +41,7 @@ function load_field_actions(){
 		// Build Actions html depend on or off
 
 		for(var x =0; x < read_action.length; x++){
-			console.log(read_action[x]);
+			//console.log(read_action[x]);
 			if(x == 0){
 				if(read_action[x] == 0){
 					build_actions = build_actions + '<li><img src="./img/watering.png"></li>';
@@ -65,7 +66,7 @@ function load_field_actions(){
 
 			}
 		}
-		console.log(build_actions);
+		//console.log(build_actions);
 
 
 
