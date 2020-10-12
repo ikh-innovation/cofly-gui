@@ -127,6 +127,7 @@ jQuery('div#save_button').click(function() {
             fs.writeFileSync(running_on + '/projects/' + plan_name + '/map_data.geojson', JSON.stringify(featureGroup.toGeoJSON()));
             fs.writeFileSync(running_on + '/projects/' + plan_name + '/proj_settings.json', grab_data());
             fs.writeFileSync(running_on + '/projects/' + plan_name + '/disabled_paths.geojson', '');
+            fs.writeFileSync(running_on + '/projects/' + plan_name + '/has_indeces.json', '{ "has_indeces": { "value": "0" } }');
             fs.writeFileSync(running_on + '/projects/' + plan_name + '/image_settings.json', '{ "ImageSettings": [ { "title": "", "Rotate": 0, "Top": 0, "Left":0 } ] }');
             fs.writeFileSync(running_on + '/projects/' + plan_name + '/field_actions.json', '{"field_actions":[]}');
             fs.writeFileSync(running_on + '/projects/' + plan_name + '/preview_project.json', '{"Name":"'+plan_name+'", "Center":"'+center["coordinates"][0]+','+center["coordinates"][1]+'" }');

@@ -1,4 +1,4 @@
- @import "font_awesome/all.min.css";
+@import "font_awesome/all.min.css";
 
  /* Scrollbar */
  
@@ -558,7 +558,7 @@ div#close_map_photo_picker {
 
 /* Top Bar photo picker container style */
 div#image_container {
-    width: 80%;
+    width: 90%;
     height: 100%;
     overflow-y: auto;
 }
@@ -1193,6 +1193,40 @@ div#lock_project {
     -webkit-animation: pulseWarningIns 0.75s infinite alternate;
             animation: pulseWarningIns 0.75s infinite alternate;
   }
+
+  .button_full_rgb_vls {
+    border: 1px solid #737373;
+    padding: 10px 15px 10px 15px;
+    text-align: center;
+    float: left;
+    color: #fec840;
+    cursor: pointer;
+    background: #737373;
+    margin-left: 10%;
+    width: 11%;
+    margin-left: 1%;
+    margin-bottom: 10px;
+    padding: 5px 5px 5px 5px;
+    margin-right: 15px;
+    margin-top: 2.5%;
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+.button_full_rgb_vls:hover {
+  opacity: 1;
+}
+
+.button_full.date_indeces {
+  width: 100%;
+  margin-bottom: 20px;
+  margin-left: 0px !important;
+}
+
+h6.navbar-heading.project_gallery {
+  display: none;
+}
+
   
   @-webkit-keyframes animateSuccessTip {
     0%,54% {
@@ -1474,3 +1508,28 @@ div#lock_project {
     }
   }
 
+  .leaflet-popup-content img {
+    width: 350px;
+    border: 3px solid;
+}
+
+a.leaflet-popup-close-button {
+    position: absolute;
+    left: 250px !important;
+    z-index: 9;
+    top: 20px !important;
+}
+
+.remove_this {
+  top: 370%;
+  position: absolute;
+  left: 200%;
+  background: #da2b2b;
+  color: #fff;
+  padding: 5px 5px 5px 5px;
+  cursor: pointer;
+}
+
+.remove_this:hover {
+  opacity: .85;
+}

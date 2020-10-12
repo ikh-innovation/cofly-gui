@@ -1,6 +1,201 @@
 jQuery(document).ready(function() {
 
 
+        // NEW MQTT 
+        var mqtt = require('mqtt')
+        var client  = mqtt.connect('mqtt://192.168.1.15:60666')
+        var can_save_image = false;
+        var camera_topic;
+        //alert('eftasa');
+    
+        client.on('connect', function () {
+            console.log('MQTT SERVER SUCCESSFULLY CONNECTED');
+            
+            client.subscribe('telemetry/dji.phantom.4.pro.hawk.1', function (err) {
+                if (!err) {
+                    client.publish('presence', 'Hello mqtt')
+                }else{
+                    console.log(err);
+                }
+            })
+            
+    
+            client.subscribe('camera/dji.phantom.4.pro.hawk.1', function (err) {
+                if (!err) {
+                    client.publish('presence', 'Hello mqtt')
+                }
+            })
+    
+            client.subscribe('missionStatus/dji.phantom.4.pro.hawk.1', function (err) {
+                if (!err) {
+                    client.publish('presence', 'Hello mqtt')
+                }
+            })
+    
+            client.subscribe('missionStart/dji.phantom.4.pro.hawk.1', function (err) {
+                if (!err) {
+                    client.publish('presence', 'Hello mqtt')
+                }
+            })
+    
+            
+    
+        })
+    
+        client.on('disconnect', function () {
+            console.log('MQTT DISCONNECTED');
+        })
+    
+        client.on('message', function (topic, message) {
+            // message is Buffer
+            console.log(topic)
+            
+            // Camera Topic
+            if(topic.toString().indexOf("camera/dji.phantom.4.pro.hawk.1") != -1){
+                if (can_save_image){
+    
+                //console.log('Receive Camera');
+                camera_topic = JSON.parse(message);
+                var base64Data = camera_topic.image.replace(/^data:image\/png;base64,/, "");
+                const uuidv4 = require('uuid/v4'); // I chose v4 ‒ you can select others
+                var filename = uuidv4(); // '110ec58a-a0f2-4ac4-8393-c866d813b8d1'
+        
+                require("fs").writeFile(localStorage.getItem('Save_Image_Path') +'/' + filename + '.jpg', base64Data, 'base64', function(err) {
+                
+                    if(err){
+                        console.log(err);
+                    }else{
+                        //print_project_gallery();
+                        console.log('SAVE DONE');
+                    }
+                });
+    
+                }
+                
+            }
+            // End Camera Topic 
+    
+            // Telemetry Topic
+            if(topic.toString().indexOf("telemetry/dji.phantom.4.pro.hawk.1") != -1){
+    
+                //console.log('Receive Camera');
+                telemetry_topic = JSON.parse(message);
+                latitude = telemetry_topic.latitude
+                longitude = telemetry_topic.longitude
+    
+                //console.log(latitude,longitude);
+    
+                jQuery('.leaflet-marker-pane img').remove();
+    
+                // draw new marker [Current] drone location
+
+           
+
+                if(latitude == "37.316314"){
+                    console.log('demo_position');
+                    var marker = L.marker(
+                        [40.57300986880264, 22.99893490662799], {
+                            title: 'Drone Current Position',
+                            icon: drone_icon
+                        }
+                    ).addTo(map);
+            
+                    map.panTo(new L.LatLng(40.57300986880264, 22.99893490662799));
+                }else{
+
+                    var marker = L.marker(
+                        [latitude,longitude], {
+                            title: 'Drone Current Position',
+                            icon: drone_icon
+                        }
+                    ).addTo(map);
+            
+                    map.panTo(new L.LatLng(latitude, longitude));
+
+                }
+             
+                
+                 
+            }
+            // End Telemetry
+    
+            // Mission Status
+            if(topic.toString().indexOf("missionStatus/dji.phantom.4.pro.hawk.1") != -1){
+    
+                alert('Receive status');
+                console.log(message.toString());
+                 
+            }
+            // End Status
+    
+    
+            // Mission Start
+            if(topic.toString().indexOf("missionStart/dji.phantom.4.pro.hawk.1") != -1){
+    
+                alert('Receive start');
+                console.log(message.toString());
+                    
+            }
+            // End Status
+    
+    
+    
+            // client.end()
+        })
+    
+        // Click to Start And send mission
+        /* 
+        {
+       "timestamp":1591881061228,
+       "missionId":"ee31b81e-ceaf-4539-8f97-a225f258ff31",
+       "destinationSystem":"dji.phantom.4.pro.hawk.1",
+       "sourceSystem":"choosepath-backend",
+       "speed":10.0,
+       "timeout":1800.0,
+       "cornerRadius":2.0,
+       "gimbalPitch":-87.0,
+       "waypoints":[
+          {
+             "latitude":38.023959787799186,
+             "longitude":23.743319065035404,
+             "altitude":35.0
+          },
+          {
+             "latitude":38.02260849889491,
+             "longitude":23.743339065022948,
+             "altitude":35.0
+          }
+       ]
+    }
+    
+    
+        */
+       jQuery('i.fas.fa-vector-square').click(function(){
+        console.log('WORKING SEND');
+        client.publish("missionStart/dji.phantom.4.pro.hawk.1/",JSON.stringify({
+    
+            "timestamp": 1591126930640,
+            "missionId": 1,
+            "destinationSystem": "dji.phantom.4.pro.hawk.2",
+            "sourceSystem": "choosepath-backend",
+            "speed": 10.0,
+            "timeout": 3200.0,
+            "cornerRadius": 2.0,
+            "gimbalPitch": -87.0,
+            "waypoints": [{
+                "latitude": 38.02667234326512,
+                "longitude": 23.745349652007746,
+                "altitude": 36.0
+            }, {
+                "latitude": 38.02669944223612,
+                "longitude": 23.74926746930539,
+                "altitude": 36.0
+            }]
+        }))
+    
+       });
+
+
     //var pathsad = require("path");
     //console.log(pathsad.resolve(__dirname, './projects/').replace(/\\/g,"/")+ "/" +localStorage.getItem("LoadProject") + "/project_images/");
 
@@ -15,141 +210,23 @@ jQuery(document).ready(function() {
         popupAnchor: [0, -76] // point from which the popup should open relative to the iconAnchor
     });
 
-    // Connect w the drone mqtt
-    // NEW MQTT 
-    var mqtt = require('mqtt')
-    var client  = mqtt.connect('mqtt://192.168.211.108:60666')
-    var can_save_image = false;
-    var camera_topic;
 
-    client.on('connect', function () {
-        console.log('MQTT SERVER SUCCESSFULLY CONNECTED');
-        
-        client.subscribe('telemetry/dji.phantom.4.pro.hawk.2', function (err) {
-            if (!err) {
-                client.publish('presence', 'Hello mqtt')
-            }
-        })
-        
 
-        client.subscribe('camera/dji.phantom.4.pro.hawk.2', function (err) {
-            if (!err) {
-                client.publish('presence', 'Hello mqtt')
-            }
-        })
-
-        client.subscribe('missionStatus/dji.phantom.4.pro.hawk.2', function (err) {
-            if (!err) {
-                client.publish('presence', 'Hello mqtt')
-            }
-        })
-
-        
-
-    })
-
-    client.on('disconnect', function () {
-        console.log('MQTT DISCONNECTED');
-    })
-
-    client.on('message', function (topic, message) {
-        // message is Buffer
-        
-        // Camera Topic
-        if(topic.toString().indexOf("camera/dji.phantom.4.pro.hawk.2") != -1){
-            if (can_save_image){
-
-            //console.log('Receive Camera');
-            camera_topic = JSON.parse(message);
-            var base64Data = camera_topic.image.replace(/^data:image\/png;base64,/, "");
-            const uuidv4 = require('uuid/v4'); // I chose v4 ‒ you can select others
-            var filename = uuidv4(); // '110ec58a-a0f2-4ac4-8393-c866d813b8d1'
+    // Create Mark for photo indeces marker
+    var alert_indeces = L.icon({
+        iconUrl: 'img/Alert_Indeces.png',
+        /*shadowUrl: 'img/leaf-shadow.png',*/
+        iconSize: [50, 73], // size of the icon
+        shadowSize: [50, 64], // size of the shadow
+        iconAnchor: [25, 70], // point of the icon which will correspond to marker's location
+        shadowAnchor: [4, 62], // the same for the shadow
+        popupAnchor: [0, -76] // point from which the popup should open relative to the iconAnchor
+    });
     
-            require("fs").writeFile(localStorage.getItem('Save_Image_Path') +'/' + filename + '.jpg', base64Data, 'base64', function(err) {
-            
-                if(err){
-                    console.log(err);
-                }else{
-                    print_project_gallery();
-                    console.log('SAVE DONE');
-                }
-            });
-
-            }
-            
-        }
-        // End Camera Topic 
-
-        // Telemetry Topic
-        if(topic.toString().indexOf("telemetry/dji.phantom.4.pro.hawk.2") != -1){
-
-            //console.log('Receive Camera');
-            telemetry_topic = JSON.parse(message);
-            latitude = telemetry_topic.latitude
-            longitude = telemetry_topic.longitude
-
-            //console.log(latitude,longitude);
-
-            jQuery('.leaflet-marker-pane img').remove();
-
-            // draw new marker [Current] drone location
-            var marker = L.marker(
-                [latitude,longitude], {
-                    title: 'Drone Current Position',
-                    icon: drone_icon
-                }
-            ).addTo(map);
     
-            map.panTo(new L.LatLng(latitude, longitude));
-             
-        }
-        // End Telemetry
-
-        // Mission Status
-        if(topic.toString().indexOf("MissionStatus/dji.phantom.4.pro.hawk.2") != -1){
-
-            console.log('Receive status');
-            console.log(message.toString());
-             
-        }
-        // End Status
-
-
-
-        // client.end()
-    })
 
     //print_project_gallery();
     var show_slide = true;
-    /* BETA TESTING FOR DIRECTORY FILES */
-    function print_project_gallery() {
-        jQuery('ul.project_gallery_render li').remove();
-        //var get_path_images = './projects/' + localStorage.getItem("LoadProject").replace(" ", "") + '/project_images/';
-        //const testFolder = __dirname + '/projects/' + localStorage.getItem("LoadProject").replace(" ", "") + '/project_images/';
-        var pathsad = require("path");
-        var final_correct_path = running_on + localStorage.getItem("LoadProject") + "/project_images/";
-        var fix_location = final_correct_path.split("/resources/app");
-        const fs = require('fs');
-
-        if (fix_location[1] == null) {
-            var final_link = fix_location[0];
-        } else {
-            var final_link = fix_location[0] + fix_location[1];
-        }
-
-        const path = require('path');
-        var running_on = path.resolve(__dirname);
-
-        fs.readdirSync(final_link.replace(" ", "")).forEach(file => {
-
-            if (file.indexOf(".jpg") != -1 || file.indexOf(".png") != -1 || file.indexOf(".jpeg") != -1) {
-                //console.log(file);
-                jQuery('ul.project_gallery_render').append('<li class="nav-item"><div class="gallery_image_Settings_hover"><i class="far fa-eye"></i></div><img src="' + final_link.replace(" ", "") + file + '"></li>');
-            }
-
-        });
-
-    }
 
     // check if load project exists
     var project_path = localStorage.getItem("LoadProject");
@@ -162,21 +239,6 @@ jQuery(document).ready(function() {
 
     // Initialize map
     var map = L.mapbox.map('map').setView([parseFloat(clean_center[1]), parseFloat(clean_center[0])], 17);
-
-
-    // Disable Zoom Map 
-    // Disable ZOOM
-    //map.touchZoom.disable();
-    //map.doubleClickZoom.disable();
-    //map.scrollWheelZoom.disable();
-
-    
-
-
-
-    //var map = L.mapbox.map('map').setView([23.736116731514866, 37.97002501526711], 17);
-
-
 
 
     // Add layers to the map
@@ -220,8 +282,6 @@ jQuery(document).ready(function() {
     
     /* Apofugei empodiwn draw new polygons */
     
-    // test oti fortwnw sto featurefroup layers 
-    //featureGroup.addLayer(disabled_paths());
     //console.log(disabled_paths());
     map.on('draw:created', function(e) {
         //alert('Create new');
@@ -240,55 +300,11 @@ jQuery(document).ready(function() {
             fs.writeFileSync('./projects/' + project_path.replace(" ", "") + '/disabled_paths.geojson', old_disabled + ','+ temp_json.slice(1) + ']}');
         }
         
-
-
-        //console.log(JSON.stringify(featureGroup.toGeoJSON()));
-    
-    
     });
 
 
 
     const path = require('path');
-
-
-    var image_count = 0;
-
-
-    // Trigger zoom event on map ( Change all markers size )
-    var prevZoom = map.getZoom();
-    //console.log('GET ZOOM: ' + prevZoom);
-
-    map.on('zoomend', function(e) {
-        //debugger;
-        var currZoom = map.getZoom();
-        var diff = prevZoom - currZoom;
-        if (diff > 0) {
-            //console.log('zoomed out', currZoom);
-
-            var newzoom = '' + ((250) * currZoom) + 'px';
-            //console.log(newzoom);
-            $('.leaflet-popup-content img').css({
-                'width': newzoom,
-                'height': 'auto'
-            });
-
-        } else if (diff < 0) {
-            //console.log('zoomed in' + currZoom);
-            var newzoom = '' + ((250) / currZoom) + 'px';
-            //console.log(newzoom);
-            $('.leaflet-popup-content img').css({
-                'width': newzoom,
-                'height': 'auto'
-            });
-        } else {
-            alert('no change');
-        }
-
-        prevZoom = currZoom;
-    });
-
-
     /* LISTEN NEW SERVICE  UPLOAD FILE TO PROJECT FILE */
     const express = require('express');
     const multer = require('multer');
@@ -298,17 +314,9 @@ jQuery(document).ready(function() {
 
     var app = express();
     app.use(express.static(__dirname));
-/*
-    app.use(bodyParser.urlencoded({
-        extended: true
-    }));
-    */
     app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb'}));
     app.use(bodyParser.json());
-
-
-
 
 
     app.post('/scan_completed', function(req, res) {
@@ -326,7 +334,6 @@ app.use(express.urlencoded({limit: '50mb'}));
 
         var get_center = localStorage.getItem('LoadedProjectCenter').split(",");
         // create link depending the center of project and call the weather api 
-        // http://api.openweathermap.org/data/2.5/weather?lat=37.969059771389645&lon=23.746398389339447&APPID=f6f1b45b882965c039fae9390a8250e4
         jQuery.get( 'http://api.openweathermap.org/data/2.5/weather?lat='+get_center[1]+'&lon='+get_center[0]+'&APPID=f6f1b45b882965c039fae9390a8250e4', function( data ) {
             console.log(data);
 
@@ -370,7 +377,7 @@ app.use(express.urlencoded({limit: '50mb'}));
 
     // To python script apo KETA stelnei se auto to link to ypologismeno monopati pou tha akoloutheisei to drone.
 
-    app.post('/calculated_path', function(req, res) {
+   app.post('/calculated_path', function(req, res) {
         
             //console.log(req.body);
 
@@ -511,6 +518,10 @@ app.use(express.urlencoded({limit: '50mb'}));
     child(executablePath,parameters, function(err, data) {
         console.log(err)
         console.log(data.toString());
+        var temp_time = data.split("Time (min) : ");
+        var final_time = temp_time[1].split("Communication");
+        var fix_format = parseFloat(final_time[0]).toFixed(2);
+        jQuery('span#minutes_calc').text(fix_format.replace(".",":") + " Mins");
         jQuery('div#pop_up_container').fadeOut();
     });
 
@@ -565,6 +576,14 @@ app.use(express.urlencoded({limit: '50mb'}));
         console.log(err)
         console.log(data.toString());
         jQuery('div#pop_up_container').fadeOut();
+        // Change state on file from now on indeces exists 
+        fs.mkdir(running_on + '/projects/' + localStorage.getItem("LoadProject").replace(" ",""), function() {
+            fs.writeFileSync(running_on + '/projects/' + localStorage.getItem("LoadProject").replace(" ","") + '/has_indeces.json', '{ "has_indeces": { "value": "1" } }');
+        });
+
+        // Read JSON Files 
+        draw_photo_indices();
+
     });
 
             // show loading pop up
@@ -614,14 +633,20 @@ app.use(express.urlencoded({limit: '50mb'}));
         jQuery('div#cancel_scanning').fadeIn();
         jQuery(this).fadeOut();
 
+
+
+        var fs = require('fs');
+        const path = require('path');
+        var running_on = path.resolve(__dirname);
+
         // Create subdirectory on images in order to save the incoming images from server
         var date_time = Date.now();
-        fs.mkdir('./projects/' + localStorage.getItem("LoadProject").replace(" ","")+'/project_images/'+date_time, function() {
-            localStorage.setItem('Save_Image_Path','./projects/' + localStorage.getItem("LoadProject").replace(" ","")+'/project_images/'+date_time);
+        fs.mkdir(running_on + '/projects/' + localStorage.getItem("LoadProject").replace(" ","")+'/project_images/'+date_time, function() {
+            localStorage.setItem('Save_Image_Path',running_on +'/projects/' + localStorage.getItem("LoadProject").replace(" ","")+'/project_images/'+date_time);
         });
 
         // Waiting from mqtt server send us mission status ONGOING
-        client.publish('missionStart/dji.phantom.4.pro.hawk.2', JSON.stringify({
+        client.publish('missionStart/dji.phantom.4.pro.hawk.1', JSON.stringify({
             "timestamp":1591881061228,
             "missionId":"ee31b81e-ceaf-4539-8f97-a225f258ff31",
             "destinationSystem":"dji.phantom.4.pro.hawk.1",
@@ -698,7 +723,7 @@ app.use(express.urlencoded({limit: '50mb'}));
             return false;
         }
         
-        console.log(contents);
+        
         //return contents;
         try {
       
@@ -750,7 +775,7 @@ app.use(express.urlencoded({limit: '50mb'}));
     }
 
         //initialize project map and render it into map
-        disabled_paths();
+        //disabled_paths();
         // render disabled paths
         function disabled_paths() {
             var fs = require('fs');
@@ -820,6 +845,12 @@ app.use(express.urlencoded({limit: '50mb'}));
     jQuery('input#scanning_distance_now').val(parseInt(loaded_project.CoFly.Scanning_Distance) + 'm');
     jQuery('input#gimbal_pitch').val(parseInt(loaded_project.CoFly.Gimbal_Pitch) + '°');
     jQuery('input#drone_speed').val(parseInt(loaded_project.CoFly.Drone_Speed) + 'm/s');
+
+    /* Recomended */
+    jQuery('input#altitude_show').val('10 m');
+    jQuery('input#direction_show').val('0°');
+    jQuery('input#scanning_distance_now').val('20 m');
+    jQuery('input#drone_speed').val('5 m/s');
     var is_project_locked = parseInt(loaded_project.CoFly.Lock_Project);
     if(is_project_locked == 1){
         jQuery('div#calculate_path_planing').fadeOut();
@@ -1174,6 +1205,26 @@ app.use(express.urlencoded({limit: '50mb'}));
         return contents;
     }
 
+    
+    
+    function load_project_indeces_file() {
+        var fs = require('fs');
+        const path = require('path');
+        var running_on = path.resolve(__dirname);
+        var contents = fs.readFileSync(running_on + '/projects/' + project_path.replace(" ", "") + '/has_indeces.json', 'utf8');
+        var has_indeces = JSON.parse(contents);
+        if(parseInt(has_indeces["has_indeces"]["value"]) == 0){
+            //alert('There is no photo indeces');
+
+        }else{
+            jQuery('h6.navbar-heading.project_gallery').fadeIn();
+        }
+
+        return parseInt(has_indeces["has_indeces"]["value"]);
+
+        //return contents;
+    }
+
 
     jQuery('div#export_project').click(function(){
 
@@ -1206,7 +1257,7 @@ app.use(express.urlencoded({limit: '50mb'}));
                 //ncp.limit = 16;
 
                 // images source
-                var source = "C:/Users/keglezos/Desktop/new_try/project/images";
+                var source = "C:/Users/ENGLEZOS/Desktop/images_cofly";
 
                 const path = require('path');
                 var running_on = path.resolve(__dirname);
@@ -1322,9 +1373,38 @@ app.use(express.urlencoded({limit: '50mb'}));
         var parameters = [stiched_image,output_path];
         //console.log(parameters)
         child(executablePath,parameters, function(err, data) {
+
+            // Excecution Ended
+
             console.log(err)
             console.log(data.toString());
             jQuery('div#pop_up_container').fadeOut();
+            fs.mkdir(running_on + '/projects/' + localStorage.getItem("LoadProject").replace(" ",""), function() {
+                fs.writeFileSync(running_on + '/projects/' + localStorage.getItem("LoadProject").replace(" ","") + '/has_indeces.json', '{ "has_indeces": { "value": "1" } }');
+            });
+            jQuery('h6.navbar-heading.project_gallery').fadeIn();
+
+            // Read JSON FILES and draw centers 
+            var path_of_json = running_on+'/projects/'+project_path.replace(" ", "")+'/rgb_vls_results/Resulted_Vis_image_representations/'+localStorage.getItem('last_scan_indeces');
+            //console.log(path_of_json);
+            var exg_centers = fs.readFileSync(path_of_json + '/ExG_centers.json', 'utf8');
+            var exg_exr_centers = fs.readFileSync(path_of_json + '/ExG-ExR_centers.json', 'utf8');
+            var gli_centers = fs.readFileSync(path_of_json + '/GLI_centers.json', 'utf8');
+            var ngbdi_centers = fs.readFileSync(path_of_json + '/NGBDI_centers.json', 'utf8');
+            var ngrdi_centers = fs.readFileSync(path_of_json + '/NGRDI_centers.json', 'utf8');
+            var savi_green_centers = fs.readFileSync(path_of_json + '/SAVI-GREEN_centers.json', 'utf8');
+            var vari_centers = fs.readFileSync(path_of_json + '/VARI_centers.json', 'utf8');
+
+            var marker = L.marker(
+                [latitude,longitude], {
+                    title: 'Drone Current Position',
+                    icon: drone_icon
+                }
+            ).addTo(map);
+    
+            map.panTo(new L.LatLng(latitude, longitude));
+
+            console.log(JSON.parse(exg_centers));
         });
 
                 // show loading pop up
@@ -1339,6 +1419,72 @@ app.use(express.urlencoded({limit: '50mb'}));
 
 
     }
+
+    // Demo prosposes json files reading TO BE REMOVED
+    read_json();
+    function read_json(){
+        const pathsb = require('path');
+        var running_on = pathsb.resolve(__dirname);
+        var path_of_json = running_on+'/projects/'+project_path.replace(" ", "")+'/rgb_vls_results/Resulted_Vis_image_representations/'+localStorage.getItem('last_scan_indeces');
+        //console.log(path_of_json);
+        var exg_centers = fs.readFileSync(path_of_json + '/ExG_centers.json', 'utf8');
+        var exg_exr_centers = fs.readFileSync(path_of_json + '/ExG-ExR_centers.json', 'utf8');
+        var gli_centers = fs.readFileSync(path_of_json + '/GLI_centers.json', 'utf8');
+        var ngbdi_centers = fs.readFileSync(path_of_json + '/NGBDI_centers.json', 'utf8');
+        var ngrdi_centers = fs.readFileSync(path_of_json + '/NGRDI_centers.json', 'utf8');
+        var savi_green_centers = fs.readFileSync(path_of_json + '/SAVI-GREEN_centers.json', 'utf8');
+        var vari_centers = fs.readFileSync(path_of_json + '/VARI_centers.json', 'utf8');
+
+        var exg_centers_json = JSON.parse(exg_centers);
+        var exg_exr_centers_json = JSON.parse(exg_exr_centers);
+        var gli_centers_json = JSON.parse(gli_centers);
+        var ngbdi_centers_json = JSON.parse(ngbdi_centers);
+        var ngrdi_centers_json = JSON.parse(ngrdi_centers);
+        var savi_green_centers_json = JSON.parse(savi_green_centers);
+        var vari_centers_json = JSON.parse(vari_centers);
+
+        //console.log(exg_centers_json.center[0]["Lat"] + "KAI " + exg_centers_json.center[1]["Lon"]);
+        var planes = [
+            [exg_centers_json.center[2]["name_image"],exg_centers_json.center[0]["Lat"],exg_centers_json.center[1]["Lon"]],
+            [exg_exr_centers_json.center[2]["name_image"],exg_exr_centers_json.center[0]["Lat"],exg_exr_centers_json.center[1]["Lon"]],
+            [gli_centers_json.center[2]["name_image"],gli_centers_json.center[0]["Lat"],gli_centers_json.center[1]["Lon"]],
+            [ngbdi_centers_json.center[2]["name_image"],ngbdi_centers_json.center[0]["Lat"],ngbdi_centers_json.center[1]["Lon"]],
+            [ngrdi_centers_json.center[2]["name_image"],ngrdi_centers_json.center[0]["Lat"],ngrdi_centers_json.center[1]["Lon"]],
+            [savi_green_centers_json.center[2]["name_image"],savi_green_centers_json.center[0]["Lat"],savi_green_centers_json.center[1]["Lon"]],
+            [vari_centers_json.center[2]["name_image"],vari_centers_json.center[0]["Lat"],vari_centers_json.center[1]["Lon"]]
+            ];
+            console.log(planes);
+        
+
+        for (var i = 0; i < planes.length; i++) {
+			marker = new L.marker([planes[i][1],planes[i][2]],{
+                title: 'Problem Area',
+                icon: alert_indeces
+            })
+				.bindPopup('<img src="'+running_on+'/projects/'+project_path.replace(" ", "")+"/project_images/"+planes[i][0]+'"><div class="remove_this">Remove</div>')
+				.addTo(map);
+		}
+
+        //map.panTo(new L.LatLng(latitude, longitude));
+        
+
+        
+
+    }
+
+    jQuery('.leaflet-marker-pane img').click(function(){
+        jQuery('.leaflet-marker-pane img').removeClass('selected_mark');
+        jQuery(this).addClass('selected_mark'); 
+    });
+
+    jQuery(document).on('click','.remove_this',function(){
+        
+        //alert('AA');
+        jQuery('.leaflet-popup-pane div').remove();
+        jQuery('.selected_mark').remove();
+        jQuery('a.leaflet-popup-close-button').click();
+
+    });
     // Function that checks if stiched image exists and than draw it on map
     function draw_stiched_image(){
         const fs = require('fs');
@@ -1356,18 +1502,9 @@ app.use(express.urlencoded({limit: '50mb'}));
 
         //file exists can draw
         var imageUrl = running_on+'/projects/'+project_path.replace(" ", "")+'/stiched_images/stiched.png',
-        //var imageUrl = 'C://users/keglezos/desktop/test.png',
-
-        /* 
-        πανω: 40.57421474094349, 22.99714166131528
-        κατω: 40.57170592118361, 23.000285736115654
-        */
         
-        
-        //var bounds = L.bounds([{lat: 40.57421474094349, lng:22.99714166131528},{lat: 40.57170592118361, lng: 23.000285736115654}]);
-        //var bounds = L.bounds( {lat: 40.57421474094349, lng:22.99714166131528},{lat: 40.57170592118361, lng: 23.000285736115654});
         cimageBounds = L.bounds([[40.573994502284826, 22.997514351202266],[40.57201471549072, 23.00005946100994]]);
-        console.log(cimageBounds.getCenter());
+        //console.log(cimageBounds.getCenter());
         imageBounds = [cimageBounds.getCenter(), [40.573994502284826, 22.997514351202266],[40.57201471549072, 23.00005946100994]];
         L.imageOverlay(imageUrl, imageBounds).addTo(map);
 
@@ -1376,8 +1513,12 @@ app.use(express.urlencoded({limit: '50mb'}));
         })
     }
 
+    draw_photo_indices();
     // Function That Draws Photo Indices 
     function draw_photo_indices(){
+
+        // Delete Old
+        jQuery('ul.navbar-nav.mb-md-3.collapsed.project_gallery_render div').remove();
         
         // prepare today date in order to find the folder
         var date = new Date();
@@ -1385,9 +1526,57 @@ app.use(express.urlencoded({limit: '50mb'}));
 
         //console.log(correct_date);
 
+        const fs = require('fs');
+        const path = require('path');
+        var running_on = path.resolve(__dirname);
+        if(load_project_indeces_file() != 0){
 
-    }
+            //console.log(running_on + '/projects/' +project_path.replace(" ", "") + '/rgb_vls_results/Resulted_Vis_image_representations/');
+        fs.readdir(running_on + '/projects/' +project_path.replace(" ", "") + '/rgb_vls_results/Resulted_Vis_image_representations/', (err, files) => {
+
+            files.forEach(file => {
+            
+                console.log(file);    
+                jQuery('ul.navbar-nav.mb-md-3.collapsed.project_gallery_render').append('<div id="" class="button_full date_indeces">'+file+'</div>');
+                localStorage.setItem("last_scan_indeces",file);
+            
     
+            });
+    
+        });
+
+        }else{
+            console.log('There is no photo indeces ');
+        }
+        
+    }
+
+
+    // Event Handlet in order to click on date on indeces and draw the selected images
+    jQuery(document).on('click','.button_full.date_indeces',function(){
+        //  $(this) = your current element that clicked.
+        // Storing date indeces on local storage
+        localStorage.setItem('date_indeces',jQuery(this).text());
+        jQuery('div#photo_picker_receiver_start').slideDown();
+        
+    });
+    
+    // Draw on click the correct Index Image
+    jQuery('.button_full_rgb_vls').click(function(){
+        const fs = require('fs');
+        const path = require('path');
+        var running_on = path.resolve(__dirname);
+        var get_correct_date_path = localStorage.getItem('date_indeces');
+        //console.log(running_on + '/projects/' + project_path.replace(" ", "") + '/rgb_vls_results/Resulted_Vis_image_representations/' + get_correct_date_path + '/' +jQuery(this).attr('index')+ '.png');
+        
+        var imageUrl = running_on + '/projects/' + project_path.replace(" ", "") + '/rgb_vls_results/Resulted_Vis_image_representations/' + get_correct_date_path + '/' +jQuery(this).attr('index')+ '.png',
+        
+        cimageBounds = L.bounds([[40.573994502284826, 22.997514351202266],[40.57201471549072, 23.00005946100994]]);
+        //console.log(cimageBounds.getCenter());
+        imageBounds = [cimageBounds.getCenter(), [40.573994502284826, 22.997514351202266],[40.57201471549072, 23.00005946100994]];
+        L.imageOverlay(imageUrl, imageBounds).addTo(map);
+    
+    });
 
 
     // initialise function Export Project 
@@ -1424,5 +1613,11 @@ app.use(express.urlencoded({limit: '50mb'}));
         // Clear all markers from the images toolbox
         console.log('working');
     }
+
+
+
+    // MQTT CLIENT DRONE COMMUNICATION
+    // Connect w the drone mqtt
+
 
 });

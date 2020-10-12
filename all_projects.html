@@ -271,6 +271,8 @@ jQuery(document).ready(function() {
         var long = parseFloat(jQuery(this).attr('long'));
         var lat = parseFloat(jQuery(this).attr('lat'));
 
+        localStorage.setItem("LoadedProjectCenter",long+","+lat);
+
         //map.panTo(new L.LatLng(lat, long), 14);
         //console.log(lat,long);
         map.setView([lat,long], 18);
