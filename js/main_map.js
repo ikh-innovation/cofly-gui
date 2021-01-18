@@ -1,5 +1,9 @@
 //var map = L.mapbox.map('map').setView([38.023349, 23.744271], 14);
-var map = L.mapbox.map('map').setView([40.57300986880264, 22.99893490662799], 25);
+var accessToken = "pk.eyJ1IjoiY29mbHliYiIsImEiOiJja2sybjBtcjExMzNwMm5vNTd6dDFoNTVsIn0.MZttxhCpctPxyPZw7KC16Q";
+L.mapbox.accessToken = accessToken;
+var map = L.mapbox.map("map").setView([40.595409521631176,23.039895966293173], 13);
+
+
 //var map = L.mapbox.map('map').setView([40.595409521631176,23.039895966293173], 18);
 //var map = L.mapbox.map('map').setView([40.595409521631176,23.039895966293173], 18);
 
@@ -8,13 +12,15 @@ var map = L.mapbox.map('map').setView([40.57300986880264, 22.99893490662799], 25
 
 // Add layers to the map
 L.control.layers({
-    'Satellite Map': L.mapbox.tileLayer('bobbysud.map-l4i2m7nd', {
+    'Satellite Map': L.mapbox.tileLayer('mapbox.satellite', {
         detectRetina: true
     }).addTo(map),
-    'Terrain Map': L.mapbox.tileLayer('bobbysud.i2pfp2lb', {
+    'Terrain Map': L.mapbox.tileLayer('mapbox.mapbox-terrain-v2', {
         detectRetina: true
     })
 }).addTo(map);
+
+
 
 var featureGroup = L.featureGroup().addTo(map);
 
