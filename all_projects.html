@@ -19,13 +19,20 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 
     
-        <!--Add mapbox.js -->
-    <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.2/mapbox.css' rel='stylesheet' />
+    <!--Add mapbox.js -->
+    <script src="https://api.tiles.mapbox.com/mapbox.js/v3.3.1/mapbox.js"></script>
+    <link
+      href="https://api.tiles.mapbox.com/mapbox.js/v3.3.1/mapbox.css"
+      rel="stylesheet"
+    />
+
 
     <!--Add draw plugin -->
-    <link rel='stylesheet' href='http://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.css' />
-    <script src='http://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.js'></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
     <style type="text/css">
 #map {
     position: absolute;
@@ -161,15 +168,17 @@ div#load_this_project div {
     </div>
     <!-- <script src="js/main_script.js"></script> -->
         <script>
+        var accessToken = "pk.eyJ1IjoiY29mbHliYiIsImEiOiJja2sybjBtcjExMzNwMm5vNTd6dDFoNTVsIn0.MZttxhCpctPxyPZw7KC16Q";
+        L.mapbox.accessToken = accessToken;
         var map = L.mapbox.map('map')
             .setView([38.6008630095356,24.187002848625298], 7);
 
         // Add layers to the map
         L.control.layers({
-            'Satellite Map': L.mapbox.tileLayer('bobbysud.map-l4i2m7nd', {
+            'Satellite Map': L.mapbox.tileLayer('mapbox.satellite', {
                 detectRetina: true
             }).addTo(map),
-            'Terrain Map': L.mapbox.tileLayer('bobbysud.i2pfp2lb', {
+            'Terrain Map': L.mapbox.tileLayer('mapbox.mapbox-terrain-v2', {
                 detectRetina: true
             })
         }).addTo(map);

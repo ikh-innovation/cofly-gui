@@ -238,15 +238,17 @@ jQuery(document).ready(function() {
 
 
     // Initialize map
+    var accessToken = "pk.eyJ1IjoiY29mbHliYiIsImEiOiJja2sybjBtcjExMzNwMm5vNTd6dDFoNTVsIn0.MZttxhCpctPxyPZw7KC16Q";
+    L.mapbox.accessToken = accessToken;
     var map = L.mapbox.map('map').setView([parseFloat(clean_center[1]), parseFloat(clean_center[0])], 17);
 
 
     // Add layers to the map
     L.control.layers({
-        'Satellite Map': L.mapbox.tileLayer('bobbysud.map-l4i2m7nd', {
+        'Satellite Map': L.mapbox.tileLayer('mapbox.satellite', {
             detectRetina: true
         }).addTo(map),
-        'Terrain Map': L.mapbox.tileLayer('bobbysud.i2pfp2lb', {
+        'Terrain Map': L.mapbox.tileLayer('mapbox.mapbox-terrain-v2', {
             detectRetina: true
         })
     }).addTo(map);
