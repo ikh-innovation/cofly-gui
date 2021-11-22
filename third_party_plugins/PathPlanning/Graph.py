@@ -1,7 +1,8 @@
 # Python program for Kruskal's algorithm to find
 # Minimum Spanning Tree of a given connected,
 # undirected and weighted graph
-class Graph(object):
+
+class Graph_Kruskal(object):
     def __init__(self, vertices):
         self.adjMatrix = []
         self.V = vertices  # No. of vertices
@@ -78,7 +79,7 @@ class Graph(object):
             x = self.find(parent, u)
             y = self.find(parent, v)
 
-            # If including this edge does't cause cycle,
+            # If including this edge doesn't cause cycle,
             # include it in result and increment the index
             # of result for next edge
             if x != y:
@@ -118,4 +119,3 @@ class Graph(object):
         for row in self.adjMatrix:
             for val in row:
                 print('{:4}'.format(val)),
-            print

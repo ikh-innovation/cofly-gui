@@ -1,6 +1,6 @@
 {
  "argv": [
-  "C:\\Users\\maria\\Anaconda3\\python.exe",
+  "C:/Users/giwrg/anaconda3\\python.exe",
   "-m",
   "ipykernel_launcher",
   "-f",

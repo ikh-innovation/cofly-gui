@@ -1,8 +1,8 @@
 {%- extends 'display_priority.tpl' -%}
-
+{% from 'celltags.tpl' import celltags %}
 
 {% block codecell %}
-<div class="cell border-box-sizing code_cell rendered">
+<div class="cell border-box-sizing code_cell rendered{{ celltags(cell) }}">
 {{ super() }}
 </div>
 {%- endblock codecell %}
@@ -75,7 +75,7 @@
 {% endblock output %}
 
 {% block markdowncell scoped %}
-<div class="cell border-box-sizing text_cell rendered">
+<div class="cell border-box-sizing text_cell rendered{{ celltags(cell) }}">
 {%- if resources.global_content_filter.include_input_prompt-%}
     {{ self.empty_in_prompt() }}
 {%- endif -%}
@@ -155,6 +155,10 @@ height={{ height }}
 {%- if output | get_metadata('unconfined', 'image/png') %}
 class="unconfined"
 {%- endif %}
+{%- set alttext=(output | get_metadata('alt', 'image/png')) or (cell | get_metadata('alt')) -%}
+{%- if alttext is not none %}
+alt="{{ alttext }}"
+{%- endif %}
 >
 </div>
 {%- endblock data_png %}
@@ -176,6 +180,10 @@ height={{ height }}
 {%- endif %}
 {%- if output | get_metadata('unconfined', 'image/jpeg') %}
 class="unconfined"
+{%- endif %}
+{%- set alttext=(output | get_metadata('alt', 'image/jpeg')) or (cell | get_metadata('alt')) -%}
+{%- if alttext is not none %}
+alt="{{ alttext }}"
 {%- endif %}
 >
 </div>

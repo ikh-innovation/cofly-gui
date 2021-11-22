@@ -1,223 +1,67 @@
+"""
+# Created by emmarapt.
+"""
+
+from Intersection import Pointpattern, doIntersect
+
 import math
-from geopy.distance import great_circle
+import numpy as np
 
 
-def calculate_initial_compass_bearing(pointAlat, pointAlon, pointBlat, pointBlon):
-    lat1 = math.radians(pointAlat)
-    lat2 = math.radians(pointBlat)
-
-    diffLong = math.radians(pointBlon - pointAlon)
-
-    x = math.sin(diffLong) * math.cos(lat2)
-    y = math.cos(lat1) * math.sin(lat2) - (math.sin(lat1)
-                                           * math.cos(lat2) * math.cos(diffLong))
-
-    initial_bearing = math.atan2(x, y)
-
-    # Now we have the initial bearing but math.atan2 return values
-
-    # The solution is to normalize the initial bearing as shown below
-    initial_bearing = math.degrees(initial_bearing)
-    compass_bearing = (initial_bearing + 360) % 360
-
-    return compass_bearing
-
-
+# Circumnavigation clockwise --------------------------------------------------
 class Pattern(object):
-    # pattern for solving hamiltonian problem in Polynomial time -------------------------------------------------------
-    def __init__(self, numberofwaypoints, MSTresult, x, subcells, flight_direction):
+    # pattern to solve hamiltonian path problem in linear time
+    def __init__(self, numberofwaypoints, MSTresult, megacells, subcells, stepsize):
         self.numberofwaypoints = numberofwaypoints
         self.MSTresult = MSTresult
-        self.x = x
+        self.megacells = megacells
         self.subcells = subcells
-        self.flight_direction = flight_direction
+        self.stepsize = stepsize
+
 
     def patternforHamiltonianpath(self):
 
-        # Nested list comprehension
-        pattern = [[0 for column in range(self.numberofwaypoints)] \
-                   for row in range(self.numberofwaypoints)]
+        Adj_subcells = np.zeros((self.numberofwaypoints, self.numberofwaypoints))
+        for i in range(len(self.subcells)):
+            p1 = Pointpattern(self.subcells[i][0], self.subcells[i][1])
+            for j in range(len(self.subcells)):
+                if round(math.sqrt(((self.subcells[i][0] - self.subcells[j][0]) ** 2) + (
+                        (self.subcells[i][1] - self.subcells[j][1]) ** 2))) == round(self.stepsize / 2) or round(
+                    math.sqrt(((self.subcells[i][0] - self.subcells[j][0]) ** 2) + (
+                            (self.subcells[i][1] - self.subcells[j][1]) ** 2))) == round(self.stepsize / 2) - 1 or round(
+                    math.sqrt(((self.subcells[i][0] - self.subcells[j][0]) ** 2) + (
+                            (self.subcells[i][1] - self.subcells[j][1]) ** 2))) == round(self.stepsize / 2) + 1:
 
-        # create an Adj matriself.x for self.subcells
+                    intersection = []
 
-        for i in range(self.numberofwaypoints):
-            for j in range(self.numberofwaypoints):
+                    q1 = Pointpattern(self.subcells[j][0], self.subcells[j][1])
+                    for u, v, weight in self.MSTresult:
+                        p2 = Pointpattern(self.megacells[u][0], self.megacells[u][1])
+                        q2 = Pointpattern(self.megacells[v][0], self.megacells[v][1])
+                        if doIntersect(p1, q1, p2, q2) is False:
+                            intersection.append(False)
+                        else:
+                            intersection.append(True)
 
-                if i != j:
-                    if (round(great_circle((self.subcells[i][0], self.subcells[i][1]),
-                                           (self.subcells[j][0], self.subcells[j][1])).meters) == round(
-                        great_circle((self.subcells[0][0], self.subcells[0][1]),
-                                     (self.subcells[1][0], self.subcells[1][1])).meters)) or (round(
-                        great_circle((self.subcells[i][0], self.subcells[i][1]),
-                                     (self.subcells[j][0], self.subcells[j][1])).meters) == round(
-                        great_circle((self.subcells[0][0], self.subcells[0][1]),
-                                     (self.subcells[1][0], self.subcells[1][1])).meters) + 1) or (round(
-                        great_circle((self.subcells[i][0], self.subcells[i][1]),
-                                     (self.subcells[j][0], self.subcells[j][1])).meters) == round(
-                        great_circle((self.subcells[0][0], self.subcells[0][1]),
-                                     (self.subcells[1][0], self.subcells[1][1])).meters) - 1) or (round(
-                        great_circle((self.subcells[i][0], self.subcells[i][1]),
-                                     (self.subcells[j][0], self.subcells[j][1])).meters) == round(
-                        great_circle((self.subcells[0][0], self.subcells[0][1]),
-                                     (self.subcells[1][0], self.subcells[1][1])).meters) - 2) or (round(
-                        great_circle((self.subcells[i][0], self.subcells[i][1]),
-                                     (self.subcells[j][0], self.subcells[j][1])).meters) == round(
-                        great_circle((self.subcells[0][0], self.subcells[0][1]),
-                                     (self.subcells[1][0], self.subcells[1][1])).meters) + 2) or (round(
-                        great_circle((self.subcells[i][0], self.subcells[i][1]),
-                                     (self.subcells[j][0], self.subcells[j][1])).meters) == round(
-                        great_circle((self.subcells[0][0], self.subcells[0][1]),
-                                     (self.subcells[1][0], self.subcells[1][1])).meters) + 3) or (round(
-                        great_circle((self.subcells[i][0], self.subcells[i][1]),
-                                     (self.subcells[j][0], self.subcells[j][1])).meters) == round(
-                        great_circle((self.subcells[0][0], self.subcells[0][1]),
-                                     (self.subcells[1][0], self.subcells[1][1])).meters) - 3):
-                        pattern[i][j] = 1
-                        pattern[j][i] = 1
+                    if all(elem is False for elem in intersection):
+                        # find where they belong
+                        for k in range(len(self.megacells)):
+                            if round(math.sqrt(((self.subcells[i][0] - self.megacells[k][0]) ** 2) + (
+                                    (self.subcells[i][1] - self.megacells[k][1]) ** 2))) == round((math.sqrt(2) * self.stepsize) / 4):
+                                megacell_1 = k
+                            if round(math.sqrt(((self.subcells[j][0] - self.megacells[k][0]) ** 2) + (
+                                    (self.subcells[j][1] - self.megacells[k][1]) ** 2))) == round((math.sqrt(2) * self.stepsize) / 4):
+                                megacell_2 = k
 
-        for u, v, weight in self.MSTresult:
-            if weight == 0 or weight == 1:
+                        if megacell_1 == megacell_2:
+                            Adj_subcells[i][j] = 1
+                            Adj_subcells[j][i] = 1
+                        elif megacell_1 != megacell_2:
+                            if [megacell_1, megacell_2, 0] or [megacell_2, megacell_1, 0] in self.MSTresult:
+                                Adj_subcells[i][j] = 1
+                                Adj_subcells[j][i] = 1
+                else:
+                    Adj_subcells[i][j] = 0
+                    Adj_subcells[j][i] = 0
 
-                if round(calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                           (self.x[v][1]))) == (
-                        90 + self.flight_direction) % 360 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (90 + self.flight_direction) % 360) - 1 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (90 + self.flight_direction) % 360) + 1 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (90 + self.flight_direction) % 360) - 2 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (90 + self.flight_direction) % 360) + 2 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (90 + self.flight_direction) % 360) + 3 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (90 + self.flight_direction) % 360) - 3 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (270 + self.flight_direction) % 360 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (270 + self.flight_direction) % 360) - 1 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (270 + self.flight_direction) % 360) + 1 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (270 + self.flight_direction) % 360) - 2 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (270 + self.flight_direction) % 360) + 2 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (270 + self.flight_direction) % 360) + 3 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == ((270 + self.flight_direction) % 360) - 3:
-
-                    for i in range(self.numberofwaypoints):
-                        if round(
-                                calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.subcells[i][0]),
-                                                                  (self.subcells[i][1]))) == (
-                                135 + self.flight_direction) % 360:
-                            for j in range(self.numberofwaypoints):
-                                if round(
-                                        calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]),
-                                                                          (self.subcells[j][0]),
-                                                                          (self.subcells[j][
-                                                                              1]))) == (
-                                        45 + self.flight_direction) % 360:
-                                    pattern[i][j] = 0
-                                    pattern[j][i] = 0
-
-                    for i in range(self.numberofwaypoints):
-                        if round(
-                                calculate_initial_compass_bearing((self.x[v][0]), (self.x[v][1]), (self.subcells[i][0]),
-                                                                  (self.subcells[i][1]))) == (
-                                225 + self.flight_direction) % 360:
-                            for j in range(self.numberofwaypoints):
-                                if round(
-                                        calculate_initial_compass_bearing((self.x[v][0]), (self.x[v][1]),
-                                                                          (self.subcells[j][0]),
-                                                                          (self.subcells[j][
-                                                                              1]))) == (
-                                        315 + self.flight_direction) % 360:
-                                    pattern[i][j] = 0
-                                    pattern[j][i] = 0
-
-                if round(calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                           (self.x[v][1]))) == (
-                        0 + self.flight_direction) % 360 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (0 + self.flight_direction) % 360) + 1 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (0 + self.flight_direction) % 360) - 1 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (0 + self.flight_direction) % 360) - 2 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (0 + self.flight_direction) % 360) + 2 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (0 + self.flight_direction) % 360) + 3 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (0 + self.flight_direction) % 360) - 3 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (180 + self.flight_direction) % 360 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (180 + self.flight_direction) % 360) + 1 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (180 + self.flight_direction) % 360) - 1 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (180 + self.flight_direction) % 360) + 2 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (180 + self.flight_direction) % 360) - 2 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == (
-                        (180 + self.flight_direction) % 360) - 3 or round(
-                    calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.x[v][0]),
-                                                      (self.x[v][1]))) == ((180 + self.flight_direction) % 360) + 3:
-
-                    for i in range(self.numberofwaypoints):
-                        if round(
-                                calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]), (self.subcells[i][0]),
-                                                                  (self.subcells[i][1]))) == (
-                                45 + self.flight_direction) % 360:
-                            for j in range(self.numberofwaypoints):
-                                if round(
-                                        calculate_initial_compass_bearing((self.x[u][0]), (self.x[u][1]),
-                                                                          (self.subcells[j][0]),
-                                                                          (self.subcells[j][
-                                                                              1]))) == (
-                                        315 + self.flight_direction) % 360:
-                                    pattern[i][j] = 0
-                                    pattern[j][i] = 0
-
-                    for i in range(self.numberofwaypoints):
-                        if round(
-                                calculate_initial_compass_bearing((self.x[v][0]), (self.x[v][1]), (self.subcells[i][0]),
-                                                                  (self.subcells[i][1]))) == (
-                                135 + self.flight_direction) % 360:
-                            for j in range(self.numberofwaypoints):
-                                if round(
-                                        calculate_initial_compass_bearing((self.x[v][0]), (self.x[v][1]),
-                                                                          (self.subcells[j][0]),
-                                                                          (self.subcells[j][
-                                                                              1]))) == (
-                                        225 + self.flight_direction) % 360:
-                                    pattern[i][j] = 0
-                                    pattern[j][i] = 0
-
-        return pattern
+        return Adj_subcells
