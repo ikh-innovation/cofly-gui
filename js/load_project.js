@@ -2,7 +2,8 @@ const { off } = require('process');
 
 jQuery(document).ready(function() {
 
-        
+        // Variable for mission mode 
+        var mission_mode = 1;
         if(localStorage.getItem("MQTT_HOST") == null){
             localStorage.setItem("MQTT_HOST","");
             localStorage.setItem("MQTT_PORT","");
@@ -92,11 +93,10 @@ jQuery(document).ready(function() {
 
                 
                 image_list.push('IMG_00'+image_id+'.jpg '+camera_topic.latitude+' '+camera_topic.longitude+' '+camera_topic.altitude);
-                console.log(image_list);
+                
 
                 /* 
                     image_name Lat Lon Altitude. Πχ:
-
                 */
 
                 const uuidv4 = require('uuid/v4'); // I chose v4 ‒ you can select others
@@ -223,7 +223,8 @@ jQuery(document).ready(function() {
                     var plan_name = localStorage.getItem("LoadProject");
                     fs.writeFileSync(running_on+'/projects/' + plan_name.trim() + '/paths/image_list.txt', text, "utf8");
                 }else if(mission_status == "COMPLETED"){
-                    
+                    mission_mode = 2;
+                    console.log('Change Mode to 2 [ Calculate the path from problematic areas ]');
                     let text = image_list.join('\n');
                     var running_on = path.resolve(__dirname);
                     var plan_name = localStorage.getItem("LoadProject");
@@ -621,7 +622,7 @@ app.use(express.urlencoded({limit: '50mb'}));
     console.log(final_path);
     var executablePath = final_path;
     var running_on = path.resolve(__dirname);
-    var parameters = [running_on.replace(/\\/g, "/") + "/projects/"+localStorage.getItem("LoadProject").trim()+"/map_data.geojson", running_on.replace(/\\/g, "/") +"/projects/"+localStorage.getItem("LoadProject").trim()+"/disabled_paths.geojson", jQuery('input#direction_show').val().slice(0,-1), jQuery('input#scanning_distance_now').val().slice(0,-1),1,jQuery('input#drone_speed').val().replace("m/s","")];
+    var parameters = [running_on.replace(/\\/g, "/") + "/projects/"+localStorage.getItem("LoadProject").trim()+"/map_data.geojson", running_on.replace(/\\/g, "/") +"/projects/"+localStorage.getItem("LoadProject").trim()+"/disabled_paths.geojson", jQuery('input#direction_show').val().slice(0,-1), jQuery('input#scanning_distance_now').val().slice(0,-1),mission_mode,jQuery('input#drone_speed').val().replace("m/s","")];
     //var parameters = ["./projects/"+localStorage.getItem("LoadProject").trim()+"/map_data.geojson"];
         console.log(parameters)
     child(executablePath,parameters, function(err, data) {
@@ -741,7 +742,7 @@ app.use(express.urlencoded({limit: '50mb'}));
                 var running_on = path.resolve(__dirname);
                 // The new parameters are Calculated Tifs from Index Calculation + Txt file with photo names from Docker Stiching 
                 //var parameters = [running_on.replace(/\\/g, "/") + "/projects/"+localStorage.getItem("LoadProject").trim()+"/docker_stitching/project/odm_orthophoto/odm_orthophoto.tif", running_on.replace(/\\/g, "/") +"/projects/"+localStorage.getItem("LoadProject").trim()+"/"+localStorage.getItem("LoadProject").trim()+'/project/',running_on.replace(/\\/g, "/") + "/projects/"+localStorage.getItem("LoadProject").trim()+"/docker_stitching/project/images/"];
-                var parameters = [running_on.replace(/\\/g, "/") + "/projects/"+localStorage.getItem("LoadProject").trim()+"/"+localStorage.getItem("LoadProject").trim()+"/project/", running_on.replace(/\\/g, "/") +"/projects/"+localStorage.getItem("LoadProject").trim()+"/docker_stitching/project/img_list.txt"];
+                var parameters = [running_on.replace(/\\/g, "/") + "/projects/"+localStorage.getItem("LoadProject").trim()+"/"+localStorage.getItem("LoadProject").trim()+"/project/", running_on.replace(/\\/g, "/") +"/projects/"+localStorage.getItem("LoadProject").trim()+"/paths/image_list.txt"];
                 //var parameters = ["./projects/"+localStorage.getItem("LoadProject").trim()+"/map_data.geojson"];
                     console.log(parameters)
                 child(executablePath,parameters, function(err, data) {
@@ -779,7 +780,7 @@ app.use(express.urlencoded({limit: '50mb'}));
                         duration: 5000
                       });
                     //alert('Now Draw Photo Indices');
-                    Draw_Centers_OnMap();
+                    //Draw_Centers_OnMap();
 
                 });
     }
@@ -1484,8 +1485,8 @@ app.use(express.urlencoded({limit: '50mb'}));
                 //ncp.limit = 16;
 
                 // images source
-                var source = "C:/Users/ENGLEZOS/Desktop/images";
-                //var source = localStorage.getItem("Save_Image_Path");
+                //var source = "C:/Users/ENGLEZOS/Desktop/images";
+                var source = localStorage.getItem("Save_Image_Path");
 
                 const path = require('path');
                 var running_on = path.resolve(__dirname);
@@ -1731,9 +1732,10 @@ app.use(express.urlencoded({limit: '50mb'}));
     }
 
     // Demo prosposes json files reading TO BE REMOVED
-    Draw_Centers_OnMap();
-    function Draw_Centers_OnMap(){
-
+    //Draw_Centers_OnMap();
+    function Draw_Centers_OnMap(name_of_index){
+        //alert(name_of_index);
+        jQuery('img[title="Problem Area"]').remove();
         try {
 
         const pathsb = require('path');
@@ -1741,47 +1743,40 @@ app.use(express.urlencoded({limit: '50mb'}));
         var path_of_json = running_on+'/projects/'+project_path.replace(" ", "")+'/'+project_path.replace(" ", "")+'/project/';
         
         // check if files are created and draw them otherwise return and do nothing
+        
         if(!fs.existsSync(path_of_json + '/GLI.json')) {
             console.log("Centers has not excecuted so far");
             return
           }
-            
-        
-        //console.log(path_of_json);
-        //var exg_centers = fs.readFileSync(path_of_json + '/ExG_centers.json', 'utf8');
-        //var exg_exr_centers = fs.readFileSync(path_of_json + '/ExG-ExR_centers.json', 'utf8');
-        var gli_centers = fs.readFileSync(path_of_json + '/GLI.json', 'utf8');
-        var ngbdi_centers = fs.readFileSync(path_of_json + '/NGBDI.json', 'utf8');
-        var ngrdi_centers = fs.readFileSync(path_of_json + '/NGRDI.json', 'utf8');
-        //var savi_green_centers = fs.readFileSync(path_of_json + '/SAVI-GREEN_centers.json', 'utf8');
-        var vari_centers = fs.readFileSync(path_of_json + '/VARI.json', 'utf8');
+         
+          if(name_of_index == "GLI"){
+            //alert('dfsdfsdf');
+            var gli_centers = fs.readFileSync(path_of_json + '/GLI.json', 'utf8');
+            console.log(gli_centers);
+            var gli_centers_json = JSON.parse(gli_centers);
 
-        //var exg_centers_json = JSON.parse(exg_centers);
-        //var exg_exr_centers_json = JSON.parse(exg_exr_centers);
-        var gli_centers_json = JSON.parse(gli_centers);
-        var ngbdi_centers_json = JSON.parse(ngbdi_centers);
-        var ngrdi_centers_json = JSON.parse(ngrdi_centers);
-        //var savi_green_centers_json = JSON.parse(savi_green_centers);
-        var vari_centers_json = JSON.parse(vari_centers);
-
-        console.log(gli_centers_json);
-
-        /* CREATING MARKERS FOR GLI CENTERS */
+                    /* CREATING MARKERS FOR GLI CENTERS */
 
         for(var item in gli_centers_json) {
-            var lat = gli_centers_json[item]["Lon"];
-            var lon = gli_centers_json[item]["Lat"];
+            var lat = gli_centers_json[item]["Lat"];
+            var lon = gli_centers_json[item]["Lon"];
             var img_near = gli_centers_json[item]["Nearest_image"];
             
             marker = new L.marker([lon,lat],{
                 title: 'Problem Area',
                 icon: alert_indeces
-            })
-				.bindPopup('<img src="'+running_on+'/projects/'+project_path.replace(" ", "")+"/docker_stitching/project/images/"+img_near+'"><div class="remove_this">Remove</div>')
-				.addTo(map);
+            }).bindPopup('<img src="'+running_on+'/projects/'+project_path.replace(" ", "")+"/docker_stitching/project/images/"+img_near+'"><div class="remove_this">Remove</div>').addTo(map);
+                //console.log(lat,lon);
 
           }
 
+
+         }else if(name_of_index == "NGBDI"){
+            //alert('NGBDI');
+            var ngbdi_centers = fs.readFileSync(path_of_json + '/NGBDI.json', 'utf8');
+            var ngbdi_centers_json = JSON.parse(ngbdi_centers);
+
+            
         /* CREATING MARKERS FOR NGBDI CENTERS */
         for(var item in ngbdi_centers_json) {
             var lat = ngbdi_centers_json[item]["Lat"];
@@ -1797,6 +1792,13 @@ app.use(express.urlencoded({limit: '50mb'}));
 
           }
 
+
+
+         }else if(name_of_index == "NGRDI"){
+
+        var ngrdi_centers = fs.readFileSync(path_of_json + '/NGRDI.json', 'utf8');     
+        var ngrdi_centers_json = JSON.parse(ngrdi_centers);
+
          /* CREATING MARKERS FOR ngrdi_centers_json CENTERS */
          for(var item in ngrdi_centers_json) {
             var lat = ngrdi_centers_json[item]["Lat"];
@@ -1811,24 +1813,29 @@ app.use(express.urlencoded({limit: '50mb'}));
 				.addTo(map);
 
           }   
-          
-          /* CREATING MARKERS FOR vari CENTERS */
-          for(var item in vari_centers_json) {
-              var lat = vari_centers_json[item]["Lat"];
-              var lon = vari_centers_json[item]["Lon"];
-              var img_near = vari_centers_json[item]["Nearest_image"];
-              
-              marker = new L.marker([lon,lat],{
-                  title: 'Problem Area',
-                  icon: alert_indeces
-              })
-                  .bindPopup('<img src="'+running_on+'/projects/'+project_path.replace(" ", "")+"/docker_stitching/project/images/"+img_near+'"><div class="remove_this">Remove</div>')
-                  .addTo(map);
-  
-            }
 
 
-           
+         }else if(name_of_index == "VARI"){
+
+            var vari_centers = fs.readFileSync(path_of_json + '/VARI.json', 'utf8');
+            var vari_centers_json = JSON.parse(vari_centers);
+    
+              /* CREATING MARKERS FOR vari CENTERS */
+              for(var item in vari_centers_json) {
+                  var lat = vari_centers_json[item]["Lat"];
+                  var lon = vari_centers_json[item]["Lon"];
+                  var img_near = vari_centers_json[item]["Nearest_image"];
+                  
+                  marker = new L.marker([lon,lat],{
+                      title: 'Problem Area',
+                      icon: alert_indeces
+                  })
+                      .bindPopup('<img src="'+running_on+'/projects/'+project_path.replace(" ", "")+"/docker_stitching/project/images/"+img_near+'"><div class="remove_this">Remove</div>')
+                      .addTo(map);
+      
+                }
+         }
+
           } catch (error) {
             console.error(error);
             
@@ -1938,7 +1945,7 @@ Lower right corner: 40.57197854729044, 22.99985538092048
     }
 
     /* Listener for remove rgb vls indeces from map */
-    jQuery(document).on("click","#remove_vls_from_map",function() {jQuery('img.calculated_rgb_vls_index').fadeOut();});
+    jQuery(document).on("click","#remove_vls_from_map",function() {jQuery('img.calculated_rgb_vls_index').fadeOut(); jQuery('img[title="Problem Area"]').remove();});
     
 
 
@@ -1964,7 +1971,24 @@ Lower right corner: 40.57197854729044, 22.99985538092048
         
         var img_name = jQuery(this).attr('index');
         var imageUrl = running_on + '/projects/' + project_path.replace(" ", "") + '/'+project_path.replace(" ", "")+'/project/'+img_name;
+        //alert('gg');
+        
+        if(jQuery(this).attr('index') == "GLI.png"){
+            Draw_Centers_OnMap('GLI');
+        }
 
+        if(jQuery(this).attr('index') == "NGBDI.png"){
+            Draw_Centers_OnMap('NGBDI');
+        }
+
+        if(jQuery(this).attr('index') == "NGRDI.png"){
+            Draw_Centers_OnMap('NGRDI');
+        }
+
+        if(jQuery(this).attr('index') == "VARI.png"){
+            Draw_Centers_OnMap('VARI');
+        }
+        
 
         // MUST READ FROM FILE BOUND BOX
         cimageBounds = L.bounds([[40.573994502284826, 22.997514351202266],[40.57201471549072, 23.00005946100994]]);
