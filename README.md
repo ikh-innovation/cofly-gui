@@ -1,77 +1,50 @@
-# CoFly GUI
+CoFly
+=====
+Project Description
+----------------------
+This paper presents a novel, low-cost, user-friendly Precision Agriculture platform that attempts to alleviate the drawbacks of limited battery life by carefully designing missions tailored to each field's specific, time-changing characteristics. The proposed system is capable of designing coverage missions for any type of UAVs, integrating field characteristics inside the resulting trajectory, such as irregular field shape and obstacles. The collected images are automatically processed to create detailed orthomosaics of the field and extract the corresponding vegetation indices. A novel mechanism is then introduced that automatically extracts possible problematic areas of the field and subsequently designs a follow-up UAV mission to acquire extra information on these regions. The toolchain is completed by employing a specifically designed deep learning module to detect weeds in the close-examination flight. For the development of such a deep-learning module, a new weeds dataset from the UAV's perspective, which is publicly available for download, was collected and annotated. All
+the above functionalities are enclosed into an open-source, end-to-end platform, named Cognitional Operations of micro Flying vehicles (CoFly). The effectiveness of the proposed system was tested and validated with extensive experimentation in
+agricultural fields with cotton in Larissa, Greece during two different crop sessions.
 
-CoFly development with Electron (formerly known as Atom Shell) is a free and open-source software framework developed and maintained by GitHub.
+How to build CoFly GUI
+----------------------
 
-It allows for the development of desktop GUI applications using web technologies: it combines the Chromium rendering engine and the Node. js runtime.
+First of all you must have already Node.js install on your local machine. You can download it free from the following link (Linux,Windows,OSX):
 
-CoFly is running third party plugins in order to complete tasks. Third party modules are prebuild in .exe format and was developed with python.
+`https://nodejs.org/en/download/`
 
-For demo propose, you are able to find all the necessary simulators in order to simulate a drone flight and be familiar with the program.
+Clone repository
+----------------
 
-## Installation
+when you have already install node.js clone CoFly GUI repository
 
-First of all download & install [Node.js](https://nodejs.org/en/download/). After installation of node js clone the repo visit with terminal and excecute commands.
+`git clone git@bitbucket.org:cofly_ikh/cofly_gui.git`
 
-Install all necessary dependecies
-```bash
-npm install
-```
-To run the GUI
-```bash
-npm start
-```
+Install all the necessary dependencies
+--------------------------------------
 
-## Usage
+Use node.js package manager in order to isntall the following dependencies
 
-Load / Create / Import 
+### Electron
 
+To install prebuilt Electron binaries, use npm. The preferred method is to install Electron as a development dependency in your app:
 
-![alt text](https://github.com/ikh-innovation/cofly-gui/blob/master/readme_images/main_screen.gif?raw=true?raw=true)
+`~PROJECT_PATH npm install electron --save-dev`
 
-Set your scanning 
+### Electron Packager
 
+This module requires Node.js 8.0 or higher to run. On macOS/Linux, the unzip program is required. On Windows, both .NET Framework 4.5 or higher and Powershell 3 or higher are required.
 
-![alt text](https://github.com/ikh-innovation/cofly-gui/blob/master/readme_images/field_selection.jpg?raw=true)
+`$ npm install electron-packager --save-dev`
 
-Set Obstacles & Calculate Drone 
+### Electron Express
 
+Node.js 0.10 or higher is required. Installation is done using the npm install command:
 
-![alt text](https://github.com/ikh-innovation/cofly-gui/blob/master/readme_images/obstacles_gid.gif?raw=true)
-![alt text](https://github.com/ikh-innovation/cofly-gui/blob/master/readme_images/calculated_map.jpg?raw=true)
-
-
-Excecute the mission
-
-
-![alt text](https://github.com/ikh-innovation/cofly-gui/blob/master/readme_images/mission_start.gif?raw=true)
-
-Finish Mission & 
-
-
-![alt text](https://github.com/ikh-innovation/cofly-gui/blob/master/readme_images/finish_scan_imerologio_agrou.gif?raw=true)
-
-
-Stiched Image
-
-![alt text](https://github.com/ikh-innovation/cofly-gui/blob/master/readme_images/stiching_photo.gif?raw=true)
-
-![alt text](https://github.com/ikh-innovation/cofly-gui/blob/master/readme_images/stiched_image.jpg?raw=true)
-
-Photo Indices
-
-
-![alt text](https://github.com/ikh-innovation/cofly-gui/blob/master/readme_images/photo_indeces.gif?raw=true)
-
-Problematic Areas
-
-
-![alt text](https://github.com/ikh-innovation/cofly-gui/blob/master/readme_images/alerts.gif?raw=true)
-
-
-
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
-
-## License
+`$ npm install express`  
+  
+Now you are ready to build the executable doing that by typing the following  
+  
+`$ electron-packager ./`  
+  
+> If you want just to run the project you should run npm start when you are on project directory
